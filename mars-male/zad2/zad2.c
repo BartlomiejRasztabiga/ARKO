@@ -15,10 +15,6 @@ int main() {
     for (; i < BUF_SIZE; ++i) {
         char current = buf[i];
 
-        if (current == '\0') {
-            break;
-        }
-
         if (current >= '0' && current <= '9') {
             current_size++;
         } else {
@@ -29,11 +25,10 @@ int main() {
             }
             current_size = 0;
         }
-    }
 
-    if (current_size > largest) {
-        largest_end = i;
-        largest_start = i - current_size;
+        if (current == '\0') {
+            break;
+        }
     }
 
     for (int j = largest_start; j < largest_end; ++j) {
