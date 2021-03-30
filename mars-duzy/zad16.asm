@@ -81,7 +81,6 @@ getc:						# no args
   	jr	$ra				# returns number of characters read (0 if end-of-file, negative if error).
   	
 print_buffer:
-						# Print buffer
   	la 	$a0, buffer 			# load the address into $a0
   	li 	$v0, 4				# print the string out
   	syscall
@@ -98,7 +97,6 @@ clear_buffer_loop:
 	sb	$zero, ($t8)			# else, store 0 at current char address
 	addiu	$t8, $t8, 1			# next char
 	j	clear_buffer_loop		# if not met end of string
-
 clear_buffer_return:
 	jr	$ra				# return
   
