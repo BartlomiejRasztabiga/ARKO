@@ -1,5 +1,6 @@
         .data
 .eqv	INPUT_BUF_LEN 16
+.eqv	INPUT_FILE_SIZE 1024
      
 file_name:
 	.asciiz "input.txt"
@@ -10,14 +11,14 @@ open_file_error_txt:
 read_file_error_txt:
 	.asciiz	"Error while reading the file"
 	
-mapping:					# mapping 2d array for 100 of max 32-chars labels
-	.space 3200
+mapping:					# mapping 2d array for 100 of 32:32:4  max 68-chars labels, 2x address + line number
+	.space 6800
 	
 content:
-	.space 3200
+	.space INPUT_FILE_SIZE
 	
 output_content:
-	.space 3200
+	.space INPUT_FILE_SIZE
 	
 buffer: 
 	.space INPUT_BUF_LEN
