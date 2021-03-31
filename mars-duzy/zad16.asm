@@ -12,7 +12,10 @@ mapping:					# mapping 2d array for 100 of max 32-chars labels
 	.space 3200
 	
 content:
-	.space 3200	
+	.space 3200
+	
+output_content:
+	.space 3200
 	
 buffer: 
 	.space 16
@@ -35,8 +38,9 @@ read_file_loop:
 	j 	handle_buffer
 	
 handle_buffer:
-	move	$a0, $s7			# put address of content to $a0, prepare for call
-	jal	copy_buffer_to_dest		# call copy_buffer_to_dest
+	la	$a0, buffer			# put address of buffer to $a0, prepare for call
+	move	$a1, $s7			# put address of content to $a1, prepare for call
+	jal	copy_src_to_dest		# call copy_buffer_to_dest
 	move	$s7, $v0			# store address of next free char at content
 	
 	jal	clear_buffer			# call clear_buffer, 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
@@ -46,7 +50,12 @@ handle_buffer:
 
 
 post_read_file_loop:
-	jal	print_content			# call print_content	
+	jal	print_content			# call print_content
+	
+						# first loop, gathering symbols
+						
+						# second loop, working on output_buffer
+	
 	j 	close_file
 	
 close_file:
@@ -121,18 +130,18 @@ clear_buffer_return:
 	jr	$ra				# return
 
 		
-copy_buffer_to_dest:				# takes address of destination as param
-	la	$t8, buffer			# address of buffer
-	move	$t9, $a0			# address of destination
-copy_buffer_loop:
+copy_src_to_dest:				# takes addresses of src and destination as params
+	move	$t8, $a0			# address of src
+	move	$t9, $a1			# address of destination
+copy_src_loop:
 	lb	$t7, ($t8)			# store buffer char in $t7
-	beqz	$t7, copy_buffer_return		# if met end of string, return
+	beqz	$t7, copy_src_return		# if met end of string, return
 	
-	sb	$t7, ($t9)			# else, store buffer char at destination address
-	addiu	$t8, $t8, 1			# next buffer char
+	sb	$t7, ($t9)			# else, store src char at destination address
+	addiu	$t8, $t8, 1			# next src char
 	addiu	$t9, $t9, 1			# next destination char
-	j copy_buffer_loop			# if not met end of string, repeat loop
-copy_buffer_return:
+	j copy_src_loop			# if not met end of string, repeat loop
+copy_src_return:
 	move	$v0, $t9
 	jr	$ra				# return new free char address of destination
 
