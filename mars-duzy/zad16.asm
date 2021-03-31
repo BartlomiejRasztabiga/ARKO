@@ -8,15 +8,23 @@ open_file_error_txt:
 read_file_error_txt:
 	.asciiz	"Error while reading the file"
 	
+mapping:					# mapping 2d array for 100 of max 32-chars labels
+	.space 3200
+	
+content:
+	.space 3200	
+	
 buffer: 
 	.space 10
         
         .text
 						# main flow:
+
 main:
   	jal	open_file			# call open_file
   	move	$t0, $v0			# store file descriptor in $t0	
   	bltz	$t0, open_file_error		# if eror occured, goto open_file_error
+  	la	$s7, content			# put address of content to $s7
 
 read_file_loop:
   	jal 	getc				# call getc
@@ -28,6 +36,12 @@ read_file_loop:
 	
 handle_buffer:
 	jal	print_buffer			# call print_buffer
+	
+	move	$a0, $s7			# put address of content to $a0, prepare for call
+	jal	copy_buffer_to_dest		# call copy_buffer_to_dest
+	move	$s7, $v0			# store address of last moved char at content
+	addiu	$s7, $s7, 1			# increment $s7, now it stores address of next free space at content
+	
 	jal	clear_buffer			# call clear_buffer
   	
   	j 	read_file_loop			# go back to read_file_loop
@@ -96,7 +110,24 @@ clear_buffer_loop:
 	
 	sb	$zero, ($t8)			# else, store 0 at current char address
 	addiu	$t8, $t8, 1			# next char
-	j	clear_buffer_loop		# if not met end of string
+	j	clear_buffer_loop		# if not met end of string, repeat loop
 clear_buffer_return:
 	jr	$ra				# return
+
+		
+copy_buffer_to_dest:				# takes address of destination as param
+	la	$t8, buffer			# address of buffer
+	move	$t9, $a0			# address of destination
+copy_buffer_loop:
+	lb	$t7, ($t8)			# store buffer char in $t7
+	beqz	$t7, copy_buffer_return		# if met end of string, return
+	
+	sb	$t7, ($t9)			# else, store buffer char at destination address
+	addiu	$t8, $t8, 1			# next buffer char
+	addiu	$t9, $t9, 1			# next destination char
+	j copy_buffer_loop			# if not met end of string, repeat loop
+copy_buffer_return:
+	move	$v0, $t9
+	jr	$ra				# return last char address of destination
+
   
