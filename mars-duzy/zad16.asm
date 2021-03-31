@@ -1,4 +1,6 @@
         .data
+.eqv	INPUT_BUF_LEN 16
+     
 file_name:
 	.asciiz "input.txt"
 	
@@ -18,7 +20,7 @@ output_content:
 	.space 3200
 	
 buffer: 
-	.space 16
+	.space INPUT_BUF_LEN
         
         .text
 						# main flow:
@@ -97,7 +99,7 @@ open_file:					# no args
 getc:						# no args
 	li 	$v0, 14       			# system call for read to file
   	la 	$a1, buffer   			# address of buffer to store file content
-  	li 	$a2, 16       			# buffer length
+  	li 	$a2, INPUT_BUF_LEN       	# buffer length
   	move 	$a0, $t0    			# put the file descriptor in $a0		
   	syscall          			# read from file
   	jr	$ra				# returns number of characters read (0 if end-of-file, negative if error).
