@@ -140,7 +140,7 @@ copy_src_loop:
 	sb	$t7, ($t9)			# else, store src char at destination address
 	addiu	$t8, $t8, 1			# next src char
 	addiu	$t9, $t9, 1			# next destination char
-	j copy_src_loop			# if not met end of string, repeat loop
+	j copy_src_loop				# if not met end of string, repeat loop
 copy_src_return:
 	move	$v0, $t9
 	jr	$ra				# return new free char address of destination
