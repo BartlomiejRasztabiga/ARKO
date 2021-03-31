@@ -35,20 +35,17 @@ read_file_loop:
 	j 	handle_buffer
 	
 handle_buffer:
-	jal	print_buffer			# call print_buffer
-	
 	move	$a0, $s7			# put address of content to $a0, prepare for call
 	jal	copy_buffer_to_dest		# call copy_buffer_to_dest
-	move	$s7, $v0			# store address of last moved char at content
-	addiu	$s7, $s7, 1			# increment $s7, now it stores address of next free space at content
+	move	$s7, $v0			# store address of next free char at content
 	
 	jal	clear_buffer			# call clear_buffer
   	
   	j 	read_file_loop			# go back to read_file_loop
 
 post_read_file_loop:
-						# TODO ADD LOGIC
-	j close_file
+	jal	print_content			# call print_content	
+	j 	close_file
 	
 close_file:
 						# Close the file 
@@ -100,6 +97,13 @@ print_buffer:
   	syscall
   	
   	jr 	$ra				# return
+  	
+print_content:
+  	la 	$a0, content			# load the address into $a0
+  	li 	$v0, 4				# print the string out
+  	syscall
+  	
+  	jr 	$ra				# return
 
 
 clear_buffer:
@@ -128,6 +132,6 @@ copy_buffer_loop:
 	j copy_buffer_loop			# if not met end of string, repeat loop
 copy_buffer_return:
 	move	$v0, $t9
-	jr	$ra				# return last char address of destination
+	jr	$ra				# return new free char address of destination
 
   
