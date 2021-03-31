@@ -15,7 +15,7 @@ content:
 	.space 3200	
 	
 buffer: 
-	.space 10
+	.space 16
         
         .text
 						# main flow:
@@ -39,9 +39,11 @@ handle_buffer:
 	jal	copy_buffer_to_dest		# call copy_buffer_to_dest
 	move	$s7, $v0			# store address of next free char at content
 	
-	jal	clear_buffer			# call clear_buffer
+	jal	clear_buffer			# call clear_buffer, 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
   	
   	j 	read_file_loop			# go back to read_file_loop
+  	
+
 
 post_read_file_loop:
 	jal	print_content			# call print_content	
@@ -86,7 +88,7 @@ open_file:					# no args
 getc:						# no args
 	li 	$v0, 14       			# system call for read to file
   	la 	$a1, buffer   			# address of buffer to store file content
-  	li 	$a2, 10       			# buffer length
+  	li 	$a2, 16       			# buffer length
   	move 	$a0, $t0    			# put the file descriptor in $a0		
   	syscall          			# read from file
   	jr	$ra				# returns number of characters read (0 if end-of-file, negative if error).
