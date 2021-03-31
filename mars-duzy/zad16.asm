@@ -17,9 +17,6 @@ mapping:					# mapping 2d array for 100 of 32:32:4  max 68-chars labels, 2x addr
 content:
 	.space INPUT_FILE_SIZE
 	
-output_content:
-	.space INPUT_FILE_SIZE
-	
 buffer: 
 	.space INPUT_BUF_LEN
         
