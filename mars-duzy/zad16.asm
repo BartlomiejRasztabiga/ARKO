@@ -15,7 +15,7 @@ buffer: 	.space INPUT_BUF_LEN
         .text
 main:
   	jal	read_file
-  	beqz	$v0, exit			# if error during read_file, goto exit
+  	bltz	$v0, exit			# if error during read_file, goto exit
 	j 	post_read_file			# TODO: delete
 	
 post_read_file:
@@ -57,7 +57,7 @@ read_file_loop:
   	jal 	getc				# call getc
   	move	$s1, $v0			# store num of read chars in $s1
   	
-  	beqz	$s1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
+  	beqz	$s1, read_file_ok		# if num_of_read_chars == 0, goto read_file_ok
   	bltz	$s1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
 
 	la	$a0, buffer			# put address of buffer to $a0, prepare for call
@@ -82,15 +82,24 @@ read_file_error:
 	
 	li	$v0, -1				# set error flag
   	j 	close_file			# goto close_file
-read_file_loop_ok:
+read_file_ok:
 	li	$v0, 0				# all good, no error flag set
-	j 	close_file			# goto close_file
+	j 	close_file			# goto close_file TODO: delete
 close_file:
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
   	
   	j 	read_file_loop_return		# TODO: delete	
 read_file_loop_return:
+	lw	$s2, 4($sp)			# pop $s2
+	add	$sp, $sp, 4			
+	lw	$s1, 4($sp)			# pop $s1
+	add	$sp, $sp, 4			
+	lw	$s0, 4($sp)			# pop $s0
+	add	$sp, $sp, 4			
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
+
 	jr	$ra				# return
   	
 # ============================================================================  	
