@@ -50,8 +50,14 @@ replace_labels:
 	la	$s3, content			# current char address
 replace_labels_loop:
 	lb	$s4, ($s3)			# current char
+	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
+	beq	$s4, '\n', end_of_word		# if LF, goto end_of_word 
 	beqz	$s4, replace_labels_return	# if NULL goto replace_labels_return
 	
+	j	next_char			# goto next_char
+end_of_word:
+	j 	next_char			# TODO for now
+next_char:
 	addiu	$s3, $s3, 1			# next char address
 	j	replace_labels_loop		# go back to loop
 	
