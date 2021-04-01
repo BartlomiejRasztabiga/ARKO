@@ -13,30 +13,9 @@ output_content:	.space INPUT_FILE_SIZE
 buffer: 	.space INPUT_BUF_LEN
         
         .text
-						# main flow:
-
 main:
-  	jal	open_file			# call open_file
-  	move	$s0, $v0			# store file descriptor in $t0	
-  	bltz	$s0, open_file_error		# if eror occured, goto open_file_error
-  	la	$s7, content			# put address of content to $s7
-
-read_file_loop:
-	move	$a0, $s0			# prepare for call getc
-  	jal 	getc				# call getc
-  	move	$s1, $v0			# store num of read chars in $t1
-  	
-  	beqz	$s1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
-  	bltz	$s1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
-
-	la	$a0, buffer			# put address of buffer to $a0, prepare for call
-	move	$a1, $s7			# put address of content to $a1, prepare for call
-	jal	copy_src_to_dest		# call copy_buffer_to_dest
-	move	$s7, $v0			# store address of next free char at content
-	
-	jal	clear_buffer			# call clear_buffer 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
-  	
-  	j 	read_file_loop			# go back to read_file_loop
+  	jal	read_file
+  	beqz	$v0, exit			# if error during read_file, goto exit
 
 post_read_file_loop:
 	la	$a0, content
@@ -48,32 +27,71 @@ post_read_file_loop:
 	
 	j 	close_file
 	
-close_file:
-						# Close the file 
-  	li 	$v0, 16       			# system call for close file
-  	syscall          			# close file
-  	
-  	j 	exit
-
 exit:
 	li 	$v0, 10
   	syscall
 
-						# UTILITY METHODS:
-					
+# ============================================================================  	
+# read_file
+# description: 
+#	reads file to content buffer
+# arguments: none
+# variables:
+#	$s0 - input file descriptor
+#	$s1 - number of read chars
+#	$s2 - address of next free char at content
+# returns:
+#	$v0 - status code, negative if error
+read_file:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw 	$s1, 4($sp)			# push $s1
+	sub	$sp, $sp, 4
+	sw 	$s2, 4($sp)			# push $s2
+
+	jal	open_file			# call open_file
+  	move	$s0, $v0			# store file descriptor in $s0	
+  	bltz	$s0, open_file_error		# if eror occured, goto open_file_error
+  	la	$s2, content			# put address of content to $s7
+read_file_loop:
+	move	$a0, $s0			# prepare for call getc
+  	jal 	getc				# call getc
+  	move	$s1, $v0			# store num of read chars in $t1
+  	
+  	beqz	$s1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
+  	bltz	$s1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
+
+	la	$a0, buffer			# put address of buffer to $a0, prepare for call
+	move	$a1, $s2			# put address of content to $a1, prepare for call
+	jal	copy_src_to_dest		# call copy_buffer_to_dest
+	move	$s2, $v0			# store address of next free char at content
+	
+	jal	clear_buffer			# call clear_buffer 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
+  	
+  	j 	read_file_loop			# go back to read_file_loop
 open_file_error: 
 	la 	$a0, open_file_error_txt	# load the address into $a0
   	li 	$v0, 4				# print the string out
   	syscall
 
   	j close_file				# goto close_file
-  	
 read_file_error: 
 	la 	$a0, read_file_error_txt	# load the address into $a0
   	li 	$v0, 4				# print the string out
   	syscall
 
-  	j close_file				# goto close_file
+  	j close_file
+close_file:
+  	li 	$v0, 16       			# system call for close file
+  	syscall          			# close file
+  	
+  	j 	exit
+			# goto close_file
+read_file_loop_return:
+	jr	$ra				# return
   	
 # ============================================================================  	
 # open_file
@@ -205,5 +223,3 @@ copy_src_return:
 
 	move	$v0, $t9
 	jr	$ra				# return new free char address of destination
-
-
