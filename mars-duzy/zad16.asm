@@ -1,27 +1,16 @@
-        .data
 .eqv	INPUT_BUF_LEN 16
 .eqv	INPUT_FILE_SIZE 1024
-     
-file_name:
-	.asciiz "input.txt"
-	
+
+        .data  
+file_name:	.asciiz "input.txt"
 open_file_error_txt:
-	.asciiz	"Error while opening the file"
-	
+		.asciiz	"Error while opening the file"
 read_file_error_txt:
-	.asciiz	"Error while reading the file"
-	
-mapping:					# mapping 2d array for 100 of 32:32:4  max 68-chars labels, 2x address + line number
-	.space 6800
-	
-content:
-	.space INPUT_FILE_SIZE
-	
-output_content:
-	.space INPUT_FILE_SIZE
-	
-buffer: 
-	.space INPUT_BUF_LEN
+		.asciiz	"Error while reading the file"
+mapping:	.space 6800			# mapping 2d array for 100 of 32:32:4  max 68-chars labels, 2x address + line number
+content:	.space INPUT_FILE_SIZE
+output_content:	.space INPUT_FILE_SIZE
+buffer: 	.space INPUT_BUF_LEN
         
         .text
 						# main flow:
@@ -88,9 +77,15 @@ read_file_error:
 
   	j close_file				# goto close_file
   	
-  						# UTILITY METHODS WITH JUMP_REGISTER ONLY:
-  	
-open_file:					# no args
+# ============================================================================  	
+# open_file
+# description: 
+#	opens file and returns file descriptor
+# arguments: none
+# variables: none
+# returns:
+#	$v0 - opened file descriptor
+open_file:
 	li 	$v0, 13       			# system call to open file
   	la 	$a0, file_name			# put file name string to $a0
   	li 	$a1, 0        			# read_only flag
