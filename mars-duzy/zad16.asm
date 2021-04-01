@@ -84,13 +84,20 @@ read_file_error:
 # arguments: none
 # variables: none
 # returns:
-#	$v0 - opened file descriptor
+#	$v0 - opened file descriptor, negative if error
 open_file:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+
 	li 	$v0, 13       			# system call to open file
   	la 	$a0, file_name			# put file name string to $a0
   	li 	$a1, 0        			# read_only flag
   	syscall          			# open a file (file descriptor returned in $v0)
-  	jr	$ra				# returns file descriptor in $v0 (negative if error)
+  	
+  	lw	$ra, 4($sp)
+  	add	$sp, $sp, 4			# pop $ra
+  	
+  	jr	$ra				# return
 	
 getc:						# no args
 	li 	$v0, 14       			# system call for read to file
