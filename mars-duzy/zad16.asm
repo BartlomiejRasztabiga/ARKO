@@ -33,7 +33,10 @@ exit:
 # arguments: none
 # variables:
 #	$s0 - next free space at labels
-#	$s1 - start of 
+#	$s1 - start of current word
+#	$s2 - end of current word
+#	$s3 - current char address
+#	$s4 - current char
 # returns: none
 replace_labels:
 	sub	$sp, $sp, 4
@@ -42,8 +45,17 @@ replace_labels:
 	sw	$s0, 4($sp)			# push $s0
 	
 	la	$s0, labels			# store next free space of labels at $s0
+	la	$s1, content			# start of current word
+	la	$s2, content			# end of current word
+	la	$s3, content			# current char address
+replace_labels_loop:
+	lb	$s4, ($s3)			# current char
+	beqz	$s4, replace_labels_return	# if NULL goto replace_labels_return
 	
-gather_labels_return:		
+	addiu	$s3, $s3, 1			# next char address
+	j	replace_labels_loop		# go back to loop
+	
+replace_labels_return:		
 	lw	$s0, 4($sp)			# pop $s0
 	add	$sp, $sp, 4			
 	lw	$ra, 4($sp)			# pop $ra
