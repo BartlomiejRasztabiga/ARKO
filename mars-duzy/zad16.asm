@@ -22,7 +22,7 @@ main:
   	la	$s7, content			# put address of content to $s7
 
 read_file_loop:
-	move	$a0, $t0			# prepare for call getc
+	move	$a0, $s0			# prepare for call getc
   	jal 	getc				# call getc
   	move	$s1, $v0			# store num of read chars in $t1
   	
