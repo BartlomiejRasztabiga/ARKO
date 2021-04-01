@@ -34,12 +34,13 @@ read_file_loop:
 	jal	copy_src_to_dest		# call copy_buffer_to_dest
 	move	$s7, $v0			# store address of next free char at content
 	
-	jal	clear_buffer			# call clear_buffer, 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
+	jal	clear_buffer			# call clear_buffer 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
   	
   	j 	read_file_loop			# go back to read_file_loop
 
 post_read_file_loop:
-	jal	print_content			# call print_content
+	la	$a0, content
+	jal	print_str			# call print_str
 	
 						# first loop, gathering symbols
 						
@@ -83,6 +84,7 @@ read_file_error:
 # returns:
 #	$v0 - opened file descriptor, negative if error
 open_file:
+	# TODO: delete stack operations if getc is a leaf
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
 
@@ -107,6 +109,7 @@ open_file:
 # returns:
 #	$v0 - number of characters read, 0 if end-of-file, negative if error
 getc:
+	# TODO: delete stack operations if getc is a leaf
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
 	sub	$sp, $sp, 4
@@ -126,21 +129,20 @@ getc:
   	add	$sp, $sp, 4			# pop $ra
   	
   	jr	$ra				# return
-  	
-print_buffer:
-  	la 	$a0, buffer 			# load the address into $a0
+  		
+# ============================================================================  	
+# print_str
+# description: 
+#	prints string given in $a0
+# arguments:
+#	$a0 - address of string to print
+# variables: none
+# returns: none
+print_str:
   	li 	$v0, 4				# print the string out
   	syscall
   	
   	jr 	$ra				# return
-  	
-print_content:
-  	la 	$a0, content			# load the address into $a0
-  	li 	$v0, 4				# print the string out
-  	syscall
-  	
-  	jr 	$ra				# return
-
 
 clear_buffer:
 	la	$t8, buffer			# load the address of buffer into $t8
