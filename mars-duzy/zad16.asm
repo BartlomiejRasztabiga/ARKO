@@ -7,7 +7,7 @@ open_file_error_txt:
 		.asciiz	"Error while opening the file"
 read_file_error_txt:
 		.asciiz	"Error while reading the file"
-mapping:	.space 1600			# mapping 2d array for 100 of 4:4:8  max 16-byte labels, 2x address + line number
+labels:		.space 1600			# labels array for 100 of 4-4-8  max 16-byte labels, 2x address + line number
 content:	.space INPUT_FILE_SIZE
 output_content:	.space INPUT_FILE_SIZE
 buffer: 	.space INPUT_BUF_LEN
@@ -21,12 +21,36 @@ main:
 post_read_file:
 	la	$a0, content
 	jal	print_str			# call print_str
-						# first loop, gathering symbols
+	jal	gather_labels			# first loop, gathering symbols
 						# second loop, working on output_buffer
+	j 	exit
 exit:
 	li 	$v0, 10
   	syscall
+  	
+# ============================================================================  	
+# gather_labels
+# description: 
+#	gathers labels in content and stores them in labels
+# arguments: none
+# variables:
+#	$s0 - next free space at labels
+# returns: none
+gather_labels:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	
+	la	$s0, labels			# store next free space of labels at $s0
+gather_labels_return:		
+	lw	$s0, 4($sp)			# pop $s0
+	add	$sp, $sp, 4			
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
 
+	jr	$ra				# return	
+	
 # ============================================================================  	
 # read_file
 # description: 
