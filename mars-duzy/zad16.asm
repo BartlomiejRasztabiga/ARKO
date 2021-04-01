@@ -17,17 +17,17 @@ buffer: 	.space INPUT_BUF_LEN
 
 main:
   	jal	open_file			# call open_file
-  	move	$t0, $v0			# store file descriptor in $t0	
-  	bltz	$t0, open_file_error		# if eror occured, goto open_file_error
+  	move	$s0, $v0			# store file descriptor in $t0	
+  	bltz	$s0, open_file_error		# if eror occured, goto open_file_error
   	la	$s7, content			# put address of content to $s7
 
 read_file_loop:
 	move	$a0, $t0			# prepare for call getc
   	jal 	getc				# call getc
-  	move	$t1, $v0			# store num of read chars in $t1
+  	move	$s1, $v0			# store num of read chars in $t1
   	
-  	beqz	$t1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
-  	bltz	$t1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
+  	beqz	$s1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
+  	bltz	$s1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
 
 	la	$a0, buffer			# put address of buffer to $a0, prepare for call
 	move	$a1, $s7			# put address of content to $a1, prepare for call
@@ -143,15 +143,23 @@ print_str:
   	syscall
   	
   	jr 	$ra				# return
-
+  	
+ 
+# ============================================================================  	
+# clear_buffer
+# description: 
+#	clears buffer by setting all bytes to /0
+# arguments: none
+# variables: none
+# returns: none
 clear_buffer:
-	la	$t8, buffer			# load the address of buffer into $t8
+	la	$t0, buffer			# load the address of buffer into $t0
 clear_buffer_loop:
-	lbu	$t9, ($t8)			# store char in $t9
-	beqz 	$t9, clear_buffer_return	# if met end of string, return
+	lbu	$t1, ($t0)			# store char in $t1
+	beqz 	$t1, clear_buffer_return	# if met end of string, return
 	
-	sb	$zero, ($t8)			# else, store 0 at current char address
-	addiu	$t8, $t8, 1			# next char
+	sb	$zero, ($t0)			# else, store 0 at current char address
+	addiu	$t0, $t0, 1			# next char
 	j	clear_buffer_loop		# if not met end of string, repeat loop
 clear_buffer_return:
 	jr	$ra				# return
