@@ -19,28 +19,30 @@ main:
 post_read_file:
 	la	$a0, content
 	jal	print_str			# call print_str
-	jal	gather_labels			# first loop, gathering symbols
-						# second loop, working on output_buffer
+	jal	replace_labels			# call replace_labels
+						# TODO: I guess we can use only one loop here
 	j 	exit
 exit:
 	li 	$v0, 10
   	syscall
   	
 # ============================================================================  	
-# gather_labels
+# replace_labels
 # description: 
-#	gathers labels in content and stores them in labels
+#	replaces labels in content with appropriate line numbers
 # arguments: none
 # variables:
 #	$s0 - next free space at labels
+#	$s1 - start of 
 # returns: none
-gather_labels:
+replace_labels:
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
 	sub	$sp, $sp, 4
 	sw	$s0, 4($sp)			# push $s0
 	
 	la	$s0, labels			# store next free space of labels at $s0
+	
 gather_labels_return:		
 	lw	$s0, 4($sp)			# pop $s0
 	add	$sp, $sp, 4			
