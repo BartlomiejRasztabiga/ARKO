@@ -20,7 +20,7 @@ post_read_file:
 	la	$a0, content
 	jal	print_str			# call print_str
 	jal	replace_labels			# call replace_labels
-						# TODO: I guess we can use only one loop here
+
 	j 	exit
 exit:
 	li 	$v0, 10
