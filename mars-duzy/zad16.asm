@@ -3,10 +3,8 @@
 
         .data  
 file_name:	.asciiz "input.txt"
-open_file_error_txt:
-		.asciiz	"Error while opening the file"
-read_file_error_txt:
-		.asciiz	"Error while reading the file"
+opnfile_err_txt:.asciiz	"Error while opening the file"
+getc_err_txt:	.asciiz	"Error while reading the file"
 labels:		.space 1600			# labels array for 100 of 4-4-8  max 16-byte labels, 2x address + line number
 content:	.space INPUT_FILE_SIZE
 output_content:	.space INPUT_FILE_SIZE
@@ -93,10 +91,10 @@ read_file_loop:
   	
   	j 	read_file_loop			# go back to read_file_loop
 open_file_err: 
-	la 	$a0, open_file_error_txt	# load the address into $a0
+	la 	$a0, opnfile_err_txt		# load the address into $a0
   	j 	read_file_err
 getc_err:
-	la 	$a0, read_file_error_txt	# load the address into $a0
+	la 	$a0, getc_err_txt	# load the address into $a0
   	j 	read_file_err
 read_file_err:
 	jal	print_str			# call print_str
