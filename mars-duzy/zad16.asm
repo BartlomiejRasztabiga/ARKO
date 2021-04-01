@@ -177,9 +177,19 @@ print_str:
 # description: 
 #	clears buffer by setting all bytes to /0
 # arguments: none
-# variables: none
+# variables:
+#	$t0 - address of buffer to clear
+#	$t1 - current char of buffer
 # returns: none
 clear_buffer:
+	# TODO: delete stack operations if clear_buffer is a leaf
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw	$s1, 4($sp)			# push $s1
+
 	la	$t0, buffer			# load the address of buffer into $t0
 clear_buffer_loop:
 	lbu	$t1, ($t0)			# store char in $t1
@@ -189,6 +199,13 @@ clear_buffer_loop:
 	addiu	$t0, $t0, 1			# next char
 	j	clear_buffer_loop		# if not met end of string, repeat loop
 clear_buffer_return:
+	lw	$s1, 4($sp)
+  	add	$sp, $sp, 4			# pop $s1
+	lw	$s0, 4($sp)
+  	add	$sp, $sp, 4			# pop $s0
+  	lw	$ra, 4($sp)
+  	add	$sp, $sp, 4			# pop $ra
+
 	jr	$ra				# return
 
 	
