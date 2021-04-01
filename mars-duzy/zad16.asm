@@ -190,9 +190,9 @@ clear_buffer:
 	sub	$sp, $sp, 4
 	sw	$s1, 4($sp)			# push $s1
 
-	la	$s0, buffer			# load the address of buffer into $t0
+	la	$s0, buffer			# load the address of buffer into $s0
 clear_buffer_loop:
-	lbu	$s1, ($s0)			# store char in $t1
+	lbu	$s1, ($s0)			# store char in $s1
 	beqz 	$s1, clear_buffer_return	# if met end of string, return
 	
 	sb	$zero, ($s0)			# else, store 0 at current char address
