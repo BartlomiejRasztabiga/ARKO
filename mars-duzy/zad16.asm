@@ -22,8 +22,10 @@ main:
   	la	$s7, content			# put address of content to $s7
 
 read_file_loop:
+	move	$a0, $t0			# prepare for call getc
   	jal 	getc				# call getc
   	move	$t1, $v0			# store num of read chars in $t1
+  	
   	beqz	$t1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
   	bltz	$t1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
 
@@ -98,14 +100,37 @@ open_file:
   	add	$sp, $sp, 4			# pop $ra
   	
   	jr	$ra				# return
+
+# ============================================================================  	
+# getc
+# description: 
+#	reads INPUT_BUF_LEN bytes from open file to buffer
+# arguments:
+#	$a0 - file descriptor
+# variables:
+#	$s0 - file descriptor
+# returns:
+#	$v0 - number of characters read, 0 if end-of-file, negative if error
+getc:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
 	
-getc:						# no args
+	move	$s0, $a0			# store file descriptor as local variable
+	
 	li 	$v0, 14       			# system call for read to file
+	move 	$a0, $s0    			# put the file descriptor in $a0
   	la 	$a1, buffer   			# address of buffer to store file content
   	li 	$a2, INPUT_BUF_LEN       	# buffer length
-  	move 	$a0, $t0    			# put the file descriptor in $a0		
   	syscall          			# read from file
-  	jr	$ra				# returns number of characters read (0 if end-of-file, negative if error).
+  	
+  	lw	$s0, 4($sp)
+  	add	$sp, $sp, 4			# pop $s0
+  	lw	$ra, 4($sp)
+  	add	$sp, $sp, 4			# pop $ra
+  	
+  	jr	$ra				# return
   	
 print_buffer:
   	la 	$a0, buffer 			# load the address into $a0
