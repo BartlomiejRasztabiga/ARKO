@@ -44,6 +44,16 @@ replace_labels:
 	sw	$ra, 4($sp)			# push $ra
 	sub	$sp, $sp, 4
 	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw	$s1, 4($sp)			# push $s1
+	sub	$sp, $sp, 4
+	sw	$s2, 4($sp)			# push $s2
+	sub	$sp, $sp, 4
+	sw	$s3, 4($sp)			# push $s3
+	sub	$sp, $sp, 4
+	sw	$s4, 4($sp)			# push $s4
+	sub	$sp, $sp, 4
+	sw	$s5, 4($sp)			# push $s5
 	
 	la	$s0, labels			# store next free space of labels at $s0
 	la	$s1, content			# start of current word
@@ -66,7 +76,17 @@ next_char:
 	addiu	$s3, $s3, 1			# next char address
 	j	replace_labels_loop		# go back to loop
 	
-replace_labels_return:		
+replace_labels_return:
+	lw	$s5, 4($sp)			# pop $s5
+	add	$sp, $sp, 4	
+	lw	$s4, 4($sp)			# pop $s4
+	add	$sp, $sp, 4	
+	lw	$s3, 4($sp)			# pop $s3
+	add	$sp, $sp, 4	
+	lw	$s2, 4($sp)			# pop $s2
+	add	$sp, $sp, 4	
+	lw	$s1, 4($sp)			# pop $s1
+	add	$sp, $sp, 4			
 	lw	$s0, 4($sp)			# pop $s0
 	add	$sp, $sp, 4			
 	lw	$ra, 4($sp)			# pop $ra
