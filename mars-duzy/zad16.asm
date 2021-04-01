@@ -37,6 +37,7 @@ exit:
 #	$s2 - end of current word
 #	$s3 - current char address
 #	$s4 - current char
+#	$s5 - current line of content
 # returns: none
 replace_labels:
 	sub	$sp, $sp, 4
@@ -48,13 +49,17 @@ replace_labels:
 	la	$s1, content			# start of current word
 	la	$s2, content			# end of current word
 	la	$s3, content			# current char address
+	li	$s5, 1				# current line of content
 replace_labels_loop:
 	lb	$s4, ($s3)			# current char
 	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
-	beq	$s4, '\n', end_of_word		# if LF, goto end_of_word 
+	beq	$s4, '\n', end_of_line		# if LF, goto end_of_line
 	beqz	$s4, replace_labels_return	# if NULL goto replace_labels_return
 	
 	j	next_char			# goto next_char
+end_of_line:
+	addiu	$s5, $s5, 1			# current_line++
+	j 	end_of_word			# TODO: delete
 end_of_word:
 	j 	next_char			# TODO for now
 next_char:
