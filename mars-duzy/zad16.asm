@@ -29,9 +29,6 @@ read_file_loop:
   	beqz	$t1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
   	bltz	$t1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
 
-	j 	handle_buffer
-	
-handle_buffer:
 	la	$a0, buffer			# put address of buffer to $a0, prepare for call
 	move	$a1, $s7			# put address of content to $a1, prepare for call
 	jal	copy_src_to_dest		# call copy_buffer_to_dest
@@ -40,8 +37,6 @@ handle_buffer:
 	jal	clear_buffer			# call clear_buffer, 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
   	
   	j 	read_file_loop			# go back to read_file_loop
-  	
-
 
 post_read_file_loop:
 	jal	print_content			# call print_content
