@@ -16,17 +16,13 @@ buffer: 	.space INPUT_BUF_LEN
 main:
   	jal	read_file
   	beqz	$v0, exit			# if error during read_file, goto exit
-
-post_read_file_loop:
+	j 	post_read_file			# TODO: delete
+	
+post_read_file:
 	la	$a0, content
 	jal	print_str			# call print_str
-	
 						# first loop, gathering symbols
-						
 						# second loop, working on output_buffer
-	
-	j 	close_file
-	
 exit:
 	li 	$v0, 10
   	syscall
@@ -55,11 +51,11 @@ read_file:
 	jal	open_file			# call open_file
   	move	$s0, $v0			# store file descriptor in $s0	
   	bltz	$s0, open_file_error		# if eror occured, goto open_file_error
-  	la	$s2, content			# put address of content to $s7
+  	la	$s2, content			# put address of content to $s2
 read_file_loop:
 	move	$a0, $s0			# prepare for call getc
   	jal 	getc				# call getc
-  	move	$s1, $v0			# store num of read chars in $t1
+  	move	$s1, $v0			# store num of read chars in $s1
   	
   	beqz	$s1, post_read_file_loop	# if num_of_read_chars == 0, goto post_read_file_loop
   	bltz	$s1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
@@ -77,19 +73,23 @@ open_file_error:
   	li 	$v0, 4				# print the string out
   	syscall
 
-  	j close_file				# goto close_file
+	li	$v0, -1				# set error flag
+  	j 	close_file			# goto close_file
 read_file_error: 
 	la 	$a0, read_file_error_txt	# load the address into $a0
   	li 	$v0, 4				# print the string out
   	syscall
-
-  	j close_file
+	
+	li	$v0, -1				# set error flag
+  	j 	close_file			# goto close_file
+read_file_loop_ok:
+	li	$v0, 0				# all good, no error flag set
+	j 	close_file			# goto close_file
 close_file:
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
   	
-  	j 	exit
-			# goto close_file
+  	j 	read_file_loop_return		# TODO: delete	
 read_file_loop_return:
 	jr	$ra				# return
   	
