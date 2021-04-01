@@ -50,7 +50,7 @@ read_file:
 
 	jal	open_file			# call open_file
   	move	$s0, $v0			# store file descriptor in $s0	
-  	bltz	$s0, open_file_error		# if eror occured, goto open_file_error
+  	bltz	$s0, open_file_err		# if eror occured, goto open_file_error
   	la	$s2, content			# put address of content to $s2
 read_file_loop:
 	move	$a0, $s0			# prepare for call getc
@@ -58,7 +58,7 @@ read_file_loop:
   	move	$s1, $v0			# store num of read chars in $s1
   	
   	beqz	$s1, read_file_ok		# if num_of_read_chars == 0, goto read_file_ok
-  	bltz	$s1, read_file_error		# if num_of_read_chars < 0, goto read_file_error
+  	bltz	$s1, getc_err			# if num_of_read_chars < 0, goto read_file_error
 
 	la	$a0, buffer			# put address of buffer to $a0, prepare for call
 	move	$a1, $s2			# put address of content to $a1, prepare for call
@@ -68,18 +68,14 @@ read_file_loop:
 	jal	clear_buffer			# call clear_buffer 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
   	
   	j 	read_file_loop			# go back to read_file_loop
-open_file_error: 
+open_file_err: 
 	la 	$a0, open_file_error_txt	# load the address into $a0
-  	li 	$v0, 4				# print the string out
-  	syscall
-
-	li	$v0, -1				# set error flag
-  	j 	close_file			# goto close_file
-read_file_error: 
+  	j 	read_file_err
+getc_err:
 	la 	$a0, read_file_error_txt	# load the address into $a0
-  	li 	$v0, 4				# print the string out
-  	syscall
-	
+  	j 	read_file_err
+read_file_err:
+	jal	print_str			# call print_str
 	li	$v0, -1				# set error flag
   	j 	close_file			# goto close_file
 read_file_ok:
