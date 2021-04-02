@@ -149,6 +149,8 @@ read_file:
 	sub	$sp, $sp, 4
 	sw 	$s2, 4($sp)			# push $s2
 
+	la	$a0, input_fname		# input file name
+	li	$a1, 0				# read only flag
 	jal	open_file			# call open_file
   	move	$s0, $v0			# store file descriptor in $s0	
   	bltz	$s0, open_file_err		# if eror occured, goto open_file_error
@@ -203,20 +205,35 @@ read_file_loop_return:
 # open_file
 # description: 
 #	opens file and returns file descriptor
-# arguments: none
-# variables: none
+# arguments:
+#	$a0 - file name to open
+#	$a1 - file open flag
+# variables:
+#	$a0 - file name to open
+#	$a1 - file open flag
 # returns:
 #	$v0 - opened file descriptor, negative if error
 open_file:
 	# TODO: delete stack operations if getc is a leaf
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw	$s1, 4($sp)			# push $s1
+	
+	move	$s0, $a0			# file name to open
+	move	$s1, $a1			# file open flag
 
 	li 	$v0, 13       			# system call to open file
-  	la 	$a0, input_fname		# put file name string to $a0
-  	li 	$a1, 0        			# read_only flag
+  	move 	$a0, $s0			# put file name string to $a0
+  	move 	$a1, $s1      			# read_only flag
   	syscall          			# open a file (file descriptor returned in $v0)
   	
+  	lw	$s1, 4($sp)
+  	add	$sp, $sp, 4			# pop $s1
+  	lw	$s0, 4($sp)
+  	add	$sp, $sp, 4			# pop $s0
   	lw	$ra, 4($sp)
   	add	$sp, $sp, 4			# pop $ra
   	
