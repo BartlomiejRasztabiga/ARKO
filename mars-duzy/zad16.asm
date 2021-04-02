@@ -522,3 +522,49 @@ copy_src_range_return:
 
 	move	$v0, $t8
 	jr	$ra				# return new free char address of destination
+
+# ============================================================================
+# str_len
+# description:
+#	returns length of string in memory
+# arguments:
+#	$a0 - string address
+# variables:
+#	$s0 - string address
+#	$s1 - length
+# 	$s2 - current char
+# returns:
+#	$v0 - length of string in bytes
+str_len:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw 	$s1, 4($sp)			# push $s1
+	sub	$sp, $sp, 4
+	sw 	$s2, 4($sp)			# push $s2
+
+	move 	$s0, $a0			# string address
+	li	$s1, 0				# length = 0
+str_len_loop:
+	lb	$s2, ($s0)			# get current char
+	beqz	$s2, str_len_return		# if NULL, goto str_len_return
+
+	addiu	$s1, $s1, 1			# if not NULL, length++
+str_len_next_char:
+	addiu	$s0, $s0, 1			# next char
+	j 	str_len_loop
+
+str_len_return:
+	lw	$s2, 4($sp)			# pop $s2
+	add	$sp, $sp, 4
+	lw	$s1, 4($sp)			# pop $s1
+	add	$sp, $sp, 4
+	lw	$s0, 4($sp)			# pop $s0
+	add	$sp, $sp, 4
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
+
+	move	$v0, $s1
+	jr	$ra				# return
