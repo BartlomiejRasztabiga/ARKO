@@ -481,6 +481,7 @@ clear_buffer_return:
 # variables:
 #	$s0 - src address
 #	$s1 - dest address
+#	#s2 - current char
 # returns:
 #	$v0 - address of next free char at destination
 copy_src_to_dest:				# takes addresses of src and destination as params
@@ -490,20 +491,24 @@ copy_src_to_dest:				# takes addresses of src and destination as params
 	sw	$s0, 4($sp)			# push $s0
 	sub	$sp, $sp, 4
 	sw 	$s1, 4($sp)			# push $s1
+	sub	$sp, $sp, 4
+	sw 	$s2, 4($sp)			# push $s2
 
 	move	$s0, $a0			# address of src
-	move	$t9, $a1			# address of destination
+	move	$s1, $a1			# address of destination
 copy_src_loop:
-	lb	$t7, ($s0)			# store buffer char in $t7
-	beqz	$t7, copy_src_return		# if met end of string, return
+	lb	$s2, ($s0)			# store buffer char in $t7
+	beqz	$s2, copy_src_return		# if met end of string, return
 	
-	sb	$t7, ($t9)			# else, store src char at destination address
+	sb	$s2, ($s1)			# else, store src char at destination address
 	addiu	$s0, $s0, 1			# next src char
-	addiu	$t9, $t9, 1			# next destination char
+	addiu	$s1, $s1, 1			# next destination char
 	j copy_src_loop				# if not met end of string, repeat loop
 copy_src_return:
-	move	$v0, $t9
+	move	$v0, $s1
 
+	lw	$s2, 4($sp)			# pop $s2
+	add	$sp, $sp, 4			
 	lw	$s1, 4($sp)			# pop $s1
 	add	$sp, $sp, 4			
 	lw	$s0, 4($sp)			# pop $s0
