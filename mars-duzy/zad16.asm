@@ -5,8 +5,8 @@
 file_name:	.asciiz "input.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
-labels:		.space 1600			# labels array for 100 of 4-4-8  max 16-byte labels, 2x address + line number
-content:	.space INPUT_FILE_SIZE
+labels:		.space 2048			# labels array for 128 of 4-4-8  max 16-byte labels, 2x address + line number
+content:	.space INPUT_FILE_SIZE		# TODO: should I end these 4 with NULL?
 output_content:	.space INPUT_FILE_SIZE
 buffer: 	.space INPUT_BUF_LEN
         
