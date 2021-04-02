@@ -38,6 +38,7 @@ exit:
 #	$s3 - current char address
 #	$s4 - current char
 #	$s5 - current line of content
+#	$s6 - next free space at output_content
 # returns: none
 replace_labels:
 	sub	$sp, $sp, 4
@@ -54,12 +55,15 @@ replace_labels:
 	sw	$s4, 4($sp)			# push $s4
 	sub	$sp, $sp, 4
 	sw	$s5, 4($sp)			# push $s5
+	sub	$sp, $sp, 4
+	sw	$s6, 4($sp)			# push $s6
 	
 	la	$s0, labels			# store next free space of labels at $s0
 	la	$s1, content			# start of current word
 	la	$s2, content			# end of current word
 	la	$s3, content			# current char address
 	li	$s5, 1				# current line of content
+	la	$s6, output_content		# store next free space of output_content
 replace_labels_loop:
 	lb	$s4, ($s3)			# current char
 	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
@@ -69,7 +73,6 @@ replace_labels_loop:
 	
 	j	next_char			# goto next_char
 new_label:
-						# label from $s1 to ($s2-1) inclusively
 	subiu	$t0, $s2, 1			# get address of last char of label (s2 is ':' char)
 						
 	sw	$s1, ($s0)			# store start of label
@@ -85,7 +88,18 @@ end_of_line:
 	addiu	$s5, $s5, 1			# current_line++
 	j 	end_of_word			# TODO: delete
 end_of_word:
+						# TODO: check if found defined symbol, if yes, replace in output_content
+						# TODO: if no, copy string to output_content
+	addiu	$t0, $s2, 1			# add char after end of the word
+						
+	move	$a0, $s1			# start of word
+	move	$a1, $t0			# end of word
+	move	$a2, $s6			# destination : output_content
+	jal	copy_src_range_to_dest		# call copy_src_range_to_dest
+	move	$s6, $v0			# update next free space of output_content
+	
 	addiu	$s1, $s3, 1			# reset start of current word
+	
 	j 	next_char			# TODO for now
 next_char:
 	addiu	$s2, $s2, 1			# end of current word ++
@@ -93,6 +107,8 @@ next_char:
 	j	replace_labels_loop		# go back to loop
 	
 replace_labels_return:
+	lw	$s6, 4($sp)			# pop $s6
+	add	$sp, $sp, 4	
 	lw	$s5, 4($sp)			# pop $s5
 	add	$sp, $sp, 4	
 	lw	$s4, 4($sp)			# pop $s4
