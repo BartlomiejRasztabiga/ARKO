@@ -2,9 +2,11 @@
 .eqv	INPUT_FILE_SIZE 1024
 
         .data  
-file_name:	.asciiz "input.txt"
+input_fname:	.asciiz "input.txt"
+output_fname:	.asciiz "output.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
+.align 2					# is 2 correct?
 labels:		.space 1536			# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
 content:	.space INPUT_FILE_SIZE		# TODO: should I end these 4 with NULL?
 output_content:	.space INPUT_FILE_SIZE
@@ -211,7 +213,7 @@ open_file:
 	sw	$ra, 4($sp)			# push $ra
 
 	li 	$v0, 13       			# system call to open file
-  	la 	$a0, file_name			# put file name string to $a0
+  	la 	$a0, input_fname		# put file name string to $a0
   	li 	$a1, 0        			# read_only flag
   	syscall          			# open a file (file descriptor returned in $v0)
   	
