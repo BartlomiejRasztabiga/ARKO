@@ -141,6 +141,8 @@ replace_labels_return:
 #	$s0 - output file descriptor
 #	$s1 - number of written chars
 #	$s2 - address of output_content
+#	$s3 - number of chars left to write
+#	$t0 - min of BUF_LEN and $s3
 # returns:
 #	$v0 - status code, negative if error
 write_file:
@@ -152,6 +154,8 @@ write_file:
 	sw 	$s1, 4($sp)			# push $s1
 	sub	$sp, $sp, 4
 	sw 	$s2, 4($sp)			# push $s2
+	sub	$sp, $sp, 4
+	sw 	$s3, 4($sp)			# push $s2
 
 	la	$a0, output_fname		# input file name
 	li	$a1, 1				# write only flag
@@ -159,18 +163,30 @@ write_file:
   	move	$s0, $v0			# store file descriptor in $s0	
   	bltz	$s0, write_file_open_err	# if eror occured, goto open_file_error
   	la	$s2, output_content		# put address of output_content to $s2
+  	
+  	move    $a0, $s2			# address of output_content
+	jal	str_len				# call str_len
+	move	$s3, $v0			# save number of chars in output_content
 write_file_loop:
+	li	$a0, BUF_LEN
+	move	$a1, $s3
+	jal	min				# get min of BUF_LEN and num_of_chars_left_to_write
+	move	$t0, $v0
+
 	move	$a0, $s0			# file descriptor
 	move	$a1, $s2			# output_content start
+	move	$a2, $t0			# number of chars to write
   	jal 	putc				# call putc
   	move	$s1, $v0			# store num of written chars in $s1
   	
-  	beqz	$s1, read_file_ok		# if num_of_written_chars == 0, goto write_file_ok
-  	bltz	$s1, getc_err			# if num_of_written_chars < 0, goto write_file_err
+  	subu	$s3, $s3, $s1			# substract num of written chars from num of chars to write
+  	beqz	$s3, write_file_ok		# if num_of_chars_left_to_write == 0, goto write_file_ok
+  	beqz	$s1, putc_err			# if num_of_written_chars == 0, goto putc_err, because num_of_chars_left_to_write > 0
+  	bltz	$s1, putc_err			# if num_of_written_chars < 0, goto putc_err
   	
   	addu	$s2, $s2, $s1			# move output_content pointer by buffer length	
   	
-  	j 	write_file_loop		# go back to write_file_loop
+  	j 	write_file_loop			# go back to write_file_loop
 write_file_open_err: 
 	la 	$a0, opnfile_err_txt		# load the address into $a0
   	j 	write_file_err
@@ -185,11 +201,14 @@ write_file_ok:
 	li	$v0, 0				# all good, no error flag set
 	j 	write_file_close		# goto write_file_close TODO: delete
 write_file_close:
+	move	$a0, $s0			# move file descriptor to $a0
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
   	
   	j 	write_file_loop_return		# TODO: delete	
 write_file_loop_return:
+	lw	$s3, 4($sp)			# pop $s3
+	add	$sp, $sp, 4			
 	lw	$s2, 4($sp)			# pop $s2
 	add	$sp, $sp, 4			
 	lw	$s1, 4($sp)			# pop $s1
@@ -258,6 +277,7 @@ read_file_ok:
 	li	$v0, 0				# all good, no error flag set
 	j 	read_file_close			# goto read_file_close TODO: delete
 read_file_close:
+	move	$a0, $s0			# move file descriptor to $a0
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
   	
@@ -347,13 +367,15 @@ getc:
 # ============================================================================  	
 # putc
 # description: 
-#	writes BUF_LEN bytes from buffer to opened file
+#	writes n bytes from buffer to opened file
 # arguments:
 #	$a0 - file descriptor
 #	$a1 - start of content to write
+#	$a2 - number of chars to write
 # variables:
 #	$s0 - file descriptor
 #	$s1 - start of content to write
+#	$s2 - number of chars to write
 # returns:
 #	$v0 - number of characters written, negative if error
 putc:
@@ -364,16 +386,21 @@ putc:
 	sw	$s0, 4($sp)			# push $s0
 	sub	$sp, $sp, 4
 	sw	$s1, 4($sp)			# push $s1
+	sub	$sp, $sp, 4
+	sw	$s2, 4($sp)			# push $s2
 	
-	move	$s0, $a0			# store file descriptor as local variable
-	move	$s1, $a1			# store start of content to write as local variable
+	move	$s0, $a0			# store file descriptor
+	move	$s1, $a1			# store start of content to write
+	move	$s2, $a2			# store number of chars to write
 	
 	li 	$v0, 15       			# system call for write to file
 	move 	$a0, $s0    			# put the file descriptor in $a0
   	move 	$a1, $s1   			# address of buffer to read content from
-  	li 	$a2, BUF_LEN       		# buffer length
+  	move	$a2, $s2      			# number of chars to write
   	syscall          			# write to file
   	
+  	lw	$s2, 4($sp)
+  	add	$sp, $sp, 4			# pop $s2
   	lw	$s1, 4($sp)
   	add	$sp, $sp, 4			# pop $s1
   	lw	$s0, 4($sp)
@@ -464,6 +491,8 @@ copy_src_loop:
 	addiu	$t9, $t9, 1			# next destination char
 	j copy_src_loop				# if not met end of string, repeat loop
 copy_src_return:
+	move	$v0, $t9
+
 	lw	$s1, 4($sp)			# pop $s1
 	add	$sp, $sp, 4			
 	lw	$s0, 4($sp)			# pop $s0
@@ -471,7 +500,6 @@ copy_src_return:
 	lw	$ra, 4($sp)			# pop $ra
 	add	$sp, $sp, 4
 
-	move	$v0, $t9
 	jr	$ra				# return new free char address of destination
 	
 # ============================================================================  	
@@ -511,6 +539,8 @@ copy_src_range_loop:
 	addiu	$t8, $t8, 1			# next destination char
 	j copy_src_range_loop			# if not met end of string, repeat loop
 copy_src_range_return:
+	move	$v0, $t8
+	
 	lw	$s2, 4($sp)			# pop $s2
 	add	$sp, $sp, 4	
 	lw	$s1, 4($sp)			# pop $s1
@@ -520,7 +550,6 @@ copy_src_range_return:
 	lw	$ra, 4($sp)			# pop $ra
 	add	$sp, $sp, 4
 
-	move	$v0, $t8
 	jr	$ra				# return new free char address of destination
 
 # ============================================================================
@@ -557,6 +586,8 @@ str_len_next_char:
 	j 	str_len_loop
 
 str_len_return:
+	move	$v0, $s1
+
 	lw	$s2, 4($sp)			# pop $s2
 	add	$sp, $sp, 4
 	lw	$s1, 4($sp)			# pop $s1
@@ -566,5 +597,28 @@ str_len_return:
 	lw	$ra, 4($sp)			# pop $ra
 	add	$sp, $sp, 4
 
-	move	$v0, $s1
+	jr	$ra				# return
+	
+# ============================================================================
+# min (LEAF FUNCTION)
+# description:
+#	returns less of two ints
+# arguments:
+#	$a0 - first int
+#	$a1 - second int
+# returns:
+#	$v0 - less of two ints
+min:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+
+	blt	$a0, $a1, min_first		# if $a0 < $a1, goto min_first
+	move	$v0, $a1			# return $a1
+	j 	min_return			# TODO: refactor?
+min_first:
+	move	$v0, $a0			# return $a0
+min_return:
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
+
 	jr	$ra				# return
