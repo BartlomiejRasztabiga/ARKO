@@ -1,5 +1,8 @@
 .eqv	BUF_LEN 16
 .eqv	INPUT_FILE_SIZE 1024
+# MAX NUMBER OF LABELS IN FILE IS 128
+# MAX NUMBER OF LINES IN FILE IS 999
+# MAX SIZE OF FILE IS 1024
 
         .data  
 input_fname:	.asciiz "input.txt"
@@ -661,6 +664,9 @@ get_symbol_for_word_return:
 # returns:
 #	$v0 - string representation of given integer
 int_to_str:
+						# https://stackoverflow.com/questions/20531292/convert-an-int-to-a-string-of-characters
+						# maybe already store the string into predefined place in memory?
+						# maybe even do it differently, take first, to ascii, place and repeat
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
 	
