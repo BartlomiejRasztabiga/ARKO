@@ -1,4 +1,4 @@
-.eqv	INPUT_BUF_LEN 16
+.eqv	BUF_LEN 16
 .eqv	INPUT_FILE_SIZE 1024
 
         .data  
@@ -10,7 +10,7 @@ getc_err_txt:	.asciiz	"Error while reading the file"
 labels:		.space 1536			# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
 content:	.space INPUT_FILE_SIZE		# TODO: should I end these 4 with NULL?
 output_content:	.space INPUT_FILE_SIZE
-buffer: 	.space INPUT_BUF_LEN
+buffer: 	.space BUF_LEN
         
         .text
 main:
@@ -23,7 +23,11 @@ post_read_file:
 	jal	print_str			# call print_str
 	jal	replace_labels			# call replace_labels
 
-	j 	exit
+	j 	post_replace_labels
+post_replace_labels:
+	jal	write_file
+	
+	j exit
 exit:
 	li 	$v0, 10
   	syscall
@@ -126,6 +130,75 @@ replace_labels_return:
 	lw	$ra, 4($sp)			# pop $ra
 	add	$sp, $sp, 4
 
+	jr	$ra				# return
+	
+# ============================================================================  	
+# write_file
+# description: 
+#	write output_content to output file
+# arguments: none
+# variables:
+#	$s0 - output file descriptor
+#	$s1 - number of written chars
+#	$s2 - address of output_content
+# returns:
+#	$v0 - status code, negative if error
+write_file:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw 	$s1, 4($sp)			# push $s1
+	sub	$sp, $sp, 4
+	sw 	$s2, 4($sp)			# push $s2
+
+	la	$a0, output_fname		# input file name
+	li	$a1, 1				# write only flag
+	jal	open_file			# call open_file
+  	move	$s0, $v0			# store file descriptor in $s0	
+  	bltz	$s0, write_file_open_err	# if eror occured, goto open_file_error
+  	la	$s2, output_content		# put address of output_content to $s2
+write_file_loop:
+	move	$a0, $s0			# file descriptor
+	move	$a1, $s2			# output_content start
+  	jal 	putc				# call putc
+  	move	$s1, $v0			# store num of written chars in $s1
+  	
+  	beqz	$s1, read_file_ok		# if num_of_written_chars == 0, goto write_file_ok
+  	bltz	$s1, getc_err			# if num_of_written_chars < 0, goto write_file_err
+  	
+  	addu	$s2, $s2, $s1			# move output_content pointer by buffer length	
+  	
+  	j 	write_file_loop		# go back to write_file_loop
+write_file_open_err: 
+	la 	$a0, opnfile_err_txt		# load the address into $a0
+  	j 	write_file_err
+putc_err:
+	la 	$a0, getc_err_txt		# load the address into $a0
+  	j 	write_file_err
+write_file_err:
+	jal	print_str			# call print_str
+	li	$v0, -1				# set error flag
+  	j 	write_file_close		# goto write_file_close
+write_file_ok:
+	li	$v0, 0				# all good, no error flag set
+	j 	write_file_close		# goto write_file_close TODO: delete
+write_file_close:
+  	li 	$v0, 16       			# system call for close file
+  	syscall          			# close file
+  	
+  	j 	write_file_loop_return		# TODO: delete	
+write_file_loop_return:
+	lw	$s2, 4($sp)			# pop $s2
+	add	$sp, $sp, 4			
+	lw	$s1, 4($sp)			# pop $s1
+	add	$sp, $sp, 4			
+	lw	$s0, 4($sp)			# pop $s0
+	add	$sp, $sp, 4			
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
+
 	jr	$ra				# return	
 	
 # ============================================================================  	
@@ -180,11 +253,11 @@ getc_err:
 read_file_err:
 	jal	print_str			# call print_str
 	li	$v0, -1				# set error flag
-  	j 	close_file			# goto close_file
+  	j 	read_file_close			# goto read_file_close
 read_file_ok:
 	li	$v0, 0				# all good, no error flag set
-	j 	close_file			# goto close_file TODO: delete
-close_file:
+	j 	read_file_close			# goto read_file_close TODO: delete
+read_file_close:
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
   	
@@ -242,7 +315,7 @@ open_file:
 # ============================================================================  	
 # getc
 # description: 
-#	reads INPUT_BUF_LEN bytes from open file to buffer
+#	reads BUF_LEN bytes from opened file to buffer
 # arguments:
 #	$a0 - file descriptor
 # variables:
@@ -261,9 +334,48 @@ getc:
 	li 	$v0, 14       			# system call for read to file
 	move 	$a0, $s0    			# put the file descriptor in $a0
   	la 	$a1, buffer   			# address of buffer to store file content
-  	li 	$a2, INPUT_BUF_LEN       	# buffer length
+  	li 	$a2, BUF_LEN       		# buffer length
   	syscall          			# read from file
   	
+  	lw	$s0, 4($sp)
+  	add	$sp, $sp, 4			# pop $s0
+  	lw	$ra, 4($sp)
+  	add	$sp, $sp, 4			# pop $ra
+  	
+  	jr	$ra				# return
+  	
+# ============================================================================  	
+# putc
+# description: 
+#	writes BUF_LEN bytes from buffer to opened file
+# arguments:
+#	$a0 - file descriptor
+#	$a1 - start of content to write
+# variables:
+#	$s0 - file descriptor
+#	$s1 - start of content to write
+# returns:
+#	$v0 - number of characters written, negative if error
+putc:
+	# TODO: delete stack operations if putc is a leaf
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+	sub	$sp, $sp, 4
+	sw	$s1, 4($sp)			# push $s1
+	
+	move	$s0, $a0			# store file descriptor as local variable
+	move	$s1, $a1			# store start of content to write as local variable
+	
+	li 	$v0, 15       			# system call for write to file
+	move 	$a0, $s0    			# put the file descriptor in $a0
+  	move 	$a1, $s1   			# address of buffer to read content from
+  	li 	$a2, BUF_LEN       		# buffer length
+  	syscall          			# write to file
+  	
+  	lw	$s1, 4($sp)
+  	add	$sp, $sp, 4			# pop $s1
   	lw	$s0, 4($sp)
   	add	$sp, $sp, 4			# pop $s0
   	lw	$ra, 4($sp)
