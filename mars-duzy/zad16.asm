@@ -65,14 +65,21 @@ replace_labels_loop:
 	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
 	beq	$s4, '\n', end_of_line		# if LF, goto end_of_line
 	beqz	$s4, replace_labels_return	# if NULL goto replace_labels_return
+	beq	$s4, ':', new_label		# label detected
 	
 	j	next_char			# goto next_char
+new_label:
+						# label from $s1 to ($s2-1) inclusively
+	
 end_of_line:
 	addiu	$s5, $s5, 1			# current_line++
 	j 	end_of_word			# TODO: delete
 end_of_word:
+	addiu	$s1, $s3, 1			# reset start of current word
+	addiu	$s2, $s3, 1			# reset end of current word
 	j 	next_char			# TODO for now
 next_char:
+	addiu	$s2, $s2, 1			# end of current word ++
 	addiu	$s3, $s3, 1			# next char address
 	j	replace_labels_loop		# go back to loop
 	
@@ -139,7 +146,7 @@ open_file_err:
 	la 	$a0, opnfile_err_txt		# load the address into $a0
   	j 	read_file_err
 getc_err:
-	la 	$a0, getc_err_txt	# load the address into $a0
+	la 	$a0, getc_err_txt		# load the address into $a0
   	j 	read_file_err
 read_file_err:
 	jal	print_str			# call print_str
