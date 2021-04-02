@@ -5,7 +5,7 @@
 file_name:	.asciiz "input.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
-labels:		.space 2048			# labels array for 128 of 4-4-8  max 16-byte labels, 2x address + line number
+labels:		.space 1536			# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
 content:	.space INPUT_FILE_SIZE		# TODO: should I end these 4 with NULL?
 output_content:	.space INPUT_FILE_SIZE
 buffer: 	.space INPUT_BUF_LEN
@@ -70,11 +70,15 @@ replace_labels_loop:
 	j	next_char			# goto next_char
 new_label:
 						# label from $s1 to ($s2-1) inclusively
-	move	$a0, $s1
-	move	$a1, $s2
-	move	$a2, $s0
-	jal	copy_src_range_to_dest
-	addiu	$s0, $s0, 16
+	subiu	$t0, $s2, 1			# get address of last char of label (s2 is ':' char)
+						
+	sw	$s1, ($s0)			# store start of label
+	addiu	$s0, $s0, 4
+	sw	$t0, ($s0)			# store end of label
+	addiu	$s0, $s0, 4
+	sw	$s5, ($s0)			# store label line number
+	addiu	$s0, $s0, 4
+	
 	j 	next_char			# TODO
 	
 end_of_line:
@@ -82,7 +86,6 @@ end_of_line:
 	j 	end_of_word			# TODO: delete
 end_of_word:
 	addiu	$s1, $s3, 1			# reset start of current word
-	#addiu	$s2, $s3, 1			# reset end of current word
 	j 	next_char			# TODO for now
 next_char:
 	addiu	$s2, $s2, 1			# end of current word ++
