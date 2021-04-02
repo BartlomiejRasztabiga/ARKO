@@ -2,3 +2,7 @@ a:
 value a
 bbb: a + 6
 bbb + c * a
+c:
+d:
+ff:
+ff
