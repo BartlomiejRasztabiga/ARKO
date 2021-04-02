@@ -94,15 +94,23 @@ end_of_line:
 	addiu	$s5, $s5, 1			# current_line++
 	j 	end_of_word			# TODO: delete
 end_of_word:
-						# TODO: check if found defined symbol, if yes, replace in output_content
-						# TODO: if no, copy string to output_content
-	addiu	$t0, $s2, 1			# add char after end of the word
+						# TODO: check if found defined symbol, if yes, replace and copy to output_content
+	move	$a0, $s1
+	move	$a1, $s2
+	jal	get_symbol_for_word		# get line number for symbol
+	move	$t0, $v0			# store found line number for symbol
+	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol				
+						# TODO: word is a symbol					
 						
+end_of_word_not_symbol:
+						# if word is not a symbol, copy string to output_content
+	addiu	$t0, $s2, 1			# end_of_word++ to include whitespace
 	move	$a0, $s1			# start of word
 	move	$a1, $t0			# end of word
 	move	$a2, $s6			# destination : output_content
 	jal	copy_src_range_to_dest		# call copy_src_range_to_dest
 	move	$s6, $v0			# update next free space of output_content
+	
 	
 	addiu	$s1, $s3, 1			# reset start of current word
 	
@@ -606,6 +614,7 @@ str_len_return:
 # arguments:
 #	$a0 - first int
 #	$a1 - second int
+# variables: none
 # returns:
 #	$v0 - less of two ints
 min:
@@ -622,3 +631,41 @@ min_return:
 	add	$sp, $sp, 4
 
 	jr	$ra				# return
+	
+# ============================================================================
+# get_symbol_for_word
+# description:
+#	returns line number for symbol if word is a defined symbol, -1 if not defined
+# arguments:
+#	$a0 - first int
+# variables: none
+# returns:
+#	$v0 - line number for symbol if word is a defined symbol, -1 if not defined
+get_symbol_for_word:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	
+get_symbol_for_word_return:
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
+	
+	jr 	$ra
+	
+# ============================================================================
+# int_to_str
+# description:
+#	returns string representation of given integer
+# arguments:
+#	$a0 - int
+# variables: none
+# returns:
+#	$v0 - string representation of given integer
+int_to_str:
+	sub	$sp, $sp, 4
+	sw	$ra, 4($sp)			# push $ra
+	
+int_to_str_return:
+	lw	$ra, 4($sp)			# pop $ra
+	add	$sp, $sp, 4
+	
+	jr 	$ra
