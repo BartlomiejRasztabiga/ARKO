@@ -91,7 +91,7 @@ new_label:
 	sw	$s5, ($s0)			# store label line number
 	addiu	$s0, $s0, 4
 	
-	j 	next_char			# TODO
+	j 	next_char
 	
 end_of_line:
 	addiu	$s5, $s5, 1			# current_line++
@@ -105,7 +105,24 @@ end_of_word:
 	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol				
 						# TODO: word is a symbol
 end_of_word_symbol:
-		
+	move 	$a0, $t0
+	jal	itoa				# address of string representation of line number
+	move	$t0, $v0			# store address in $t0
+	
+	move	$a0, $t0			# source for copy
+	move	$a1, $s6			# dest for copy
+	jal	copy_src_to_dest		# copy string representation to output_content
+	move	$s6, $v0			# update next free space of output_content
+	
+	lb	$t0, ($s2)			# TODO DEBUG
+	sb	$t0, ($s6)			# store space of LF of the word
+	addiu	$s6, $s6, 1			# increment output_content pointer
+	
+	# TODO: copy /n or LF = move ($s2) to output_content
+	
+	addiu	$s1, $s3, 1			# reset start of current word
+	
+	j	next_char
 						
 end_of_word_not_symbol:
 						# if word is not a symbol, copy string to output_content
