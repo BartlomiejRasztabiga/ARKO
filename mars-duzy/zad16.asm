@@ -244,7 +244,7 @@ write_file_loop_return:
 	jr	$ra				# return	
 	
 # ============================================================================  	
-# read_file
+# read_file (LEAF)
 # description: 
 #	reads file to content buffer
 # arguments: none
@@ -255,13 +255,10 @@ write_file_loop_return:
 # returns:
 #	$v0 - status code, negative if error
 read_file:
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw 	$s1, 4($sp)			# push $s1
-	sub	$sp, $sp, 4
+	sub	$sp, $sp, 16
+	sw	$ra, 16($sp)			# push $ra
+	sw	$s0, 12($sp)			# push $s0
+	sw 	$s1, 8($sp)			# push $s1
 	sw 	$s2, 4($sp)			# push $s2
 
 	la	$a0, input_fname		# input file name
@@ -283,7 +280,7 @@ read_file_loop:
 	jal	copy_src_to_dest		# call copy_buffer_to_dest
 	move	$s2, $v0			# store address of next free char at content
 	
-	jal	clear_buffer			# call clear_buffer 					TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
+	jal	clear_buffer			# call clear_buffer, TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
   	
   	j 	read_file_loop			# go back to read_file_loop
 open_file_err: 
@@ -306,14 +303,11 @@ read_file_close:
   	
   	j 	read_file_loop_return		# TODO: delete	
 read_file_loop_return:
-	lw	$s2, 4($sp)			# pop $s2
-	add	$sp, $sp, 4			
-	lw	$s1, 4($sp)			# pop $s1
-	add	$sp, $sp, 4			
-	lw	$s0, 4($sp)			# pop $s0
-	add	$sp, $sp, 4			
-	lw	$ra, 4($sp)			# pop $ra
-	add	$sp, $sp, 4
+	lw	$s2, 4($sp)			# pop $s2		
+	lw	$s1, 8($sp)			# pop $s1			
+	lw	$s0, 12($sp)			# pop $s0			
+	lw	$ra, 16($sp)			# pop $ra
+	add	$sp, $sp, 16
 
 	jr	$ra				# return
   	
