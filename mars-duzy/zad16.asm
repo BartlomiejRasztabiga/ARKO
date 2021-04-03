@@ -693,18 +693,19 @@ itoa:
       	sb   	$zero, 1($t0)      		# null-terminated str
       	li   	$t1, '0'  
       	sb   	$t1, ($t0)     			# init. with ascii 0
-      	li   	$t3, 10        			# preload 10
+      	li   	$t3, 10        			# load 10
 
-      	beq  	$a0, $0, iend  			# end if 0
+      	beq  	$a0, $0, iend  			# end if number is 0
 loop:
       	div  	$a0, $t3       			# a /= 10
       	mflo 	$a0
       	mfhi 	$t4            			# get remainder
       	add  	$t4, $t4, $t1  			# convert to ASCII digit
       	sb   	$t4, ($t0)     			# store it
-      	sub  	$t0, $t0, 1    			# dec. buf ptr
+      	sub  	$t0, $t0, 1    			# decrement buffer pointer
       	bne  	$a0, $0, loop  			# if not zero, loop
-      	addi 	$t0, $t0, 1    			# adjust buf ptr
+      	
 iend:
+	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
       	jr   	$ra
