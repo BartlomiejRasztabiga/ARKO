@@ -365,35 +365,20 @@ open_file:
   	jr	$ra				# return
 
 # ============================================================================  	
-# getc
+# getc (LEAF)
 # description: 
 #	reads BUF_LEN bytes from opened file to buffer
 # arguments:
 #	$a0 - file descriptor
-# variables:
-#	$s0 - file descriptor
+# variables: none
 # returns:
 #	$v0 - number of characters read, 0 if end-of-file, negative if error
 getc:
-	# TODO: delete stack operations if getc is a leaf
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	
-	move	$s0, $a0			# store file descriptor as local variable
-	
 	li 	$v0, 14       			# system call for read to file
-	move 	$a0, $s0    			# put the file descriptor in $a0
   	la 	$a1, buffer   			# address of buffer to store file content
   	li 	$a2, BUF_LEN       		# buffer length
   	syscall          			# read from file
-  	
-  	lw	$s0, 4($sp)
-  	add	$sp, $sp, 4			# pop $s0
-  	lw	$ra, 4($sp)
-  	add	$sp, $sp, 4			# pop $ra
-  	
+
   	jr	$ra				# return
   	
 # ============================================================================  	
