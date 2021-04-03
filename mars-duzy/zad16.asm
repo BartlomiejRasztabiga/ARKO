@@ -693,7 +693,7 @@ compare_word:
 	sge	$t7, $t5, $a1			# if word has ended
 	and	$t6, $t6, $t7
 	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
-	bgt	$t1, $t2, symbol_not_found	# if label has ended BUT word has not ended, symbol_not_found
+	bgt	$t1, $t2, compare_word_not_equal# if label has ended BUT word has not ended, try next label
 	
 	lb	$t3, ($t1)			# load label's char
 	lb	$t4, ($t5)			# load word's char
