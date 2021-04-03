@@ -397,53 +397,24 @@ getc:
   	jr	$ra				# return
   	
 # ============================================================================  	
-# putc
+# putc (LEAF)
 # description: 
 #	writes n bytes from buffer to opened file
 # arguments:
 #	$a0 - file descriptor
 #	$a1 - start of content to write
 #	$a2 - number of chars to write
-# variables:
-#	$s0 - file descriptor
-#	$s1 - start of content to write
-#	$s2 - number of chars to write
+# variables: none
 # returns:
 #	$v0 - number of characters written, negative if error
 putc:
-	# TODO: delete stack operations if putc is a leaf
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw	$s1, 4($sp)			# push $s1
-	sub	$sp, $sp, 4
-	sw	$s2, 4($sp)			# push $s2
-	
-	move	$s0, $a0			# store file descriptor
-	move	$s1, $a1			# store start of content to write
-	move	$s2, $a2			# store number of chars to write
-	
 	li 	$v0, 15       			# system call for write to file
-	move 	$a0, $s0    			# put the file descriptor in $a0
-  	move 	$a1, $s1   			# address of buffer to read content from
-  	move	$a2, $s2      			# number of chars to write
   	syscall          			# write to file
-  	
-  	lw	$s2, 4($sp)
-  	add	$sp, $sp, 4			# pop $s2
-  	lw	$s1, 4($sp)
-  	add	$sp, $sp, 4			# pop $s1
-  	lw	$s0, 4($sp)
-  	add	$sp, $sp, 4			# pop $s0
-  	lw	$ra, 4($sp)
-  	add	$sp, $sp, 4			# pop $ra
   	
   	jr	$ra				# return
   		
 # ============================================================================  	
-# print_str
+# print_str (TODO: delete)
 # description: 
 #	prints string given in $a0
 # arguments:
@@ -453,43 +424,27 @@ putc:
 print_str:
   	li 	$v0, 4				# print the string out
   	syscall
-  	
   	jr 	$ra				# return
  
 # ============================================================================  	
-# clear_buffer
+# clear_buffer (LEAF)
 # description: 
 #	clears buffer by setting all bytes to /0
 # arguments: none
 # variables:
-#	$s0 - address of buffer to clear
-#	$s1 - current char of buffer
+#	$t0 - address of buffer to clear
+#	$t1 - current char of buffer
 # returns: none
 clear_buffer:
-	# TODO: delete stack operations if clear_buffer is a leaf
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw	$s1, 4($sp)			# push $s1
-
-	la	$s0, buffer			# load the address of buffer into $s0
+	la	$t0, buffer			# load the address of buffer into $s0
 clear_buffer_loop:
-	lbu	$s1, ($s0)			# store char in $s1
-	beqz 	$s1, clear_buffer_return	# if met end of string, return
+	lbu	$t1, ($t0)			# store char in $s1
+	beqz 	$t1, clear_buffer_return	# if met end of string, return
 	
-	sb	$zero, ($s0)			# else, store 0 at current char address
-	addiu	$s0, $s0, 1			# next char
+	sb	$zero, ($t0)			# else, store 0 at current char address
+	addiu	$t0, $t0, 1			# next char
 	j	clear_buffer_loop		# if not met end of string, repeat loop
 clear_buffer_return:
-	lw	$s1, 4($sp)
-  	add	$sp, $sp, 4			# pop $s1
-	lw	$s0, 4($sp)
-  	add	$sp, $sp, 4			# pop $s0
-  	lw	$ra, 4($sp)
-  	add	$sp, $sp, 4			# pop $ra
-
 	jr	$ra				# return
 	
 # ============================================================================  	
