@@ -169,15 +169,11 @@ replace_labels_return:
 # returns:
 #	$v0 - status code, negative if error
 write_file:
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw 	$s1, 4($sp)			# push $s1
-	sub	$sp, $sp, 4
-	sw 	$s2, 4($sp)			# push $s2
-	sub	$sp, $sp, 4
+	sub	$sp, $sp, 20
+	sw	$ra, 20($sp)			# push $ra
+	sw	$s0, 16($sp)			# push $s0
+	sw 	$s1, 12($sp)			# push $s1
+	sw 	$s2, 8($sp)			# push $s2
 	sw 	$s3, 4($sp)			# push $s3
 
 	la	$a0, output_fname		# input file name
@@ -230,16 +226,12 @@ write_file_close:
   	
   	j 	write_file_loop_return		# TODO: delete	
 write_file_loop_return:
-	lw	$s3, 4($sp)			# pop $s3
-	add	$sp, $sp, 4			
-	lw	$s2, 4($sp)			# pop $s2
-	add	$sp, $sp, 4			
-	lw	$s1, 4($sp)			# pop $s1
-	add	$sp, $sp, 4			
-	lw	$s0, 4($sp)			# pop $s0
-	add	$sp, $sp, 4			
-	lw	$ra, 4($sp)			# pop $ra
-	add	$sp, $sp, 4
+	lw	$s3, 4($sp)			# pop $s3		
+	lw	$s2, 8($sp)			# pop $s2		
+	lw	$s1, 12($sp)			# pop $s1			
+	lw	$s0, 16($sp)			# pop $s0			
+	lw	$ra, 20($sp)			# pop $ra
+	add	$sp, $sp, 20
 
 	jr	$ra				# return	
 	
