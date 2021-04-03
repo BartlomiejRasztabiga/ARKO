@@ -19,13 +19,14 @@ buffer: 	.space BUF_LEN
 main:
   	jal	read_file			# read input file to content
   	bltz	$v0, exit			# if error during read_file, goto exit
+  	
 	jal	replace_labels			# replace labels in output_content
 	
 	jal	write_file			# write output_content to output file
 	
+						# TODO: delete
 	la	$a0, output_content
 	jal	print_str			# print output_content
-
 exit:
 	li 	$v0, 10
   	syscall
@@ -80,18 +81,14 @@ new_label:
 	addiu	$s0, $s0, 4
 	
 	j 	next_char
-	
 end_of_line:
 	addiu	$s5, $s5, 1			# current_line++
-	j 	end_of_word			# TODO: delete
-end_of_word:
-						# TODO: check if found defined symbol, if yes, replace and copy to output_content
-	move	$a0, $s1
+end_of_word:					
+	move	$a0, $s1			# check if found defined symbol, if yes, replace and copy to output_content
 	move	$a1, $s2
 	jal	get_symbol_for_word		# get line number for symbol
 	move	$t0, $v0			# store found line number for symbol
-	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol				
-						# TODO: word is a symbol
+	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol
 end_of_word_symbol:
 	move 	$a0, $t0
 	jal	itoa				# address of string representation of line number
@@ -108,8 +105,7 @@ end_of_word_symbol:
 	
 	addiu	$s1, $s3, 1			# reset start of current word
 	
-	j	next_char
-						
+	j	next_char				
 end_of_word_not_symbol:
 						# if word is not a symbol, copy string to output_content
 	addiu	$t0, $s2, 1			# end_of_word++ to include whitespace
@@ -119,15 +115,11 @@ end_of_word_not_symbol:
 	jal	copy_src_range_to_dest		# call copy_src_range_to_dest
 	move	$s6, $v0			# update next free space of output_content
 	
-	
 	addiu	$s1, $s3, 1			# reset start of current word
-	
-	j 	next_char			# TODO for now
 next_char:
 	addiu	$s2, $s2, 1			# end of current word ++
 	addiu	$s3, $s3, 1			# next char address
 	j	replace_labels_loop		# go back to loop
-	
 replace_labels_return:
 	lw	$s6, 4($sp)			# pop $s6
 	lw	$s5, 8($sp)			# pop $s5
@@ -197,20 +189,16 @@ write_file_open_err:
   	j 	write_file_err
 putc_err:
 	la 	$a0, getc_err_txt		# load the address into $a0
-  	j 	write_file_err
 write_file_err:
 	jal	print_str			# call print_str
 	li	$v0, -1				# set error flag
   	j 	write_file_close		# goto write_file_close
 write_file_ok:
 	li	$v0, 0				# all good, no error flag set
-	j 	write_file_close		# goto write_file_close TODO: delete
 write_file_close:
 	move	$a0, $s0			# move file descriptor to $a0
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
-  	
-  	j 	write_file_loop_return		# TODO: delete	
 write_file_loop_return:
 	lw	$s3, 4($sp)			# pop $s3		
 	lw	$s2, 8($sp)			# pop $s2		
@@ -266,20 +254,16 @@ open_file_err:
   	j 	read_file_err
 getc_err:
 	la 	$a0, getc_err_txt		# load the address into $a0
-  	j 	read_file_err
 read_file_err:
 	jal	print_str			# call print_str
 	li	$v0, -1				# set error flag
   	j 	read_file_close			# goto read_file_close
 read_file_ok:
 	li	$v0, 0				# all good, no error flag set
-	j 	read_file_close			# goto read_file_close TODO: delete
 read_file_close:
 	move	$a0, $s0			# move file descriptor to $a0
   	li 	$v0, 16       			# system call for close file
   	syscall          			# close file
-  	
-  	j 	read_file_loop_return		# TODO: delete	
 read_file_loop_return:
 	lw	$s2, 4($sp)			# pop $s2		
 	lw	$s1, 8($sp)			# pop $s1			
@@ -350,6 +334,7 @@ putc:
 print_str:
   	li 	$v0, 4				# print the string out
   	syscall
+
   	jr 	$ra				# return
  
 # ============================================================================  	
@@ -546,7 +531,6 @@ loop:
       	sb   	$t3, ($t0)     			# store it
       	sub  	$t0, $t0, 1    			# decrement buffer pointer
       	bne  	$a0, $0, loop  			# if not zero, loop
-      	
 iend:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
