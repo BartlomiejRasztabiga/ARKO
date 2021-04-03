@@ -22,13 +22,15 @@ main:
 	j 	post_read_file			# TODO: delete
 	
 post_read_file:
-	la	$a0, content
-	jal	print_str			# call print_str
+	
 	jal	replace_labels			# call replace_labels
 
 	j 	post_replace_labels
 post_replace_labels:
 	jal	write_file
+	
+	la	$a0, output_content
+	jal	print_str			# call print_str
 	
 	j exit
 exit:
@@ -665,29 +667,28 @@ min_return:
 	jr	$ra				# return
 	
 # ============================================================================
-# get_symbol_for_word(LEAF)
+# get_symbol_for_word (LEAF)
 # description:
 #	returns line number for symbol if word is a defined symbol, -1 if not defined
 # arguments:
 #	$a0 - address of first char of word
 #	$a1 - address of last char of word
-# variables: none
+# variables:
+#	$t0 - address of labels
+#	$t1 - address of label's start string
+#	$t2 - address of label's end string
+#	$t3 - current label's char
+#	$t4 - current word's char
+#	$t5 - pointer for current label section
 # returns:
 #	$v0 - line number for symbol if word is a defined symbol, -1 if not defined
-get_symbol_for_word:
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	
+get_symbol_for_word:	
 	la	$t0, labels			# first label pointer
 	move	$t5, $a0			# store $a0 in $t5
-
-
 get_symbol_for_word_loop:
 	lw	$t1, ($t0)			# get start address of label
 	beqz	$t1, symbol_not_found		# if label's start is NULL, there is no label = symbol_not_found
 	lw	$t2 4($t0)			# get end address of label
-	
-	
 compare_word:
 	sgt	$t6, $t1, $t2			# if label has ended
 	sge	$t7, $t5, $a1			# if word has ended
@@ -706,23 +707,17 @@ compare_word_not_equal:
 	addiu	$t0, $t0, 12			# next label
 	move	$t5, $a0			# reset word's pointer
 	j 	get_symbol_for_word_loop
-	
 symbol_not_found:
-	li	$v0, -1
+	li	$v0, -1				# set 'symbol not found' flag
 	j 	get_symbol_for_word_return
-	
 symbol_found:
 	addiu	$t0, $t0, 8			# move to v0 address of label's line number
-	lw	$v0, ($t0)			# load line number
-	
+	lw	$v0, ($t0)			# load line number as return value
 get_symbol_for_word_return:
-	lw	$ra, 4($sp)			# pop $ra
-	add	$sp, $sp, 4
-	
 	jr 	$ra
 	
 # ============================================================================
-# itoa(LEAF)
+# itoa (LEAF)
 # description:
 #	moves string representation of given integer to buffer
 # arguments:
@@ -730,10 +725,6 @@ get_symbol_for_word_return:
 # variables:none
 # returns:
 #	$v0 - address of first ascii char of string representation
-						# https://stackoverflow.com/questions/20531292/convert-an-int-to-a-string-of-characters
-						# maybe already store the string into predefined place in memory?
-						# https://stackoverflow.com/questions/2934126/saving-integers-as-strings-in-mips
-						# wrong, writes chars right to lef
 itoa:
       	la   	$t0, buffer+14 			# pointer to almost-end of buffer, BUF_LEN-2
       	sb   	$zero, 1($t0)      		# null-terminated str

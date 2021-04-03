@@ -1,11 +1,11 @@
 a:
-value a
-bbb: a + 6
-bbb + c * a
+value 1
+bbb: 1 + 6
+3 + c * 1
 c:
 d:
 ff:
-ff
+7
 test abc:
-test abc
+test 9
 
