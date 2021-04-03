@@ -653,6 +653,7 @@ min_return:
 #	returns line number for symbol if word is a defined symbol, -1 if not defined
 # arguments:
 #	$a0 - address of first char of word
+#	$a1 - address of last char of word
 # variables: none
 # returns:
 #	$v0 - line number for symbol if word is a defined symbol, -1 if not defined
@@ -671,12 +672,16 @@ get_symbol_for_word_loop:
 	
 	
 compare_word:
-	bgt	$t1, $t2, symbol_found		# if start > end, symbol found
+	# TODO: will it break for word that is abc and label is a?
+	sgt	$t6, $t1, $t2
+	sge	$t7, $t5, $a1
+	and	$t6, $t6, $t7
+	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
+	bgt	$t1, $t2, symbol_not_found	# if label has ended AND wors has not ended, symbol_not_found
 	
 	lb	$t3, ($t1)			# load label's char
 	lb	$t4, ($t5)			# load word's char
 	
-	beqz	$t4, symbol_found		# if word's char is NULL, symbol found?
 	bne	$t3, $t4, compare_word_not_equal# if label's char != word's char, symbol not found, try next label
 	addiu	$t1, $t1, 1			# next label's char
 	addiu	$t5, $t5, 1			# next word's char
