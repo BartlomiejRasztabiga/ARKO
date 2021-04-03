@@ -1,3 +1,5 @@
+value a
+value bbb
 a:
 value a
 bbb: a + 6
