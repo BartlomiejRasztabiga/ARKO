@@ -30,17 +30,6 @@ post_read_file:
 post_replace_labels:
 	jal	write_file
 	
-						# TODO: delete
-	li	$a0, 999
-	jal	itoa
-	move	$a0, $v0
-	jal 	print_str
-	
-	li	$a0, 1
-	jal	itoa
-	move	$a0, $v0
-	jal 	print_str
-	
 	j exit
 exit:
 	li 	$v0, 10
@@ -677,6 +666,7 @@ get_symbol_for_word:
 
 get_symbol_for_word_loop:
 	lw	$t1, ($t0)			# get start address of label
+	beqz	$t1, symbol_not_found		# if label's start is NULL, there is no label = symbol_not_found
 	lw	$t2 4($t0)			# get end address of label
 	
 	
