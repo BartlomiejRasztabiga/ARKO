@@ -17,22 +17,15 @@ buffer: 	.space BUF_LEN
         
         .text
 main:
-  	jal	read_file
+  	jal	read_file			# read input file to content
   	bltz	$v0, exit			# if error during read_file, goto exit
-	j 	post_read_file			# TODO: delete
+	jal	replace_labels			# replace labels in output_content
 	
-post_read_file:
-	
-	jal	replace_labels			# call replace_labels
-
-	j 	post_replace_labels
-post_replace_labels:
-	jal	write_file
+	jal	write_file			# write output_content to output file
 	
 	la	$a0, output_content
-	jal	print_str			# call print_str
-	
-	j exit
+	jal	print_str			# print output_content
+
 exit:
 	li 	$v0, 10
   	syscall
@@ -116,11 +109,9 @@ end_of_word_symbol:
 	jal	copy_src_to_dest		# copy string representation to output_content
 	move	$s6, $v0			# update next free space of output_content
 	
-	lb	$t0, ($s2)			# TODO DEBUG
-	sb	$t0, ($s6)			# store space of LF of the word
+	lb	$t0, ($s2)			# get last char of current word (LF or space)
+	sb	$t0, ($s6)			# store space or LF of the current word to output
 	addiu	$s6, $s6, 1			# increment output_content pointer
-	
-	# TODO: copy /n or LF = move ($s2) to output_content
 	
 	addiu	$s1, $s3, 1			# reset start of current word
 	
@@ -187,7 +178,7 @@ write_file:
 	sub	$sp, $sp, 4
 	sw 	$s2, 4($sp)			# push $s2
 	sub	$sp, $sp, 4
-	sw 	$s3, 4($sp)			# push $s2
+	sw 	$s3, 4($sp)			# push $s3
 
 	la	$a0, output_fname		# input file name
 	li	$a1, 1				# write only flag
@@ -377,7 +368,7 @@ putc:
   	jr	$ra				# return
   		
 # ============================================================================  	
-# print_str (TODO: delete)
+# print_str
 # description: 
 #	prints string given in $a0
 # arguments:
