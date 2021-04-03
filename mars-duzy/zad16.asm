@@ -642,7 +642,7 @@ str_len_return:
 	jr	$ra				# return
 	
 # ============================================================================
-# min (LEAF FUNCTION)
+# min (LEAF)
 # description:
 #	returns less of two ints
 # arguments:
@@ -722,7 +722,11 @@ get_symbol_for_word_return:
 #	moves string representation of given integer to buffer
 # arguments:
 #	$a0 - int
-# variables:none
+# variables:
+# 	$t0 - pointer to place for the next char
+#	$t1 - '0' char
+#	$t2 - '10' int
+#	$t3 - digit as ascii
 # returns:
 #	$v0 - address of first ascii char of string representation
 itoa:
@@ -730,15 +734,15 @@ itoa:
       	sb   	$zero, 1($t0)      		# null-terminated str
       	li   	$t1, '0'  
       	sb   	$t1, ($t0)     			# init. with ascii 0
-      	li   	$t3, 10        			# load 10
+      	li   	$t2, 10        			# load 10
 
       	beq  	$a0, $0, iend  			# end if number is 0
 loop:
-      	div  	$a0, $t3       			# a /= 10
+      	div  	$a0, $t2       			# a /= 10
       	mflo 	$a0
-      	mfhi 	$t4            			# get remainder
-      	add  	$t4, $t4, $t1  			# convert to ASCII digit
-      	sb   	$t4, ($t0)     			# store it
+      	mfhi 	$t3            			# get remainder
+      	add  	$t3, $t3, $t1  			# convert to ASCII digit
+      	sb   	$t3, ($t0)     			# store it
       	sub  	$t0, $t0, 1    			# decrement buffer pointer
       	bne  	$a0, $0, loop  			# if not zero, loop
       	
