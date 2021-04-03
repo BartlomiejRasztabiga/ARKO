@@ -1,8 +1,8 @@
 a:
-value a
+value 1
 bbb: a + 6
-bbb + c * a
+3 + c * 1
 c:
 d:
 ff:
-ff
+7
