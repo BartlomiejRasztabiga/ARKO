@@ -114,7 +114,9 @@ end_of_word:
 	jal	get_symbol_for_word		# get line number for symbol
 	move	$t0, $v0			# store found line number for symbol
 	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol				
-						# TODO: word is a symbol					
+						# TODO: word is a symbol
+end_of_word_symbol:
+		
 						
 end_of_word_not_symbol:
 						# if word is not a symbol, copy string to output_content
@@ -657,7 +659,7 @@ min_return:
 	jr	$ra				# return
 	
 # ============================================================================
-# get_symbol_for_word
+# get_symbol_for_word(LEAF)
 # description:
 #	returns line number for symbol if word is a defined symbol, -1 if not defined
 # arguments:
@@ -670,19 +672,37 @@ get_symbol_for_word:
 	sw	$ra, 4($sp)			# push $ra
 	
 	la	$t0, labels			# first label pointer
+	move	$t5, $a0			# store $a0 in $t5
+
 
 get_symbol_for_word_loop:
-	lw	$t1, ($t0)			# get address of label
-	beqz	$t1, symbol_not_found
-	beq	$a0, $t1, symbol_found		# address match, symbol found
+	lw	$t1, ($t0)			# get start address of label
+	lw	$t2 4($t0)			# get end address of label
+	
+	
+compare_word:
+	bgt	$t1, $t2, symbol_found		# if start > end, symbol found
+	
+	lb	$t3, ($t1)			# load label's char
+	lb	$t4, ($t5)			# load word's char
+	
+	beqz	$t4, symbol_found		# if word's char is NULL, symbol found?
+	bne	$t3, $t4, compare_word_not_equal# if label's char != word's char, symbol not found, try next label
+	addiu	$t1, $t1, 1			# next label's char
+	addiu	$t5, $t5, 1			# next word's char
+	j compare_word
+compare_word_not_equal:	
 	addiu	$t0, $t0, 12			# next label
+	move	$t5, $a0			# reset word's pointer
+	j 	get_symbol_for_word_loop
 	
 symbol_not_found:
 	li	$v0, -1
 	j 	get_symbol_for_word_return
 	
 symbol_found:
-	addiu	$v0, $t0, 8			# move to v0 address of label's line number
+	addiu	$t0, $t0, 8			# move to v0 address of label's line number
+	lw	$v0, ($t0)			# load line number
 	
 get_symbol_for_word_return:
 	lw	$ra, 4($sp)			# pop $ra
