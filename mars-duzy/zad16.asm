@@ -327,41 +327,19 @@ read_file_loop_return:
 	jr	$ra				# return
   	
 # ============================================================================  	
-# open_file
+# open_file (LEAF)
 # description: 
 #	opens file and returns file descriptor
 # arguments:
 #	$a0 - file name to open
 #	$a1 - file open flag
-# variables:
-#	$a0 - file name to open
-#	$a1 - file open flag
+# variables: none
 # returns:
 #	$v0 - opened file descriptor, negative if error
 open_file:
-	# TODO: delete stack operations if getc is a leaf
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw	$s1, 4($sp)			# push $s1
-	
-	move	$s0, $a0			# file name to open
-	move	$s1, $a1			# file open flag
-
 	li 	$v0, 13       			# system call to open file
-  	move 	$a0, $s0			# put file name string to $a0
-  	move 	$a1, $s1      			# read_only flag
   	syscall          			# open a file (file descriptor returned in $v0)
-  	
-  	lw	$s1, 4($sp)
-  	add	$sp, $sp, 4			# pop $s1
-  	lw	$s0, 4($sp)
-  	add	$sp, $sp, 4			# pop $s0
-  	lw	$ra, 4($sp)
-  	add	$sp, $sp, 4			# pop $ra
-  	
+
   	jr	$ra				# return
 
 # ============================================================================  	
