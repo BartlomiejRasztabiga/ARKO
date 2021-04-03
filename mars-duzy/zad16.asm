@@ -45,21 +45,14 @@ exit:
 #	$s6 - next free space at output_content
 # returns: none
 replace_labels:
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw	$s1, 4($sp)			# push $s1
-	sub	$sp, $sp, 4
-	sw	$s2, 4($sp)			# push $s2
-	sub	$sp, $sp, 4
-	sw	$s3, 4($sp)			# push $s3
-	sub	$sp, $sp, 4
-	sw	$s4, 4($sp)			# push $s4
-	sub	$sp, $sp, 4
-	sw	$s5, 4($sp)			# push $s5
-	sub	$sp, $sp, 4
+	sub	$sp, $sp, 32
+	sw	$ra, 32($sp)			# push $ra
+	sw	$s0, 28($sp)			# push $s0
+	sw	$s1, 24($sp)			# push $s1
+	sw	$s2, 20($sp)			# push $s2
+	sw	$s3, 16($sp)			# push $s3
+	sw	$s4, 12($sp)			# push $s4
+	sw	$s5, 8($sp)			# push $s5
 	sw	$s6, 4($sp)			# push $s6
 	
 	la	$s0, labels			# store next free space of labels at $s0
@@ -137,21 +130,14 @@ next_char:
 	
 replace_labels_return:
 	lw	$s6, 4($sp)			# pop $s6
-	add	$sp, $sp, 4	
-	lw	$s5, 4($sp)			# pop $s5
-	add	$sp, $sp, 4	
-	lw	$s4, 4($sp)			# pop $s4
-	add	$sp, $sp, 4	
-	lw	$s3, 4($sp)			# pop $s3
-	add	$sp, $sp, 4	
-	lw	$s2, 4($sp)			# pop $s2
-	add	$sp, $sp, 4	
-	lw	$s1, 4($sp)			# pop $s1
-	add	$sp, $sp, 4			
-	lw	$s0, 4($sp)			# pop $s0
-	add	$sp, $sp, 4			
-	lw	$ra, 4($sp)			# pop $ra
-	add	$sp, $sp, 4
+	lw	$s5, 8($sp)			# pop $s5
+	lw	$s4, 12($sp)			# pop $s4
+	lw	$s3, 16($sp)			# pop $s3
+	lw	$s2, 20($sp)			# pop $s2
+	lw	$s1, 24($sp)			# pop $s1
+	lw	$s0, 28($sp)			# pop $s0
+	lw	$ra, 32($sp)			# pop $ra
+	add	$sp, $sp, 32
 
 	jr	$ra				# return
 	
