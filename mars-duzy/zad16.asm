@@ -676,13 +676,12 @@ get_symbol_for_word_return:
 	jr 	$ra
 	
 # ============================================================================
-# itoa
+# itoa(LEAF)
 # description:
 #	moves string representation of given integer to buffer
 # arguments:
 #	$a0 - int
-# variables:
-#	$s0 - int
+# variables:none
 # returns:
 #	$v0 - address of first ascii char of string representation
 						# https://stackoverflow.com/questions/20531292/convert-an-int-to-a-string-of-characters
@@ -690,41 +689,22 @@ get_symbol_for_word_return:
 						# https://stackoverflow.com/questions/2934126/saving-integers-as-strings-in-mips
 						# wrong, writes chars right to lef
 itoa:
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-
-      	la   	$t0, buffer+14 	# pointer to almost-end of buffer, BUF_LEN-2
-      	sb   	$0, 1($t0)      # null-terminated str
+      	la   	$t0, buffer+14 			# pointer to almost-end of buffer, BUF_LEN-2
+      	sb   	$zero, 1($t0)      		# null-terminated str
       	li   	$t1, '0'  
-      	sb   	$t1, ($t0)     # init. with ascii 0
-      	li   	$t3, 10        # preload 10
+      	sb   	$t1, ($t0)     			# init. with ascii 0
+      	li   	$t3, 10        			# preload 10
 
-      	slt  	$t2, $a0, $0   # keep the sign
-      	beq  	$a0, $0, iend  # end if 0
-      	bgtz 	$a0, loop
-      	neg  	$a0, $a0       # absolute value (unsigned)
+      	beq  	$a0, $0, iend  			# end if 0
 loop:
-      	div  	$a0, $t3       # a /= 10
+      	div  	$a0, $t3       			# a /= 10
       	mflo 	$a0
-      	mfhi 	$t4            # get remainder
-      	add  	$t4, $t4, $t1  # convert to ASCII digit
-      	sb   	$t4, ($t0)     # store it
-      	sub  	$t0, $t0, 1    # dec. buf ptr
-      	bne  	$a0, $0, loop  # if not zero, loop
-      	addi 	$t0, $t0, 1    # adjust buf ptr
+      	mfhi 	$t4            			# get remainder
+      	add  	$t4, $t4, $t1  			# convert to ASCII digit
+      	sb   	$t4, ($t0)     			# store it
+      	sub  	$t0, $t0, 1    			# dec. buf ptr
+      	bne  	$a0, $0, loop  			# if not zero, loop
+      	addi 	$t0, $t0, 1    			# adjust buf ptr
 iend:
-      	beq  	$t2, $0, nolz  # was < 0?
-      	addi 	$t0, $t0, -1
-      	li   	$t1, '-'
-      	sb   	$t1, ($t0)
-nolz:
-	move 	$v0, $t0      # return the addr.
-
-	lw	$s0, 4($sp)			# pop $s0
-	add	$sp, $sp, 4
-	lw	$ra, 4($sp)			# pop $ra
-	add	$sp, $sp, 4
-      
-      	jr   	$ra           # of the string
+	move 	$v0, $t0      			# return the addres for first ascii char
+      	jr   	$ra
