@@ -661,13 +661,28 @@ min_return:
 # description:
 #	returns line number for symbol if word is a defined symbol, -1 if not defined
 # arguments:
-#	$a0 - first int
+#	$a0 - address of first char of word
 # variables: none
 # returns:
 #	$v0 - line number for symbol if word is a defined symbol, -1 if not defined
 get_symbol_for_word:
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
+	
+	la	$t0, labels			# first label pointer
+
+get_symbol_for_word_loop:
+	lw	$t1, ($t0)			# get address of label
+	beqz	$t1, symbol_not_found
+	beq	$a0, $t1, symbol_found		# address match, symbol found
+	addiu	$t0, $t0, 12			# next label
+	
+symbol_not_found:
+	li	$v0, -1
+	j 	get_symbol_for_word_return
+	
+symbol_found:
+	addiu	$v0, $t0, 8			# move to v0 address of label's line number
 	
 get_symbol_for_word_return:
 	lw	$ra, 4($sp)			# pop $ra
