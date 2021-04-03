@@ -493,50 +493,26 @@ clear_buffer_return:
 	jr	$ra				# return
 	
 # ============================================================================  	
-# copy_src_to_dest
+# copy_src_to_dest (LEAF)
 # description: 
 #	copies src string to dest
 # arguments:
 #	$a0 - src address
 #	$a1 - dest address
 # variables:
-#	$s0 - src address
-#	$s1 - dest address
-#	#s2 - current char
+#	#t0 - current char
 # returns:
 #	$v0 - address of next free char at destination
-copy_src_to_dest:				# takes addresses of src and destination as params
-	sub	$sp, $sp, 4
-	sw	$ra, 4($sp)			# push $ra
-	sub	$sp, $sp, 4
-	sw	$s0, 4($sp)			# push $s0
-	sub	$sp, $sp, 4
-	sw 	$s1, 4($sp)			# push $s1
-	sub	$sp, $sp, 4
-	sw 	$s2, 4($sp)			# push $s2
-
-	move	$s0, $a0			# address of src
-	move	$s1, $a1			# address of destination
-copy_src_loop:
-	lb	$s2, ($s0)			# store buffer char in $s2
-	beqz	$s2, copy_src_return		# if met end of string, return
+copy_src_to_dest:
+	lb	$t0, ($a0)			# store buffer char in $t0
+	beqz	$t0, copy_src_return		# if met end of string, return
 	
-	sb	$s2, ($s1)			# else, store src char at destination address
-	addiu	$s0, $s0, 1			# next src char
-	addiu	$s1, $s1, 1			# next destination char
-	j copy_src_loop				# if not met end of string, repeat loop
+	sb	$t0, ($a1)			# else, store src char at destination address
+	addiu	$a0, $a0, 1			# next src char
+	addiu	$a1, $a1, 1			# next destination char
+	j copy_src_to_dest			# if not met end of string, repeat loop
 copy_src_return:
-	move	$v0, $s1
-
-	lw	$s2, 4($sp)			# pop $s2
-	add	$sp, $sp, 4			
-	lw	$s1, 4($sp)			# pop $s1
-	add	$sp, $sp, 4			
-	lw	$s0, 4($sp)			# pop $s0
-	add	$sp, $sp, 4			
-	lw	$ra, 4($sp)			# pop $ra
-	add	$sp, $sp, 4
-
+	move	$v0, $a1
 	jr	$ra				# return new free char address of destination
 	
 # ============================================================================
@@ -552,7 +528,7 @@ copy_src_return:
 # returns:
 #	$v0 - address of next free char at destination
 copy_src_range_to_dest:
-	lb	$t0, ($a0)			# store buffer char in $t7
+	lb	$t0, ($a0)			# store buffer char in $t0
 	beq	$a0, $a1, copy_src_range_return	# if met end of range, return
 	
 	sb	$t0, ($a2)			# else, store src char at destination address
