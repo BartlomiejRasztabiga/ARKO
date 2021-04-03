@@ -1,4 +1,4 @@
-.eqv	BUF_LEN 16
+.eqv	BUF_LEN 16 				# MIN 4
 .eqv	INPUT_FILE_SIZE 1024
 # MAX NUMBER OF LABELS IN FILE IS 128
 # MAX NUMBER OF LINES IN FILE IS 999
@@ -29,6 +29,17 @@ post_read_file:
 	j 	post_replace_labels
 post_replace_labels:
 	jal	write_file
+	
+						# TODO: delete
+	li	$a0, 999
+	jal	itoa
+	move	$a0, $v0
+	jal 	print_str
+	
+	li	$a0, 1
+	jal	itoa
+	move	$a0, $v0
+	jal 	print_str
 	
 	j exit
 exit:
@@ -665,23 +676,55 @@ get_symbol_for_word_return:
 	jr 	$ra
 	
 # ============================================================================
-# int_to_str
+# itoa
 # description:
-#	returns string representation of given integer
+#	moves string representation of given integer to buffer
 # arguments:
 #	$a0 - int
-# variables: none
+# variables:
+#	$s0 - int
 # returns:
-#	$v0 - string representation of given integer
-int_to_str:
+#	$v0 - address of first ascii char of string representation
 						# https://stackoverflow.com/questions/20531292/convert-an-int-to-a-string-of-characters
 						# maybe already store the string into predefined place in memory?
-						# maybe even do it differently, take first, to ascii, place and repeat
+						# https://stackoverflow.com/questions/2934126/saving-integers-as-strings-in-mips
+						# wrong, writes chars right to lef
+itoa:
 	sub	$sp, $sp, 4
 	sw	$ra, 4($sp)			# push $ra
-	
-int_to_str_return:
+	sub	$sp, $sp, 4
+	sw	$s0, 4($sp)			# push $s0
+
+      	la   	$t0, buffer+14 	# pointer to almost-end of buffer, BUF_LEN-2
+      	sb   	$0, 1($t0)      # null-terminated str
+      	li   	$t1, '0'  
+      	sb   	$t1, ($t0)     # init. with ascii 0
+      	li   	$t3, 10        # preload 10
+
+      	slt  	$t2, $a0, $0   # keep the sign
+      	beq  	$a0, $0, iend  # end if 0
+      	bgtz 	$a0, loop
+      	neg  	$a0, $a0       # absolute value (unsigned)
+loop:
+      	div  	$a0, $t3       # a /= 10
+      	mflo 	$a0
+      	mfhi 	$t4            # get remainder
+      	add  	$t4, $t4, $t1  # convert to ASCII digit
+      	sb   	$t4, ($t0)     # store it
+      	sub  	$t0, $t0, 1    # dec. buf ptr
+      	bne  	$a0, $0, loop  # if not zero, loop
+      	addi 	$t0, $t0, 1    # adjust buf ptr
+iend:
+      	beq  	$t2, $0, nolz  # was < 0?
+      	addi 	$t0, $t0, -1
+      	li   	$t1, '-'
+      	sb   	$t1, ($t0)
+nolz:
+	move 	$v0, $t0      # return the addr.
+
+	lw	$s0, 4($sp)			# pop $s0
+	add	$sp, $sp, 4
 	lw	$ra, 4($sp)			# pop $ra
 	add	$sp, $sp, 4
-	
-	jr 	$ra
+      
+      	jr   	$ra           # of the string
