@@ -4,35 +4,35 @@ clear_buffer:
 	la	$t0, buffer			
 clear_buffer_loop:
 	lbu	$t1, ($t0)			
-	beqz 	$t1, clear_buffer_return	
+	beqz 	$t1, 1	
 	
 	sb	$zero, ($t0)			
 	addiu	$t0, $t0, 1			
-	j	clear_buffer_loop		
+	j	5		
 
 copy_src_return:
 	move	$v0, $a1
 	jr	$ra			
 copy_src_to_dest:
 	lb	$t0, ($a0)			
-	beqz	$t0, copy_src_return		
+	beqz	$t0, 13		
 	
 	sb	$t0, ($a1)			
 	addiu	$a0, $a0, 1			
 	addiu	$a1, $a1, 1			
-	j copy_src_to_dest			
+	j 16			
 	
 copy_src_range_return:
 	move	$v0, $a2
 	jr	$ra				
 copy_src_range_to_dest:
 	lb	$t0, ($a0)			
-	beq	$a0, $a1, copy_src_range_return	
+	beq	$a0, $a1, 25	
 	
 	sb	$t0, ($a2)			
 	addiu	$a0, $a0, 1			
 	addiu	$a2, $a2, 1			
-	j copy_src_range_to_dest		
+	j 28		
 
 str_len_return:
 	move	$v0, $t1
@@ -42,34 +42,34 @@ str_len:
 	li	$t1, 0				
 str_len_loop:
 	lb	$t2, ($t0)			
-	beqz	$t2, str_len_return		
+	beqz	$t2, 37		
 	addiu	$t1, $t1, 1			
 str_len_next_char:
 	addiu	$t0, $t0, 1			
-	j 	str_len_loop
+	j 	43
 
 min_first:
 	move	$v0, $a0			
 min_return:
 	jr	$ra				
 min:
-	blt	$a0, $a1, min_first		
+	blt	$a0, $a1, 51		
 	move	$v0, $a1			
-	j 	min_return			
+	j 	53			
 
 get_symbol_for_word_return:
 	jr 	$ra
 symbol_not_found:
 	li	$v0, -1				
-	j 	get_symbol_for_word_return
+	j 	60
 get_symbol_for_word_loop:
 	lw	$t1, ($t0)			
-	beqz	$t1, symbol_not_found		
+	beqz	$t1, 62		
 	lw	$t2 4($t0)			
 compare_word_not_equal:	
 	addiu	$t0, $t0, 12			
 	move	$t5, $a0			
-	j 	get_symbol_for_word_loop
+	j 	65
 symbol_found:
 	addiu	$t0, $t0, 8			
 	lw	$v0, ($t0)			
@@ -80,16 +80,16 @@ compare_word:
 	sgt	$t6, $t1, $t2			
 	sge	$t7, $t5, $a1			
 	and	$t6, $t6, $t7
-	beq	$t6, 1, symbol_found		
-	bgt	$t1, $t2, compare_word_not_equal
+	beq	$t6, 1, 73		
+	bgt	$t1, $t2, 69
 	
 	lb	$t3, ($t1)			
 	lb	$t4, ($t5)			
 	
-	bne	$t3, $t4, compare_word_not_equal
+	bne	$t3, $t4, 69
 	addiu	$t1, $t1, 1			
 	addiu	$t5, $t5, 1			
-	j compare_word
+	j 79
 
 itoa_return:
 	addi 	$t0, $t0, 1    			
@@ -102,7 +102,7 @@ itoa:
     sb   	$t1, ($t0)     			
     li   	$t2, 10        			
 
-    beq  	$a0, $0, itoa_return  		
+    beq  	$a0, $0, 94  		
 itoa_loop:
     div  	$a0, $t2       			
     mflo 	$a0
@@ -110,7 +110,7 @@ itoa_loop:
     add  	$t3, $t3, $t1  			
     sb   	$t3, ($t0)     			
     sub  	$t0, $t0, 1    			
-    bne  	$a0, $0, itoa_loop  			
+    bne  	$a0, $0, 106  			
 
 getc:
 	li 	$v0, 14       			
@@ -154,34 +154,34 @@ write_file_close:
 write_file_ok:
 	li	$v0, 0				
 write_file_err:
-	jal	print_str			
+	jal	129			
 	li	$v0, -1				
-  	j 	write_file_close
+  	j 	150
 putc_err:
 	la 	$a0, getc_err_txt		
 write_file_loop:
 	li	$a0, BUF_LEN
 	move	$a1, $s3
-	jal	min				
+	jal	55				
 	move	$t0, $v0
 
 	move	$a0, $s0			
 	move	$a1, $s2			
 	move	$a2, $t0			
-  	jal 	putc				
+  	jal 	123				
   	move	$s1, $v0			
   	
   	subu	$s3, $s3, $s1			
-  	beqz	$s3, write_file_ok		
-  	beqz	$s1, putc_err			
-  	bltz	$s1, putc_err			
+  	beqz	$s3, 154		
+  	beqz	$s1, 160			
+  	bltz	$s1, 160			
   	
   	addu	$s2, $s2, $s1			
   	
-  	j 	write_file_loop			
+  	j 	162			
 write_file_open_err: 
 	la 	$a0, opnfile_err_txt		
-  	j 	write_file_err
+  	j 	156
 write_file:
 	sub	$sp, $sp, 20
 	sw	$ra, 20($sp)			
@@ -192,13 +192,13 @@ write_file:
 
 	la	$a0, output_fname		
 	li	$a1, 1				
-	jal	open_file			
+	jal	135			
   	move	$s0, $v0			
-  	bltz	$s0, write_file_open_err	
+  	bltz	$s0, 182	
   	la	$s2, output_content		
   	
   	move    $a0, $s2			
-	jal	str_len				
+	jal	40				
 	move	$s3, $v0			
 
 read_file_loop_return:
@@ -216,30 +216,30 @@ read_file_close:
 read_file_ok:
 	li	$v0, 0				
 read_file_err:
-	jal	print_str			
+	jal	129			
 	li	$v0, -1				
-  	j 	read_file_close			
+  	j 	212			
 getc_err:
 	la 	$a0, getc_err_txt		
 open_file_err: 
 	la 	$a0, opnfile_err_txt		
-  	j 	read_file_err
+  	j 	218
 read_file_loop:
 	move	$a0, $s0			
-  	jal 	getc				
+  	jal 	115				
   	move	$s1, $v0			
   	
-  	beqz	$s1, read_file_ok		
-  	bltz	$s1, getc_err			
+  	beqz	$s1, 216		
+  	bltz	$s1, 222			
 
 	la	$a0, buffer			
 	move	$a1, $s2			
-	jal	copy_src_to_dest		
+	jal	16		
 	move	$s2, $v0			
 	
-	jal	clear_buffer			
+	jal	3			
   	
-  	j 	read_file_loop			
+  	j 	227			
 read_file:
 	sub	$sp, $sp, 16
 	sw	$ra, 16($sp)			
@@ -249,9 +249,9 @@ read_file:
 
 	la	$a0, input_fname		
 	li	$a1, 0				
-	jal	open_file			
+	jal	135			
   	move	$s0, $v0			
-  	bltz	$s0, open_file_err		
+  	bltz	$s0, 224		
   	la	$s2, content			
 
 
@@ -277,18 +277,18 @@ end_of_word_not_symbol:
 	move	$a0, $s1			
 	move	$a1, $t0			
 	move	$a2, $s6			
-	jal	copy_src_range_to_dest		
+	jal	28		
 	move	$s6, $v0			
 	
 	addiu	$s1, $s3, 1			
 end_of_word_symbol:
 	move 	$a0, $t0
-	jal	itoa				
+	jal	98				
 	move	$t0, $v0			
 	
 	move	$a0, $t0			
 	move	$a1, $s6			
-	jal	copy_src_to_dest		
+	jal	16		
 	move	$s6, $v0			
 	
 	lb	$t0, ($s2)			
@@ -297,13 +297,13 @@ end_of_word_symbol:
 	
 	addiu	$s1, $s3, 1			
 	
-	j	next_char				
+	j	270				
 end_of_word:					
 	move	$a0, $s1			
 	move	$a1, $s2
-	jal	get_symbol_for_word		
+	jal	76		
 	move	$t0, $v0			
-	beq	$t0, -1, end_of_word_not_symbol	
+	beq	$t0, -1, 274	
 end_of_line:
 	addiu	$s5, $s5, 1			
 new_label:
@@ -316,16 +316,16 @@ new_label:
 	sw	$s5, ($s0)			
 	addiu	$s0, $s0, 4
 	
-	j 	next_char
+	j 	270
 replace_labels_loop:
 	lb	$s4, ($s3)			
-	beq	$s4, ' ', end_of_word		
-	beq	$s4, '\t', end_of_word		
-	beq	$s4, '\n', end_of_line		
-	beq	$s4, ':', new_label		
-	beqz	$s4, replace_labels_return	
+	beq	$s4, ' ', 301		
+	beq	$s4, '\t', 301		
+	beq	$s4, '\n', 307		
+	beq	$s4, ':', 309		
+	beqz	$s4, 258	
 	
-	j	next_char			
+	j	270			
 replace_labels:
 	sub	$sp, $sp, 32
 	sw	$ra, 32($sp)			
@@ -349,9 +349,9 @@ exit:
   	syscall
 	
 main:
-  	jal	read_file			
-  	bltz	$v0, exit			
+  	jal	243			
+  	bltz	$v0, 347			
   	
-	jal	replace_labels			
+	jal	329			
 	
-	jal	write_file			
+	jal	185			
