@@ -6,8 +6,9 @@
 # MAX SIZE OF FILE IS 8192
 # PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
 
+# PASS INPUT FILE NAME AS PROGRAM ARGUMENT
+
         .data  
-input_fname:	.asciiz "input.txt"
 output_fname:	.asciiz "output.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
@@ -19,6 +20,10 @@ buffer: 	.space BUF_LEN
         
         .text
 main:
+	beqz	$a0, exit			# no filename provided
+				
+	lw	$a0, ($a1)			# load argv
+
   	jal	read_file			# read input file to content
   	bltz	$v0, exit			# if error during read_file, goto exit
   	
@@ -212,7 +217,8 @@ write_file_loop_return:
 # read_file (LEAF)
 # description: 
 #	reads file to content buffer
-# arguments: none
+# arguments: 
+#	$a0 - pointer to string containing input file name
 # variables:
 #	$s0 - input file descriptor
 #	$s1 - number of read chars
@@ -226,7 +232,6 @@ read_file:
 	sw 	$s1, 8($sp)			# push $s1
 	sw 	$s2, 4($sp)			# push $s2
 
-	la	$a0, input_fname		# input file name
 	li	$a1, 0				# read only flag
 	jal	open_file			# call open_file
   	move	$s0, $v0			# store file descriptor in $s0	

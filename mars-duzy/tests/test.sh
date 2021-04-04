@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-java -jar mars.jar nc ../zad16.asm
+java -jar mars.jar nc ../zad16.asm input.txt
 
 if cmp --silent -- "output.txt" "expected_output.txt";
 then
@@ -10,8 +10,9 @@ else
     exit 1
 fi
 
+java -jar mars.jar nc ../zad16.asm input1.txt
 
-if cmp --silent -- "output1.txt" "expected_output1.txt";
+if cmp --silent -- "output.txt" "expected_output1.txt";
 then
     echo "test 2 passed"
 else
