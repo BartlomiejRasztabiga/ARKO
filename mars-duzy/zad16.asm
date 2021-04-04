@@ -1,11 +1,11 @@
-.eqv	BUF_LEN 512 				# MIN 4
-.eqv	LABELS_SIZE 1536
-# MAX NUMBER OF LABELS IN FILE IS 128
-# MAX NUMBER OF LINES IN FILE IS 999
-# MAX SIZE OF FILE IS 8192
-# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
+						# MAX NUMBER OF LABELS IN FILE IS 128 (can be changed by modifying LABELS_SIZE)
+						# MAX NUMBER OF LINES IN FILE IS 999 (3 bytes for line number as a string)
+						# MAX SIZE OF FILE CAN BE SET BY PROGRAM ARGUMENTS
+						# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
+						# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
 
-# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
+.eqv	BUF_LEN 512 				# MIN 4, USED FOR CONVERTING INTS TO STRINGS
+.eqv	LABELS_SIZE 1536
 
         .data  
 output_fname:	.asciiz "output.txt"
@@ -23,34 +23,25 @@ main:
 				
 	lw	$a0, 4($a1)			# address of string containing input file length
 	jal	atoi				# call atoi
-	move	$t0, $v0			# store input file length
-	
-	# print input file length
-	move	$a0, $t0
-	li	$v0, 1
-	syscall
-	
-	
-	# TODO: allocate
-	move	$a0, $t0
+	move	$s0, $v0			# store input file length
+allocate_memory:
+	move	$a0, $s0
 	li	$v0, 9
 	syscall					# allocate memory for content
-	la	$t1, content			# store address of content
-	sw	$v0, ($t1)			# move allocated memory address to content
+	la	$s1, content			# store address of content
+	sw	$v0, ($s1)			# move allocated memory address to content
 	
-	move	$a0, $t0
+	move	$a0, $s0
 	li	$v0, 9
 	syscall					# allocate memory for output_content
-	la	$t1, output_content		# store address of output_content
-	sw	$v0, ($t1)			# move allocated memory address to output_content
-	
-	
+	la	$s1, output_content		# store address of output_content
+	sw	$v0, ($s1)			# move allocated memory address to output_content
+process_file:
 	lw	$a0, ($a1)			# load input file name
   	jal	read_file			# read input file to content
   	bltz	$v0, exit			# if error during read_file, goto exit
   	
 	jal	replace_labels			# replace labels in output_content
-	
 	jal	write_file			# write output_content to output file
 exit:
 	li 	$v0, 10
@@ -82,11 +73,13 @@ replace_labels:
 	sw	$s6, 4($sp)			# push $s6
 	
 	la	$s0, labels			# store next free space of labels at $s0
-	la	$s1, content			# start of current word
-	la	$s2, content			# end of current word
-	la	$s3, content			# current char address
+	la	$t0, content			# address of content pointer
+	la	$t1, output_content		# address of output_content pointer
+	lw	$s1, ($t0)			# start of current word
+	lw	$s2, ($t0)			# end of current word
+	lw	$s3, ($t0)			# current char address
 	li	$s5, 1				# current line of content
-	la	$s6, output_content		# store next free space of output_content
+	lw	$s6, ($t1)			# store next free space of output_content
 replace_labels_loop:
 	lb	$s4, ($s3)			# load current char
 	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
@@ -185,7 +178,8 @@ write_file:
 	jal	open_file			# call open_file
   	move	$s0, $v0			# store file descriptor in $s0	
   	bltz	$s0, write_file_open_err	# if eror occured, goto open_file_error
-  	la	$s2, output_content		# put address of output_content to $s2
+  	la	$t0, output_content		# address of output_content pointer
+  	lw	$s2, ($t0)			# put address of output_content to $s2
   	
   	move    $a0, $s2			# address of output_content
 	jal	str_len				# call str_len
@@ -258,7 +252,8 @@ read_file:
 	jal	open_file			# call open_file
   	move	$s0, $v0			# store file descriptor in $s0	
   	bltz	$s0, open_file_err		# if eror occured, goto open_file_error
-  	la	$s2, content			# put address of content to $s2
+  	la	$t0, content			# address of content pointer
+  	lw	$s2, ($t0)			# put address of content to $s2
 read_file_loop:
 	move	$a0, $s0			# prepare for call getc
   	jal 	getc				# call getc
