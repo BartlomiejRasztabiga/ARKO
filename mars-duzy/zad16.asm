@@ -1,5 +1,4 @@
 .eqv	BUF_LEN 512 				# MIN 4
-.eqv	INPUT_FILE_SIZE 8192
 .eqv	LABELS_SIZE 1536
 # MAX NUMBER OF LABELS IN FILE IS 128
 # MAX NUMBER OF LINES IN FILE IS 999
@@ -13,26 +12,38 @@ output_fname:	.asciiz "output.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
 .align 2
-input_file_size:.space 4
 labels:		.space LABELS_SIZE		# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
-content:	.space INPUT_FILE_SIZE
-output_content:	.space INPUT_FILE_SIZE
+content:	.space 4
+output_content:	.space 4
 buffer: 	.space BUF_LEN
         
         .text
 main:
 	blt	$a0, 2, exit			# not enough arguments provided, argc < 2, TODO: add error string
 				
-	# TODO: load input file length
 	lw	$a0, 4($a1)			# address of string containing input file length
 	jal	atoi				# call atoi
-	sw	$v0, input_file_size		# store input file length
+	move	$t0, $v0			# store input file length
 	
 	# print input file length
-	la	$t0, input_file_size
-	lw	$a0, ($t0)
+	move	$a0, $t0
 	li	$v0, 1
 	syscall
+	
+	
+	# TODO: allocate
+	move	$a0, $t0
+	li	$v0, 9
+	syscall					# allocate memory for content
+	la	$t1, content			# store address of content
+	sw	$v0, ($t1)			# move allocated memory address to content
+	
+	move	$a0, $t0
+	li	$v0, 9
+	syscall					# allocate memory for output_content
+	la	$t1, output_content		# store address of output_content
+	sw	$v0, ($t1)			# move allocated memory address to output_content
+	
 	
 	lw	$a0, ($a1)			# load input file name
   	jal	read_file			# read input file to content
