@@ -3,7 +3,7 @@
 .eqv	LABELS_SIZE 1536
 # MAX NUMBER OF LABELS IN FILE IS 128
 # MAX NUMBER OF LINES IN FILE IS 999
-# MAX SIZE OF FILE IS 1024
+# MAX SIZE OF FILE IS 8192
 # PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
 
         .data  
@@ -63,6 +63,7 @@ replace_labels:
 replace_labels_loop:
 	lb	$s4, ($s3)			# load current char
 	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
+	beq	$s4, '\t', end_of_word		# if tab, goto end_of_word
 	beq	$s4, '\n', end_of_line		# if LF, goto end_of_line
 	beq	$s4, ':', new_label		# label detected
 	beqz	$s4, replace_labels_return	# if NULL goto replace_labels_return
