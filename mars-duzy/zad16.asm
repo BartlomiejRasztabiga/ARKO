@@ -6,13 +6,14 @@
 # MAX SIZE OF FILE IS 8192
 # PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
 
-# PASS INPUT FILE NAME AS PROGRAM ARGUMENT
+# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
 
         .data  
 output_fname:	.asciiz "output.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
 .align 2
+input_file_size:.space 4
 labels:		.space LABELS_SIZE		# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
 content:	.space INPUT_FILE_SIZE
 output_content:	.space INPUT_FILE_SIZE
@@ -20,10 +21,20 @@ buffer: 	.space BUF_LEN
         
         .text
 main:
-	beqz	$a0, exit			# no filename provided
+	blt	$a0, 2, exit			# not enough arguments provided, argc < 2, TODO: add error string
 				
-	lw	$a0, ($a1)			# load argv
-
+	# TODO: load input file length
+	lw	$a0, 4($a1)			# address of string containing input file length
+	jal	atoi				# call atoi
+	sw	$v0, input_file_size		# store input file length
+	
+	# print input file length
+	la	$t0, input_file_size
+	lw	$a0, ($t0)
+	li	$v0, 1
+	syscall
+	
+	lw	$a0, ($a1)			# load input file name
   	jal	read_file			# read input file to content
   	bltz	$v0, exit			# if error during read_file, goto exit
   	
@@ -539,3 +550,27 @@ itoa_return:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
       	jr   	$ra
+      	
+# ============================================================================
+# atoi (LEAF)
+# description:
+#	returns int representation of string at given address
+# arguments:
+#	$a0 - address of string
+# variables: none
+# returns:
+#	$v0 - int
+atoi:
+	li	$t1, 10
+	li	$t2, 0				# result
+atoi_loop:
+	lbu 	$t0, ($a0)       		# load char from address
+  	beq 	$t0, $zero, atoi_return     	# end of string, goto atoi_return
+  	andi 	$t0, $t0, 0x0F   		# converts ascii value to dec
+  	mul 	$t2, $t2, $t1    		# result *= 10
+  	add 	$t2, $t2, $t0    		# result += dec_value
+  	addi 	$a0, $a0, 1     		# next char
+  	j 	atoi_loop                 	# go back to loop
+atoi_return:
+	move	$v0, $t2			# return result
+	jr 	$ra
