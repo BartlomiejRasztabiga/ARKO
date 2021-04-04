@@ -1,5 +1,6 @@
-.eqv	BUF_LEN 16 				# MIN 4
-.eqv	INPUT_FILE_SIZE 1024
+.eqv	BUF_LEN 512 				# MIN 4
+.eqv	INPUT_FILE_SIZE 8192
+.eqv	LABELS_SIZE 1536
 # MAX NUMBER OF LABELS IN FILE IS 128
 # MAX NUMBER OF LINES IN FILE IS 999
 # MAX SIZE OF FILE IS 1024
@@ -10,9 +11,9 @@ input_fname:	.asciiz "input.txt"
 output_fname:	.asciiz "output.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
 getc_err_txt:	.asciiz	"Error while reading the file"
-.align 2					# is 2 correct?
-labels:		.space 1536			# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
-content:	.space INPUT_FILE_SIZE		# TODO: should I end these 4 with NULL?
+.align 2
+labels:		.space LABELS_SIZE		# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
+content:	.space INPUT_FILE_SIZE
 output_content:	.space INPUT_FILE_SIZE
 buffer: 	.space BUF_LEN
         
@@ -24,10 +25,6 @@ main:
 	jal	replace_labels			# replace labels in output_content
 	
 	jal	write_file			# write output_content to output file
-	
-						# TODO: delete
-	la	$a0, output_content
-	jal	print_str			# print output_content
 exit:
 	li 	$v0, 10
   	syscall
@@ -43,7 +40,7 @@ exit:
 #	$s2 - end of current word
 #	$s3 - current char address
 #	$s4 - current char
-#	$s5 - current line of content
+#	$s5 - current line number of input file
 #	$s6 - next free space at output_content
 # returns: none
 replace_labels:
@@ -64,7 +61,7 @@ replace_labels:
 	li	$s5, 1				# current line of content
 	la	$s6, output_content		# store next free space of output_content
 replace_labels_loop:
-	lb	$s4, ($s3)			# current char
+	lb	$s4, ($s3)			# load current char
 	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
 	beq	$s4, '\n', end_of_line		# if LF, goto end_of_line
 	beq	$s4, ':', new_label		# label detected
@@ -240,7 +237,7 @@ read_file_loop:
   	move	$s1, $v0			# store num of read chars in $s1
   	
   	beqz	$s1, read_file_ok		# if num_of_read_chars == 0, goto read_file_ok
-  	bltz	$s1, getc_err			# if num_of_read_chars < 0, goto read_file_error
+  	bltz	$s1, getc_err			# if num_of_read_chars < 0, goto getc_err
 
 	la	$a0, buffer			# put address of buffer to $a0, prepare for call
 	move	$a1, $s2			# put address of content to $a1, prepare for call
@@ -523,16 +520,16 @@ itoa:
       	sb   	$t1, ($t0)     			# init. with ascii 0
       	li   	$t2, 10        			# load 10
 
-      	beq  	$a0, $0, iend  			# end if number is 0
-loop:
+      	beq  	$a0, $0, itoa_return  		# end if number is 0
+itoa_loop:
       	div  	$a0, $t2       			# a /= 10
       	mflo 	$a0
       	mfhi 	$t3            			# get remainder
       	add  	$t3, $t3, $t1  			# convert to ASCII digit
       	sb   	$t3, ($t0)     			# store it
       	sub  	$t0, $t0, 1    			# decrement buffer pointer
-      	bne  	$a0, $0, loop  			# if not zero, loop
-iend:
+      	bne  	$a0, $0, itoa_loop  			# if not zero, loop
+itoa_return:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
       	jr   	$ra
