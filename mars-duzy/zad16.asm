@@ -10,7 +10,8 @@
         .data  
 output_fname:	.asciiz "output.txt"
 opnfile_err_txt:.asciiz	"Error while opening the file"
-getc_err_txt:	.asciiz	"Error while reading the file"
+read_err_txt:	.asciiz	"Error while reading the file"
+write_err_txt:	.asciiz	"Error while writing the file"
 .align 2
 labels:		.space LABELS_SIZE		# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
 content:	.space 4
@@ -193,13 +194,13 @@ write_file_loop:
 	move	$a0, $s0			# file descriptor
 	move	$a1, $s2			# output_content start
 	move	$a2, $t0			# number of chars to write
-  	jal 	putc				# call putc
+  	jal 	write_to_buffer			# call write_to_buffer
   	move	$s1, $v0			# store num of written chars in $s1
   	
   	subu	$s3, $s3, $s1			# substract num of written chars from num of chars to write
   	beqz	$s3, write_file_ok		# if num_of_chars_left_to_write == 0, goto write_file_ok
-  	beqz	$s1, putc_err			# if num_of_written_chars == 0, goto putc_err, because num_of_chars_left_to_write > 0
-  	bltz	$s1, putc_err			# if num_of_written_chars < 0, goto putc_err
+  	beqz	$s1, write_err			# if num_of_written_chars == 0, goto write_err, because num_of_chars_left_to_write > 0
+  	bltz	$s1, write_err			# if num_of_written_chars < 0, goto write_err
   	
   	addu	$s2, $s2, $s1			# move output_content pointer by buffer length	
   	
@@ -207,8 +208,8 @@ write_file_loop:
 write_file_open_err: 
 	la 	$a0, opnfile_err_txt		# load the address into $a0
   	j 	write_file_err
-putc_err:
-	la 	$a0, getc_err_txt		# load the address into $a0
+write_err:
+	la 	$a0, write_err_txt		# load the address into $a0
 write_file_err:
 	jal	print_str			# call print_str
 	li	$v0, -1				# set error flag
@@ -255,12 +256,12 @@ read_file:
   	la	$t0, content			# address of content pointer
   	lw	$s2, ($t0)			# put address of content to $s2
 read_file_loop:
-	move	$a0, $s0			# prepare for call getc
-  	jal 	getc				# call getc
+	move	$a0, $s0			# prepare for call read_to_buffer
+  	jal 	read_to_buffer			# call read_to_buffer
   	move	$s1, $v0			# store num of read chars in $s1
   	
   	beqz	$s1, read_file_ok		# if num_of_read_chars == 0, goto read_file_ok
-  	bltz	$s1, getc_err			# if num_of_read_chars < 0, goto getc_err
+  	bltz	$s1, read_err			# if num_of_read_chars < 0, goto read_err
 
 	la	$a0, buffer			# put address of buffer to $a0, prepare for call
 	move	$a1, $s2			# put address of content to $a1, prepare for call
@@ -273,8 +274,8 @@ read_file_loop:
 open_file_err: 
 	la 	$a0, opnfile_err_txt		# load the address into $a0
   	j 	read_file_err
-getc_err:
-	la 	$a0, getc_err_txt		# load the address into $a0
+read_err:
+	la 	$a0, read_err_txt		# load the address into $a0
 read_file_err:
 	jal	print_str			# call print_str
 	li	$v0, -1				# set error flag
@@ -311,7 +312,7 @@ open_file:
   	jr	$ra				# return
 
 # ============================================================================  	
-# getc (LEAF)
+# read_to_buffer (LEAF)
 # description: 
 #	reads BUF_LEN bytes from opened file to buffer
 # arguments:
@@ -319,7 +320,7 @@ open_file:
 # variables: none
 # returns:
 #	$v0 - number of characters read, 0 if end-of-file, negative if error
-getc:
+read_to_buffer:
 	li 	$v0, 14       			# system call for read to file
   	la 	$a1, buffer   			# address of buffer to store file content
   	li 	$a2, BUF_LEN       		# buffer length
@@ -328,7 +329,7 @@ getc:
   	jr	$ra				# return
   	
 # ============================================================================  	
-# putc (LEAF)
+# write_to_buffer (LEAF)
 # description: 
 #	writes n bytes from buffer to opened file
 # arguments:
@@ -338,7 +339,7 @@ getc:
 # variables: none
 # returns:
 #	$v0 - number of characters written, negative if error
-putc:
+write_to_buffer:
 	li 	$v0, 15       			# system call for write to file
   	syscall          			# write to file
   	
