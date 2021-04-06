@@ -17,6 +17,10 @@ labels:		.space LABELS_SIZE		# labels array for 128 of 4-4-4  max 12-byte labels
 content:	.space 4
 output_content:	.space 4
 buffer: 	.space BUF_LEN
+buffer_chars:	.word 0
+input_file_descriptor:
+		.space 4
+buffer_pointer:	.space 4
         
         .text
 main:
@@ -581,3 +585,41 @@ atoi_loop:
 atoi_return:
 	move	$v0, $t2			# return result
 	jr 	$ra
+	
+# ============================================================================
+# getc (LEAF)
+# description:
+#	returns next char from buffer, refreshes buffer from input_file beforehand if no char available
+# arguments: none
+# variables:
+#	$t0 - available number of chars in buffer
+#	$t1 - pointer to buffer
+#	$t2 - next char from buffer
+# returns:
+#	$v0 - next available char, -1 if EOF
+getc:
+	lw	$t0, buffer_chars
+	bnez	$t0, getc_next_char		# if chars available, goto getc_next_char
+getc_refresh:
+	li 	$v0, 14       			# system call for read to file
+	lw	$a0, input_file_descriptor	# load input file descriptor to $a0
+  	la 	$a1, buffer   			# address of buffer to store file content
+  	li 	$a2, BUF_LEN       		# buffer length
+  	syscall          			# read from file
+  	
+  	move	$t0, $v0			# save read chars to $t0
+  	sw	$t0, buffer_chars		# store read chars as available chars
+  	
+  	beqz	$t0, getc_eof			# if no chars read (eof), goto getc_eof
+  	
+  	la	$t1, buffer			# store buffer address in $t1
+  	sw	$t1, buffer_pointer		# set buffer_pointer to start of buffer
+getc_next_char:
+	lw	$t2, ($t1)			# read available char from buffer
+	addiu	$t1, $t1, 1			# move buffer_pointer to next char
+	sw	$t1, buffer_pointer		# store new buffer_pointer
+getc_eof:
+	li	$v0, -1				# return -1 eof flag
+getc_return:
+	move	$v0, $t2			# return next char
+	jr	$ra
