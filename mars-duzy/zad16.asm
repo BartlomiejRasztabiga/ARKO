@@ -4,7 +4,7 @@
 						# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
 						# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
 
-.eqv	BUF_LEN 512 				# MIN 4, USED FOR CONVERTING INTS TO STRINGS
+.eqv	BUF_LEN 8 				# MIN 4, USED FOR CONVERTING INTS TO STRINGS
 .eqv	LABELS_SIZE 1536
 
         .data  
@@ -43,11 +43,16 @@ allocate_memory:
 	sw	$v0, ($s1)			# move allocated memory address to output_content
 process_file:
 	lw	$a0, ($a1)			# load input file name
-  	jal	read_file			# read input file to content
-  	bltz	$v0, exit			# if error during read_file, goto exit
+	li	$a1, 0				# read only flag
+	jal	open_file			# call open_file
+	bltz	$v0, exit			# if error during open_file, goto exit
+
+	#lw	$a0, ($a1)			# load input file name
+  	#jal	read_file			# read input file to content
+  	#bltz	$v0, exit			# if error during read_file, goto exit
   	
-	jal	replace_labels			# replace labels in output_content
-	jal	write_file			# write output_content to output file
+	#jal	replace_labels			# replace labels in output_content
+	#jal	write_file			# write output_content to output file
 exit:
 	li 	$v0, 10
   	syscall
@@ -307,13 +312,14 @@ read_file_loop_return:
 #	$a0 - file name to open
 #	$a1 - file open flag
 # variables: none
-# returns:
-#	$v0 - opened file descriptor, negative if error
+# returns: none
 open_file:
 	li 	$v0, 13       			# system call to open file
   	syscall          			# open a file (file descriptor returned in $v0)
 
+	sw	$v0, input_file_descriptor	# save input file descriptor in input_file_descriptor
   	jr	$ra				# return
+  	
 
 # ============================================================================  	
 # read_to_buffer (LEAF)
@@ -615,11 +621,13 @@ getc_refresh:
   	la	$t1, buffer			# store buffer address in $t1
   	sw	$t1, buffer_pointer		# set buffer_pointer to start of buffer
 getc_next_char:
-	lw	$t2, ($t1)			# read available char from buffer
+	lw	$t1, buffer_pointer		# store buffer pointer address in $t1
+	lb	$t2, ($t1)			# read available char from buffer
 	addiu	$t1, $t1, 1			# move buffer_pointer to next char
 	sw	$t1, buffer_pointer		# store new buffer_pointer
 	subiu	$t0, $t0, 1			# decrement available buffer chars
 	sw	$t0, buffer_chars		# store available buffer chars
+	j	getc_return			# goto getc_return
 getc_eof:
 	li	$v0, -1				# return -1 eof flag
 getc_return:
