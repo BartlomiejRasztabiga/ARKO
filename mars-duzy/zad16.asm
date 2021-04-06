@@ -17,21 +17,27 @@ read_err_txt:	.asciiz	"Error while reading the file"
 write_err_txt:	.asciiz	"Error while writing the file"
 .align 2
 labels:			.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
-#content:		.space 4
-#output_content:		.space 4
+			.word 0
 itoa_buffer: 		.space ITOA_BUF_LEN
 			.word 0
 getc_buffer: 		.space BUF_LEN
 			.word 0
 getc_buffer_pointer:	.space 4
+			.word 0
 getc_buffer_chars:	.word 0
+			.word 0
 putc_buffer: 		.space BUF_LEN
 			.word 0
 putc_buffer_pointer:	.space 4
+			.word 0
 putc_buffer_chars:	.word BUF_LEN
+			.word 0
 input_file_descriptor:	.space 4
+			.word 0
 output_file_descriptor:	.space 4
+			.word 0
 word_buffer:		.space WORD_BUF_LEN
+			.word 0
         
         .text
 main:
@@ -61,6 +67,14 @@ process_file:
 	jal	replace_labels			# replace labels in output_content
 exit:
 	jal	flush_buffer			# flush buffer
+	
+	la	$a0, input_file_descriptor
+	li	$v0, 16
+	syscall
+	
+	la	$a0, output_file_descriptor
+	li	$v0, 16
+	syscall
 
 	li 	$v0, 10
   	syscall
@@ -301,7 +315,7 @@ get_symbol_for_word_return:
 # returns:
 #	$v0 - address of first ascii char of string representation
 itoa:
-      	la   	$t0, itoa_buffer+14 		# pointer to almost-end of buffer, BUF_LEN-2
+      	la   	$t0, itoa_buffer+2 		# pointer to almost-end of buffer, BUF_LEN-2
       	sb   	$zero, 1($t0)      		# null-terminated str
       	li   	$t1, '0'  
       	sb   	$t1, ($t0)     			# init. with ascii 0
@@ -383,6 +397,8 @@ putc:
 	
 	la	$a0, putc_buffer		
 	jal	clear_buffer			# clear putc buffer
+	
+	lw	$s0, putc_buffer_chars		# load available buffer chars
 putc_next_char:
 	lw	$s1, putc_buffer_pointer	# store buffer pointer address in $s1
 	sb	$s2, ($s1)			# store char at next available space in buffer
