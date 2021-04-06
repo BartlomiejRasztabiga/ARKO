@@ -50,18 +50,14 @@ process_file:
 	la	$a3, output_file_descriptor
 	jal	open_file			# call open_file
 	bltz	$v0, exit			# if error during open_file, goto exit
-	
 						# prepare putc buffer for future calls
 	la	$t0, putc_buffer		# load address of putc_buffer
 	sw	$t0, putc_buffer_pointer	# store new buffer_pointer
 
-	#lw	$a0, ($a1)			# load input file name
-  	#jal	read_file			# read input file to content
-  	#bltz	$v0, exit			# if error during read_file, goto exit
-  	
 	jal	replace_labels			# replace labels in output_content
-	#jal	write_file			# write output_content to output file
 exit:
+	jal	flush_buffer			# flush buffer
+
 	li 	$v0, 10
   	syscall
   	
@@ -74,7 +70,7 @@ exit:
 #	$s0 - next free space at labels
 #	$s1 - current char
 #	$s2 - current line number of input file
-#	$s3 - pointer to buffer
+#	$s3 - pointer to word buffer
 # returns: none
 replace_labels:
 	sub	$sp, $sp, 32
@@ -88,14 +84,8 @@ replace_labels:
 	sw	$s6, 4($sp)			# push $s6
 	
 	la	$s0, labels			# store next free space of labels at $s0
-	#la	$t0, content			# address of content pointer
-	#la	$t1, output_content		# address of output_content pointer
-	#lw	$s1, ($t0)			# start of current word
-	#lw	$s2, ($t0)			# end of current word
-	#lw	$s3, ($t0)			# current char address
 	li	$s2, 1				# current line of content
 	la	$s3, word_buffer		# load pointer to buffer
-	#lw	$s6, ($t1)			# store next free space of output_content
 replace_labels_loop:
 	jal	getc
 	move	$s1, $v0			# load current char
@@ -105,23 +95,27 @@ replace_labels_loop:
 	beq	$s1, '\t', end_of_word		# if tab, goto end_of_word
 	beq	$s1, '\n', end_of_line		# if LF, goto end_of_line
 	beq	$s1, ':', new_label		# label detected
-	beqz	$s1, replace_labels_return	# if NULL goto replace_labels_return
+	bltz	$s1, replace_labels_return	# if -1 (EOF) or NULL, goto replace_labels_return
 	
+	addiu	$s3, $s3, 1			# increment buffer pointer
 	j	next_char			# goto next_char
 new_label:
 	la	$a0, word_buffer		# start of copied string
 	move	$a1, $s3			# end of copied string
-	move	$s2, $s0			# destination of copied string
+	move	$a2, $s0			# destination of copied string
 	jal	copy_src_range_to_dest
 
 	addiu	$t0, $s0, 48			# get address of place in labels to store line number
 	sw	$s2, ($t0)			# store label line number
 	addiu	$s0, $s0, 52			# next free space at labels
 	
-						# TODO: copy word buffer to buffer, putc
-						# TODO: clear buffer
+	la	$a0, word_buffer
+	jal	put_str
+						
 	la	$a0, word_buffer
 	jal	clear_buffer
+	
+	la	$s3, word_buffer		# reset word buffer
 	
 	j 	next_char
 end_of_line:
@@ -147,7 +141,7 @@ end_of_word_symbol:
 	sb	$t0, ($s6)			# store space or LF of the current word to output
 	addiu	$s6, $s6, 1			# increment output_content pointer
 	
-	addiu	$s1, $s3, 1			# reset start of current word
+	la	$s3, word_buffer		# reset word buffer
 	
 	j	next_char				
 end_of_word_not_symbol:
@@ -157,19 +151,10 @@ end_of_word_not_symbol:
 	
 	la	$a0, word_buffer
 	jal	clear_buffer
-						
-	#addiu	$t0, $s2, 1			# end_of_word++ to include whitespace
-	#move	$a0, $s1			# start of word
-	#move	$a1, $t0			# end of word
-	#move	$a2, $s6			# destination : output_content
-	#jal	copy_src_range_to_dest		# call copy_src_range_to_dest
-	#move	$s6, $v0			# update next free space of output_content
 	
-	#addiu	$s1, $s3, 1			# reset start of current word
+	la	$s3, word_buffer		# reset word buffer
+						
 next_char:
-	addiu	$s3, $s3, 1			# increment buffer pointer
-	#addiu	$s2, $s2, 1			# end of current word ++
-	#addiu	$s3, $s3, 1			# next char address
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
 	lw	$s6, 4($sp)			# pop $s6
@@ -181,148 +166,6 @@ replace_labels_return:
 	lw	$s0, 28($sp)			# pop $s0
 	lw	$ra, 32($sp)			# pop $ra
 	add	$sp, $sp, 32
-
-	jr	$ra				# return
-	
-# ============================================================================  	
-# write_file
-# description: 
-#	write output_content to output file
-# arguments: none
-# variables:
-#	$s0 - output file descriptor
-#	$s1 - number of written chars
-#	$s2 - address of output_content
-#	$s3 - number of chars left to write
-#	$t0 - min of BUF_LEN and $s3
-# returns:
-#	$v0 - status code, negative if error
-write_file:
-	sub	$sp, $sp, 20
-	sw	$ra, 20($sp)			# push $ra
-	sw	$s0, 16($sp)			# push $s0
-	sw 	$s1, 12($sp)			# push $s1
-	sw 	$s2, 8($sp)			# push $s2
-	sw 	$s3, 4($sp)			# push $s3
-
-	la	$a0, output_fname		# input file name
-	li	$a1, 1				# write only flag
-	jal	open_file			# call open_file
-  	move	$s0, $v0			# store file descriptor in $s0	
-  	bltz	$s0, write_file_open_err	# if eror occured, goto open_file_error
-  	la	$t0, output_content		# address of output_content pointer
-  	lw	$s2, ($t0)			# put address of output_content to $s2
-  	
-  	move    $a0, $s2			# address of output_content
-	jal	str_len				# call str_len
-	move	$s3, $v0			# save number of chars in output_content
-write_file_loop:
-	li	$a0, BUF_LEN
-	move	$a1, $s3
-	jal	min				# get min of BUF_LEN and num_of_chars_left_to_write
-	move	$t0, $v0
-
-	move	$a0, $s0			# file descriptor
-	move	$a1, $s2			# output_content start
-	move	$a2, $t0			# number of chars to write
-  	jal 	write_to_buffer			# call write_to_buffer
-  	move	$s1, $v0			# store num of written chars in $s1
-  	
-  	subu	$s3, $s3, $s1			# substract num of written chars from num of chars to write
-  	beqz	$s3, write_file_ok		# if num_of_chars_left_to_write == 0, goto write_file_ok
-  	beqz	$s1, write_err			# if num_of_written_chars == 0, goto write_err, because num_of_chars_left_to_write > 0
-  	bltz	$s1, write_err			# if num_of_written_chars < 0, goto write_err
-  	
-  	addu	$s2, $s2, $s1			# move output_content pointer by buffer length	
-  	
-  	j 	write_file_loop			# go back to write_file_loop
-write_file_open_err: 
-	la 	$a0, opnfile_err_txt		# load the address into $a0
-  	j 	write_file_err
-write_err:
-	la 	$a0, write_err_txt		# load the address into $a0
-write_file_err:
-	jal	print_str			# call print_str
-	li	$v0, -1				# set error flag
-  	j 	write_file_close		# goto write_file_close
-write_file_ok:
-	li	$v0, 0				# all good, no error flag set
-write_file_close:
-	move	$a0, $s0			# move file descriptor to $a0
-  	li 	$v0, 16       			# system call for close file
-  	syscall          			# close file
-write_file_loop_return:
-	lw	$s3, 4($sp)			# pop $s3		
-	lw	$s2, 8($sp)			# pop $s2		
-	lw	$s1, 12($sp)			# pop $s1			
-	lw	$s0, 16($sp)			# pop $s0			
-	lw	$ra, 20($sp)			# pop $ra
-	add	$sp, $sp, 20
-
-	jr	$ra				# return	
-	
-# ============================================================================  	
-# read_file (LEAF)
-# description: 
-#	reads file to content buffer
-# arguments: 
-#	$a0 - pointer to string containing input file name
-# variables:
-#	$s0 - input file descriptor
-#	$s1 - number of read chars
-#	$s2 - address of next free char at content
-# returns:
-#	$v0 - status code, negative if error
-read_file:
-	sub	$sp, $sp, 16
-	sw	$ra, 16($sp)			# push $ra
-	sw	$s0, 12($sp)			# push $s0
-	sw 	$s1, 8($sp)			# push $s1
-	sw 	$s2, 4($sp)			# push $s2
-
-	li	$a1, 0				# read only flag
-	jal	open_file			# call open_file
-  	move	$s0, $v0			# store file descriptor in $s0	
-  	bltz	$s0, open_file_err		# if eror occured, goto open_file_error
-  	la	$t0, content			# address of content pointer
-  	lw	$s2, ($t0)			# put address of content to $s2
-read_file_loop:
-	move	$a0, $s0			# prepare for call read_to_buffer
-  	jal 	read_to_buffer			# call read_to_buffer
-  	move	$s1, $v0			# store num of read chars in $s1
-  	
-  	beqz	$s1, read_file_ok		# if num_of_read_chars == 0, goto read_file_ok
-  	bltz	$s1, read_err			# if num_of_read_chars < 0, goto read_err
-
-	la	$a0, getc_buffer		# put address of buffer to $a0, prepare for call
-	move	$a1, $s2			# put address of content to $a1, prepare for call
-	jal	copy_src_to_dest		# call copy_buffer_to_dest
-	move	$s2, $v0			# store address of next free char at content
-	
-	jal	clear_buffer			# call clear_buffer, TODO: NEEDS TO BE CALLED ONLY IN THE LAST BUFFER READ - less than buffer length chars read		
-  	
-  	j 	read_file_loop			# go back to read_file_loop
-open_file_err: 
-	la 	$a0, opnfile_err_txt		# load the address into $a0
-  	j 	read_file_err
-read_err:
-	la 	$a0, read_err_txt		# load the address into $a0
-read_file_err:
-	jal	print_str			# call print_str
-	li	$v0, -1				# set error flag
-  	j 	read_file_close			# goto read_file_close
-read_file_ok:
-	li	$v0, 0				# all good, no error flag set
-read_file_close:
-	move	$a0, $s0			# move file descriptor to $a0
-  	li 	$v0, 16       			# system call for close file
-  	syscall          			# close file
-read_file_loop_return:
-	lw	$s2, 4($sp)			# pop $s2		
-	lw	$s1, 8($sp)			# pop $s1			
-	lw	$s0, 12($sp)			# pop $s0			
-	lw	$ra, 16($sp)			# pop $ra
-	add	$sp, $sp, 16
 
 	jr	$ra				# return
   	
@@ -750,9 +593,9 @@ getc_next_char:
 	sw	$t1, getc_buffer_pointer	# store new buffer_pointer
 	subiu	$t0, $t0, 1			# decrement available buffer chars
 	sw	$t0, getc_buffer_chars		# store available buffer chars
+	move	$v0, $t2			# return next char
 	j	getc_return			# goto getc_return
 getc_eof:
 	li	$v0, -1				# return -1 eof flag
 getc_return:
-	move	$v0, $t2			# return next char
 	jr	$ra
