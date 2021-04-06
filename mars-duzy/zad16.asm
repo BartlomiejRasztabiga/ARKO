@@ -6,6 +6,7 @@
 						# MAX LENGTH OF LABEL IS 50 CHARS
 
 .eqv	BUF_LEN 8 				# MIN 4, USED FOR CONVERTING INTS TO STRINGS
+.eqv 	ITOA_BUF_LEN 16
 .eqv	WORD_BUF_LEN 48
 .eqv	LABELS_SIZE 5200			# TODO: dynamic
 
@@ -18,7 +19,7 @@ write_err_txt:	.asciiz	"Error while writing the file"
 labels:			.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
 content:		.space 4
 output_content:		.space 4
-buffer: 		.space BUF_LEN
+itoa_buffer: 		.space ITOA_BUF_LEN
 getc_buffer: 		.space BUF_LEN
 getc_buffer_pointer:	.space 4
 getc_buffer_chars:	.word 0
@@ -121,25 +122,25 @@ new_label:
 end_of_line:
 	addiu	$s2, $s2, 1			# current_line++
 end_of_word:					
-	#move	$a0, $s1			# check if found defined symbol, if yes, replace and copy to output_content
-	#move	$a1, $s2
-	#jal	get_symbol_for_word		# get line number for symbol
-	#move	$t0, $v0			# store found line number for symbol
-	#beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol
-	j	end_of_word_not_symbol		# TODO: DELETE
+	jal	get_symbol_for_word		# get line number for symbol
+	move	$t0, $v0			# store found line number for symbol
+	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol
 end_of_word_symbol:
 	move 	$a0, $t0
 	jal	itoa				# address of string representation of line number
 	move	$t0, $v0			# store address in $t0
 	
-	move	$a0, $t0			# source for copy
-	move	$a1, $s6			# dest for copy
-	jal	copy_src_to_dest		# copy string representation to output_content
-	move	$s6, $v0			# update next free space of output_content
+	move	$a0, $t0
+	jal	put_str				# put string representation of line number for symbol
 	
-	lb	$t0, ($s2)			# get last char of current word (LF or space)
-	sb	$t0, ($s6)			# store space or LF of the current word to output
-	addiu	$s6, $s6, 1			# increment output_content pointer
+	move	$a0, $s1			
+	jal	putc				# put LF or space
+	
+	move	$a0, $t0
+	jal	clear_buffer			# clear itoa buffer
+	
+	la	$a0, word_buffer
+	jal	clear_buffer
 	
 	la	$s3, word_buffer		# reset word buffer
 	
@@ -353,50 +354,49 @@ min_return:
 # get_symbol_for_word (LEAF)
 # description:
 #	returns line number for symbol if word is a defined symbol, -1 if not defined
-# arguments:
-#	$a0 - address of first char of word
-#	$a1 - address of last char of word
+# arguments: none
 # variables:
 #	$t0 - address of labels
 #	$t1 - address of label's start string
 #	$t2 - address of label's end string
 #	$t3 - current label's char
 #	$t4 - current word's char
-#	$t5 - pointer for current label section
+#	$t5 - pointer for current word's char
 #	$t6 - flag if label has ended
 #	$t7 - flag if word has ended
 # returns:
 #	$v0 - line number for symbol if word is a defined symbol, -1 if not defined
 get_symbol_for_word:	
 	la	$t0, labels			# first label pointer
-	move	$t5, $a0			# store $a0 in $t5
+	la	$t5, word_buffer		# store word_buffer pointer in $t5
 get_symbol_for_word_loop:
-	lw	$t1, ($t0)			# get start address of label
-	beqz	$t1, symbol_not_found		# if label's start is NULL, there is no label = symbol_not_found
-	lw	$t2 4($t0)			# get end address of label
+	move	$t1, $t0			# get start address of label
+	lb	$t3, ($t1)			# load label's char
+	beqz	$t3, symbol_not_found		# if label's first char is NULL, there is no label = symbol_not_found
+	addiu	$t2, $t0, 48			# get end address of label
 compare_word:
-	sgt	$t6, $t1, $t2			# if label has ended
-	sge	$t7, $t5, $a1			# if word has ended
+	lb	$t4, ($t5)			# load word's char
+	lb	$t3, ($t1)			# load label's char
+
+	seq	$t6, $t3, $zero			# if label has ended
+	slti 	$t7, $t4, 11			# if word has ended (char is less than LF)
 	and	$t6, $t6, $t7
 	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
-	bgt	$t1, $t2, compare_word_not_equal# if label has ended BUT word has not ended, try next label
-	
-	lb	$t3, ($t1)			# load label's char
-	lb	$t4, ($t5)			# load word's char
+	beqz	$t3, compare_word_not_equal	# if label has ended BUT word has not ended, try next label
 	
 	bne	$t3, $t4, compare_word_not_equal# if label's char != word's char, symbol not found, try next label
 	addiu	$t1, $t1, 1			# next label's char
 	addiu	$t5, $t5, 1			# next word's char
 	j compare_word
 compare_word_not_equal:	
-	addiu	$t0, $t0, 12			# next label
-	move	$t5, $a0			# reset word's pointer
+	addiu	$t0, $t0, 52			# next label
+	la	$t5, word_buffer		# reset word's pointer
 	j 	get_symbol_for_word_loop
 symbol_not_found:
 	li	$v0, -1				# set 'symbol not found' flag
 	j 	get_symbol_for_word_return
 symbol_found:
-	addiu	$t0, $t0, 8			# move to v0 address of label's line number
+	addiu	$t0, $t0, 48			# move to v0 address of label's line number
 	lw	$v0, ($t0)			# load line number as return value
 get_symbol_for_word_return:
 	jr 	$ra
@@ -415,7 +415,7 @@ get_symbol_for_word_return:
 # returns:
 #	$v0 - address of first ascii char of string representation
 itoa:
-      	la   	$t0, buffer+14 			# pointer to almost-end of buffer, BUF_LEN-2
+      	la   	$t0, itoa_buffer+14 		# pointer to almost-end of buffer, BUF_LEN-2
       	sb   	$zero, 1($t0)      		# null-terminated str
       	li   	$t1, '0'  
       	sb   	$t1, ($t0)     			# init. with ascii 0
@@ -429,7 +429,7 @@ itoa_loop:
       	add  	$t3, $t3, $t1  			# convert to ASCII digit
       	sb   	$t3, ($t0)     			# store it
       	sub  	$t0, $t0, 1    			# decrement buffer pointer
-      	bne  	$a0, $0, itoa_loop  			# if not zero, loop
+      	bne  	$a0, $0, itoa_loop  		# if not zero, loop
 itoa_return:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
