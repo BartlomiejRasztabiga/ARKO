@@ -3,9 +3,11 @@
 						# MAX SIZE OF FILE CAN BE SET BY PROGRAM ARGUMENTS
 						# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
 						# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
+						# MAX LENGTH OF LABEL IS 50 CHARS
 
 .eqv	BUF_LEN 8 				# MIN 4, USED FOR CONVERTING INTS TO STRINGS
-.eqv	LABELS_SIZE 1536
+.eqv	WORD_BUF_LEN 48
+.eqv	LABELS_SIZE 5200			# TODO: dynamic
 
         .data  
 output_fname:	.asciiz "output.txt"
@@ -13,39 +15,63 @@ opnfile_err_txt:.asciiz	"Error while opening the file"
 read_err_txt:	.asciiz	"Error while reading the file"
 write_err_txt:	.asciiz	"Error while writing the file"
 .align 2
-labels:		.space LABELS_SIZE		# labels array for 128 of 4-4-4  max 12-byte labels, 2x address + line number
+labels:		.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
 content:	.space 4
 output_content:	.space 4
 buffer: 	.space BUF_LEN
-buffer_chars:	.word 0
+getc_buffer: 	.space BUF_LEN
+getc_buffer_pointer:	
+		.space 4
+getc_buffer_chars:
+		.word 0
+putc_buffer: 	.space BUF_LEN
+putc_buffer_pointer:	
+		.space 4
+putc_buffer_chars:
+		.word BUF_LEN
 input_file_descriptor:
 		.space 4
-buffer_pointer:	.space 4
+output_file_descriptor:
+		.space 4
+word_buffer:	.space WORD_BUF_LEN
         
         .text
 main:
-	blt	$a0, 2, exit			# not enough arguments provided, argc < 2, TODO: add error string
-				
-	lw	$a0, 4($a1)			# address of string containing input file length
-	jal	atoi				# call atoi
-	move	$s0, $v0			# store input file length
+	blt	$a0, 1, exit			# not enough arguments provided, argc < 2, TODO: add error string
 allocate_memory:
-	move	$a0, $s0
-	li	$v0, 9
-	syscall					# allocate memory for content
-	la	$s1, content			# store address of content
-	sw	$v0, ($s1)			# move allocated memory address to content
-	
-	move	$a0, $s0
-	li	$v0, 9
-	syscall					# allocate memory for output_content
-	la	$s1, output_content		# store address of output_content
-	sw	$v0, ($s1)			# move allocated memory address to output_content
+	#li	$a0, LABELS_SIZE
+	#li	$v0, 9
+	#syscall				# allocate memory for labels
+	#la	$s1, labels			# store address of labels
+	#sw	$v0, ($s1)			# move allocated memory address to labels
 process_file:
 	lw	$a0, ($a1)			# load input file name
 	li	$a1, 0				# read only flag
+	la	$a3, input_file_descriptor
 	jal	open_file			# call open_file
 	bltz	$v0, exit			# if error during open_file, goto exit
+	
+	la	$a0, output_fname		# load output file name
+	li	$a1, 1				# write only flag
+	la	$a3, output_file_descriptor
+	jal	open_file			# call open_file
+	bltz	$v0, exit			# if error during open_file, goto exit
+	
+						# prepare putc buffer for future calls
+	la	$t0, putc_buffer		# load address of putc_buffer
+	sw	$t0, putc_buffer_pointer	# store new buffer_pointer
+	
+	li	$a0, 'd'
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
+	jal	putc
 
 	#lw	$a0, ($a1)			# load input file name
   	#jal	read_file			# read input file to content
@@ -64,12 +90,9 @@ exit:
 # arguments: none
 # variables:
 #	$s0 - next free space at labels
-#	$s1 - start of current word
-#	$s2 - end of current word
-#	$s3 - current char address
-#	$s4 - current char
-#	$s5 - current line number of input file
-#	$s6 - next free space at output_content
+#	$s1 - current char
+#	$s2 - current line number of input file
+#	$s3 - pointer to buffer
 # returns: none
 replace_labels:
 	sub	$sp, $sp, 32
@@ -83,35 +106,42 @@ replace_labels:
 	sw	$s6, 4($sp)			# push $s6
 	
 	la	$s0, labels			# store next free space of labels at $s0
-	la	$t0, content			# address of content pointer
-	la	$t1, output_content		# address of output_content pointer
-	lw	$s1, ($t0)			# start of current word
-	lw	$s2, ($t0)			# end of current word
-	lw	$s3, ($t0)			# current char address
-	li	$s5, 1				# current line of content
-	lw	$s6, ($t1)			# store next free space of output_content
+	#la	$t0, content			# address of content pointer
+	#la	$t1, output_content		# address of output_content pointer
+	#lw	$s1, ($t0)			# start of current word
+	#lw	$s2, ($t0)			# end of current word
+	#lw	$s3, ($t0)			# current char address
+	li	$s2, 1				# current line of content
+	la	$s3, word_buffer		# load pointer to buffer
+	#lw	$s6, ($t1)			# store next free space of output_content
 replace_labels_loop:
-	lb	$s4, ($s3)			# load current char
-	beq	$s4, ' ', end_of_word		# if space, goto end_of_word
-	beq	$s4, '\t', end_of_word		# if tab, goto end_of_word
-	beq	$s4, '\n', end_of_line		# if LF, goto end_of_line
-	beq	$s4, ':', new_label		# label detected
-	beqz	$s4, replace_labels_return	# if NULL goto replace_labels_return
+	jal	getc
+	move	$s1, $v0			# load current char
+	sb	$s1, ($s3)			# store current char at buffer pointer
+	
+	beq	$s1, ' ', end_of_word		# if space, goto end_of_word
+	beq	$s1, '\t', end_of_word		# if tab, goto end_of_word
+	beq	$s1, '\n', end_of_line		# if LF, goto end_of_line
+	beq	$s1, ':', new_label		# label detected
+	beqz	$s1, replace_labels_return	# if NULL goto replace_labels_return
 	
 	j	next_char			# goto next_char
 new_label:
-	subiu	$t0, $s2, 1			# get address of last char of label (s2 is ':' char)
-						
-	sw	$s1, ($s0)			# store start of label
-	addiu	$s0, $s0, 4
-	sw	$t0, ($s0)			# store end of label
-	addiu	$s0, $s0, 4
-	sw	$s5, ($s0)			# store label line number
-	addiu	$s0, $s0, 4
+	la	$a0, word_buffer		# start of copied string
+	move	$a1, $s3			# end of copied string
+	move	$s2, $s0			# destination of copied string
+	jal	copy_src_range_to_dest
+
+	addiu	$t0, $s0, 48			# get address of place in labels to store line number
+	sw	$s2, ($t0)			# store label line number
+	addiu	$s0, $s0, 52			# next free space at labels
+	
+						# TODO: copy word buffer to buffer, putc
+						# TODO: clear buffer
 	
 	j 	next_char
 end_of_line:
-	addiu	$s5, $s5, 1			# current_line++
+	addiu	$s2, $s2, 1			# current_line++
 end_of_word:					
 	move	$a0, $s1			# check if found defined symbol, if yes, replace and copy to output_content
 	move	$a1, $s2
@@ -146,8 +176,9 @@ end_of_word_not_symbol:
 	
 	addiu	$s1, $s3, 1			# reset start of current word
 next_char:
-	addiu	$s2, $s2, 1			# end of current word ++
-	addiu	$s3, $s3, 1			# next char address
+	addiu	$s3, $s3, 1			# increment buffer pointer
+	#addiu	$s2, $s2, 1			# end of current word ++
+	#addiu	$s3, $s3, 1			# next char address
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
 	lw	$s6, 4($sp)			# pop $s6
@@ -272,7 +303,7 @@ read_file_loop:
   	beqz	$s1, read_file_ok		# if num_of_read_chars == 0, goto read_file_ok
   	bltz	$s1, read_err			# if num_of_read_chars < 0, goto read_err
 
-	la	$a0, buffer			# put address of buffer to $a0, prepare for call
+	la	$a0, getc_buffer		# put address of buffer to $a0, prepare for call
 	move	$a1, $s2			# put address of content to $a1, prepare for call
 	jal	copy_src_to_dest		# call copy_buffer_to_dest
 	move	$s2, $v0			# store address of next free char at content
@@ -311,13 +342,14 @@ read_file_loop_return:
 # arguments:
 #	$a0 - file name to open
 #	$a1 - file open flag
+#	$a3 - address where to store file descriptor
 # variables: none
 # returns: none
 open_file:
 	li 	$v0, 13       			# system call to open file
   	syscall          			# open a file (file descriptor returned in $v0)
 
-	sw	$v0, input_file_descriptor	# save input file descriptor in input_file_descriptor
+	sw	$v0, ($a3) 			# save file descriptor in $a2
   	jr	$ra				# return
   	
 
@@ -332,7 +364,7 @@ open_file:
 #	$v0 - number of characters read, 0 if end-of-file, negative if error
 read_to_buffer:
 	li 	$v0, 14       			# system call for read to file
-  	la 	$a1, buffer   			# address of buffer to store file content
+  	la 	$a1, getc_buffer   			# address of buffer to store file content
   	li 	$a2, BUF_LEN       		# buffer length
   	syscall          			# read from file
 
@@ -379,7 +411,7 @@ print_str:
 #	$t1 - current char of buffer
 # returns: none
 clear_buffer:
-	la	$t0, buffer			# load the address of buffer into $s0
+	la	$t0, getc_buffer			# load the address of buffer into $s0
 clear_buffer_loop:
 	lbu	$t1, ($t0)			# store char in $s1
 	beqz 	$t1, clear_buffer_return	# if met end of string, return
@@ -591,7 +623,71 @@ atoi_loop:
 atoi_return:
 	move	$v0, $t2			# return result
 	jr 	$ra
+
 	
+# ============================================================================
+# putc
+# description:
+#	writes next char to buffer, if no space available - flushes buffer to file
+# arguments:
+#	$a0 - char to store
+# variables:
+#	$s0 - available number of chars in buffer
+#	$s1 - pointer to buffer
+#	$s2 - char to store
+# returns: none
+putc:
+	sub	$sp, $sp, 16
+	sw	$ra, 16($sp)			# push $ra
+	sw	$s0, 12($sp)			# push $s0
+	sw 	$s1, 8($sp)			# push $s1
+	sw 	$s2, 4($sp)			# push $s2
+
+	move	$s2, $a0			# save char to store
+	lw	$s0, putc_buffer_chars		# load available buffer chars
+	bnez	$s0, putc_next_char		# if chars available, goto putc_next_char
+	
+	jal	flush_buffer
+putc_next_char:
+	lw	$s1, putc_buffer_pointer	# store buffer pointer address in $s1
+	sb	$s2, ($s1)			# store char at next available space in buffer
+	addiu	$s1, $s1, 1			# move buffer_pointer to next available space
+	sw	$s1, putc_buffer_pointer	# store new buffer_pointer
+	subiu	$s0, $s0, 1			# decrement available buffer chars
+	sw	$s0, putc_buffer_chars		# store available buffer chars
+putc_return:
+	lw	$s2, 4($sp)			# pop $s2		
+	lw	$s1, 8($sp)			# pop $s1			
+	lw	$s0, 12($sp)			# pop $s0			
+	lw	$ra, 16($sp)			# pop $ra
+	add	$sp, $sp, 16
+
+	jr	$ra
+	
+# ============================================================================
+# flush_buffer (LEAF)
+# description:
+#	flushes putc_buffer to file
+# arguments: none
+# variables:
+#	$t0 - available number of chars in buffer
+#	$t1 - pointer to buffer
+# returns: none
+flush_buffer:
+	li 	$v0, 15       			# system call for write to file
+	lw	$a0, output_file_descriptor	# load output file descriptor to $a0
+  	la 	$a1, putc_buffer   		# address of buffer which is being stored to file
+  	li 	$a2, BUF_LEN       		# buffer length
+  	syscall          			# wrte to file
+  	
+  	li	$t0, BUF_LEN			# reset available buffer chars
+  	sw	$t0, putc_buffer_chars		# store available chars
+  	
+  	la	$t1, putc_buffer		# store buffer address in $t1
+  	sw	$t1, putc_buffer_pointer	# set buffer_pointer to start of buffer
+  	
+  	jr	$ra
+						
 # ============================================================================
 # getc (LEAF)
 # description:
@@ -604,29 +700,29 @@ atoi_return:
 # returns:
 #	$v0 - next available char, -1 if EOF
 getc:
-	lw	$t0, buffer_chars		# load available buffer chars
+	lw	$t0, getc_buffer_chars		# load available buffer chars
 	bnez	$t0, getc_next_char		# if chars available, goto getc_next_char
 getc_refresh:
 	li 	$v0, 14       			# system call for read to file
 	lw	$a0, input_file_descriptor	# load input file descriptor to $a0
-  	la 	$a1, buffer   			# address of buffer to store file content
+  	la 	$a1, getc_buffer   		# address of buffer to store file content
   	li 	$a2, BUF_LEN       		# buffer length
   	syscall          			# read from file
   	
   	move	$t0, $v0			# save read chars to $t0
-  	sw	$t0, buffer_chars		# store read chars as available chars
+  	sw	$t0, getc_buffer_chars		# store read chars as available chars
   	
   	beqz	$t0, getc_eof			# if no chars read (eof), goto getc_eof
   	
-  	la	$t1, buffer			# store buffer address in $t1
-  	sw	$t1, buffer_pointer		# set buffer_pointer to start of buffer
+  	la	$t1, getc_buffer		# store buffer address in $t1
+  	sw	$t1, getc_buffer_pointer	# set buffer_pointer to start of buffer
 getc_next_char:
-	lw	$t1, buffer_pointer		# store buffer pointer address in $t1
+	lw	$t1, getc_buffer_pointer	# store buffer pointer address in $t1
 	lb	$t2, ($t1)			# read available char from buffer
 	addiu	$t1, $t1, 1			# move buffer_pointer to next char
-	sw	$t1, buffer_pointer		# store new buffer_pointer
+	sw	$t1, getc_buffer_pointer	# store new buffer_pointer
 	subiu	$t0, $t0, 1			# decrement available buffer chars
-	sw	$t0, buffer_chars		# store available buffer chars
+	sw	$t0, getc_buffer_chars		# store available buffer chars
 	j	getc_return			# goto getc_return
 getc_eof:
 	li	$v0, -1				# return -1 eof flag
