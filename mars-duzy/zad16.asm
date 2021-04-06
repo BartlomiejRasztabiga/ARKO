@@ -5,9 +5,9 @@
 						# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
 						# MAX LENGTH OF LABEL IS 50 CHARS
 
-.eqv	BUF_LEN 512 				
+.eqv	BUF_LEN 8
 .eqv 	ITOA_BUF_LEN 4
-.eqv	WORD_BUF_LEN 48
+.eqv	WORD_BUF_LEN 32
 .eqv	LABELS_SIZE 5200			# TODO: dynamic
 
         .data  
@@ -189,56 +189,7 @@ open_file:
 
 	sw	$v0, ($a3) 			# save file descriptor in $a2
   	jr	$ra				# return
-  	
 
-# ============================================================================  	
-# read_to_buffer (LEAF)
-# description: 
-#	reads BUF_LEN bytes from opened file to buffer
-# arguments:
-#	$a0 - file descriptor
-# variables: none
-# returns:
-#	$v0 - number of characters read, 0 if end-of-file, negative if error
-read_to_buffer:
-	li 	$v0, 14       			# system call for read to file
-  	la 	$a1, getc_buffer   			# address of buffer to store file content
-  	li 	$a2, BUF_LEN       		# buffer length
-  	syscall          			# read from file
-
-  	jr	$ra				# return
-  	
-# ============================================================================  	
-# write_to_buffer (LEAF)
-# description: 
-#	writes n bytes from buffer to opened file
-# arguments:
-#	$a0 - file descriptor
-#	$a1 - start of content to write
-#	$a2 - number of chars to write
-# variables: none
-# returns:
-#	$v0 - number of characters written, negative if error
-write_to_buffer:
-	li 	$v0, 15       			# system call for write to file
-  	syscall          			# write to file
-  	
-  	jr	$ra				# return
-  		
-# ============================================================================  	
-# print_str
-# description: 
-#	prints string given in $a0
-# arguments:
-#	$a0 - address of string to print
-# variables: none
-# returns: none
-print_str:
-  	li 	$v0, 4				# print the string out
-  	syscall
-
-  	jr 	$ra				# return
- 
 # ============================================================================  	
 # clear_buffer (LEAF)
 # description: 
@@ -260,30 +211,7 @@ clear_buffer_loop:
 	j	clear_buffer_loop		# if not met end of string, repeat loop
 clear_buffer_return:
 	jr	$ra				# return
-	
-# ============================================================================  	
-# copy_src_to_dest (LEAF)
-# description: 
-#	copies src string to dest
-# arguments:
-#	$a0 - src address
-#	$a1 - dest address
-# variables:
-#	#t0 - current char
-# returns:
-#	$v0 - address of next free char at destination
-copy_src_to_dest:
-	lb	$t0, ($a0)			# store buffer char in $t0
-	beqz	$t0, copy_src_return		# if met end of string, return
-	
-	sb	$t0, ($a1)			# else, store src char at destination address
-	addiu	$a0, $a0, 1			# next src char
-	addiu	$a1, $a1, 1			# next destination char
-	j copy_src_to_dest			# if not met end of string, repeat loop
-copy_src_return:
-	move	$v0, $a1
-	jr	$ra				# return new free char address of destination
-	
+
 # ============================================================================
 # copy_src_range_to_dest (LEAF)
 # description: 
@@ -308,51 +236,6 @@ copy_src_range_return:
 	move	$v0, $a2
 	jr	$ra				# return new free char address of destination
 
-# ============================================================================
-# str_len (LEAF)
-# description:
-#	returns length of string in memory
-# arguments:
-#	$a0 - string address
-# variables:
-#	$t0 - string address
-#	$t1 - length
-# 	$t2 - current char
-# returns:
-#	$v0 - length of string in bytes
-str_len:
-	move 	$t0, $a0			# string address
-	li	$t1, 0				# length = 0
-str_len_loop:
-	lb	$t2, ($t0)			# get current char
-	beqz	$t2, str_len_return		# if NULL, goto str_len_return
-	addiu	$t1, $t1, 1			# if not NULL, length++
-str_len_next_char:
-	addiu	$t0, $t0, 1			# next char
-	j 	str_len_loop
-str_len_return:
-	move	$v0, $t1
-	jr	$ra
-	
-# ============================================================================
-# min (LEAF)
-# description:
-#	returns less of two ints
-# arguments:
-#	$a0 - first int
-#	$a1 - second int
-# variables: none
-# returns:
-#	$v0 - less of two ints
-min:
-	blt	$a0, $a1, min_first		# if $a0 < $a1, goto min_first
-	move	$v0, $a1			# return $a1
-	j 	min_return			# TODO: refactor?
-min_first:
-	move	$v0, $a0			# return $a0
-min_return:
-	jr	$ra				# return
-	
 # ============================================================================
 # get_symbol_for_word (LEAF)
 # description:
@@ -437,30 +320,6 @@ itoa_return:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
       	jr   	$ra
-      	
-# ============================================================================
-# atoi (LEAF)
-# description:
-#	returns int representation of string at given address
-# arguments:
-#	$a0 - address of string
-# variables: none
-# returns:
-#	$v0 - int
-atoi:
-	li	$t1, 10
-	li	$t2, 0				# result
-atoi_loop:
-	lbu 	$t0, ($a0)       		# load char from address
-  	beq 	$t0, $zero, atoi_return     	# end of string, goto atoi_return
-  	andi 	$t0, $t0, 0x0F   		# converts ascii value to dec
-  	mul 	$t2, $t2, $t1    		# result *= 10
-  	add 	$t2, $t2, $t0    		# result += dec_value
-  	addi 	$a0, $a0, 1     		# next char
-  	j 	atoi_loop                 	# go back to loop
-atoi_return:
-	move	$v0, $t2			# return result
-	jr 	$ra
 
 # ============================================================================
 # put_str
