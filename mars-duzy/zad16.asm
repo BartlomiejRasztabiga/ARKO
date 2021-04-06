@@ -15,25 +15,19 @@ opnfile_err_txt:.asciiz	"Error while opening the file"
 read_err_txt:	.asciiz	"Error while reading the file"
 write_err_txt:	.asciiz	"Error while writing the file"
 .align 2
-labels:		.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
-content:	.space 4
-output_content:	.space 4
-buffer: 	.space BUF_LEN
-getc_buffer: 	.space BUF_LEN
-getc_buffer_pointer:	
-		.space 4
-getc_buffer_chars:
-		.word 0
-putc_buffer: 	.space BUF_LEN
-putc_buffer_pointer:	
-		.space 4
-putc_buffer_chars:
-		.word BUF_LEN
-input_file_descriptor:
-		.space 4
-output_file_descriptor:
-		.space 4
-word_buffer:	.space WORD_BUF_LEN
+labels:			.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
+content:		.space 4
+output_content:		.space 4
+buffer: 		.space BUF_LEN
+getc_buffer: 		.space BUF_LEN
+getc_buffer_pointer:	.space 4
+getc_buffer_chars:	.word 0
+putc_buffer: 		.space BUF_LEN
+putc_buffer_pointer:	.space 4
+putc_buffer_chars:	.word BUF_LEN
+input_file_descriptor:	.space 4
+output_file_descriptor:	.space 4
+word_buffer:		.space WORD_BUF_LEN
         
         .text
 main:
@@ -60,24 +54,12 @@ process_file:
 						# prepare putc buffer for future calls
 	la	$t0, putc_buffer		# load address of putc_buffer
 	sw	$t0, putc_buffer_pointer	# store new buffer_pointer
-	
-	li	$a0, 'd'
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
-	jal	putc
 
 	#lw	$a0, ($a1)			# load input file name
   	#jal	read_file			# read input file to content
   	#bltz	$v0, exit			# if error during read_file, goto exit
   	
-	#jal	replace_labels			# replace labels in output_content
+	jal	replace_labels			# replace labels in output_content
 	#jal	write_file			# write output_content to output file
 exit:
 	li 	$v0, 10
@@ -138,16 +120,19 @@ new_label:
 	
 						# TODO: copy word buffer to buffer, putc
 						# TODO: clear buffer
+	la	$a0, word_buffer
+	jal	clear_buffer
 	
 	j 	next_char
 end_of_line:
 	addiu	$s2, $s2, 1			# current_line++
 end_of_word:					
-	move	$a0, $s1			# check if found defined symbol, if yes, replace and copy to output_content
-	move	$a1, $s2
-	jal	get_symbol_for_word		# get line number for symbol
-	move	$t0, $v0			# store found line number for symbol
-	beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol
+	#move	$a0, $s1			# check if found defined symbol, if yes, replace and copy to output_content
+	#move	$a1, $s2
+	#jal	get_symbol_for_word		# get line number for symbol
+	#move	$t0, $v0			# store found line number for symbol
+	#beq	$t0, -1, end_of_word_not_symbol	# if line number == -1, then word is not a symbol, goto end_of_word_not_symbol
+	j	end_of_word_not_symbol		# TODO: DELETE
 end_of_word_symbol:
 	move 	$a0, $t0
 	jal	itoa				# address of string representation of line number
@@ -166,15 +151,21 @@ end_of_word_symbol:
 	
 	j	next_char				
 end_of_word_not_symbol:
-						# if word is not a symbol, copy string to output_content
-	addiu	$t0, $s2, 1			# end_of_word++ to include whitespace
-	move	$a0, $s1			# start of word
-	move	$a1, $t0			# end of word
-	move	$a2, $s6			# destination : output_content
-	jal	copy_src_range_to_dest		# call copy_src_range_to_dest
-	move	$s6, $v0			# update next free space of output_content
+						# if word is not a symbol, write string to file
+	la	$a0, word_buffer
+	jal	put_str
 	
-	addiu	$s1, $s3, 1			# reset start of current word
+	la	$a0, word_buffer
+	jal	clear_buffer
+						
+	#addiu	$t0, $s2, 1			# end_of_word++ to include whitespace
+	#move	$a0, $s1			# start of word
+	#move	$a1, $t0			# end of word
+	#move	$a2, $s6			# destination : output_content
+	#jal	copy_src_range_to_dest		# call copy_src_range_to_dest
+	#move	$s6, $v0			# update next free space of output_content
+	
+	#addiu	$s1, $s3, 1			# reset start of current word
 next_char:
 	addiu	$s3, $s3, 1			# increment buffer pointer
 	#addiu	$s2, $s2, 1			# end of current word ++
@@ -405,13 +396,14 @@ print_str:
 # clear_buffer (LEAF)
 # description: 
 #	clears buffer by setting all bytes to /0
-# arguments: none
+# arguments:
+#	$a0 - address of buffer to clear
 # variables:
 #	$t0 - address of buffer to clear
 #	$t1 - current char of buffer
 # returns: none
 clear_buffer:
-	la	$t0, getc_buffer			# load the address of buffer into $s0
+	move	$t0, $a0			# load the address of buffer into $s0
 clear_buffer_loop:
 	lbu	$t1, ($t0)			# store char in $s1
 	beqz 	$t1, clear_buffer_return	# if met end of string, return
@@ -623,6 +615,41 @@ atoi_loop:
 atoi_return:
 	move	$v0, $t2			# return result
 	jr 	$ra
+
+# ============================================================================
+# put_str
+# description:
+#	writes string to output file
+# arguments:
+#	$a0 - address of string to write
+# variables: none
+# returns: none
+put_str:
+	sub	$sp, $sp, 16
+	sw	$ra, 16($sp)			# push $ra
+	sw	$s0, 12($sp)			# push $s0
+	sw 	$s1, 8($sp)			# push $s1
+	sw 	$s2, 4($sp)			# push $s2
+	
+	move	$s0, $a0			# set address of string
+put_str_loop:
+	lb	$s1, ($s0)			# load next char
+	beqz	$s1, put_str_return		# if NULL, goto put_str_return
+	
+	move	$a0, $s1			# char to put
+	jal	putc				# call putc
+	
+	addiu	$s0, $s0, 1			# next char pointer
+	j 	put_str_loop
+	
+put_str_return:
+	lw	$s2, 4($sp)			# pop $s2		
+	lw	$s1, 8($sp)			# pop $s1			
+	lw	$s0, 12($sp)			# pop $s0			
+	lw	$ra, 16($sp)			# pop $ra
+	add	$sp, $sp, 16
+
+	jr	$ra
 
 	
 # ============================================================================
