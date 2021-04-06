@@ -36,3 +36,4 @@ Other: 1559 (13%)
 4. przerobic replace_labels zeby uzywal bufora do przechowywania aktualnego slowa zamiast wskaznikow
 5. przerobic replace_labels zeby uzywaly getc, putc
 6. tyle? wtedy potrzebujemy tylko 1 bufora
+7. dynamiczna alokacja dla labelek
