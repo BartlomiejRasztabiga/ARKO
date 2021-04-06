@@ -598,7 +598,7 @@ atoi_return:
 # returns:
 #	$v0 - next available char, -1 if EOF
 getc:
-	lw	$t0, buffer_chars
+	lw	$t0, buffer_chars		# load available buffer chars
 	bnez	$t0, getc_next_char		# if chars available, goto getc_next_char
 getc_refresh:
 	li 	$v0, 14       			# system call for read to file
@@ -618,6 +618,8 @@ getc_next_char:
 	lw	$t2, ($t1)			# read available char from buffer
 	addiu	$t1, $t1, 1			# move buffer_pointer to next char
 	sw	$t1, buffer_pointer		# store new buffer_pointer
+	subiu	$t0, $t0, 1			# decrement available buffer chars
+	sw	$t0, buffer_chars		# store available buffer chars
 getc_eof:
 	li	$v0, -1				# return -1 eof flag
 getc_return:
