@@ -5,8 +5,8 @@
 						# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
 						# MAX LENGTH OF LABEL IS 50 CHARS
 
-.eqv	BUF_LEN 8 				# MIN 4, USED FOR CONVERTING INTS TO STRINGS
-.eqv 	ITOA_BUF_LEN 16
+.eqv	BUF_LEN 512 				
+.eqv 	ITOA_BUF_LEN 4
 .eqv	WORD_BUF_LEN 48
 .eqv	LABELS_SIZE 5200			# TODO: dynamic
 
@@ -17,13 +17,16 @@ read_err_txt:	.asciiz	"Error while reading the file"
 write_err_txt:	.asciiz	"Error while writing the file"
 .align 2
 labels:			.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
-content:		.space 4
-output_content:		.space 4
+#content:		.space 4
+#output_content:		.space 4
 itoa_buffer: 		.space ITOA_BUF_LEN
+			.word 0
 getc_buffer: 		.space BUF_LEN
+			.word 0
 getc_buffer_pointer:	.space 4
 getc_buffer_chars:	.word 0
 putc_buffer: 		.space BUF_LEN
+			.word 0
 putc_buffer_pointer:	.space 4
 putc_buffer_chars:	.word BUF_LEN
 input_file_descriptor:	.space 4
@@ -517,7 +520,10 @@ putc:
 	lw	$s0, putc_buffer_chars		# load available buffer chars
 	bnez	$s0, putc_next_char		# if chars available, goto putc_next_char
 	
-	jal	flush_buffer
+	jal	flush_buffer			# flush buffer
+	
+	la	$a0, putc_buffer		
+	jal	clear_buffer			# clear putc buffer
 putc_next_char:
 	lw	$s1, putc_buffer_pointer	# store buffer pointer address in $s1
 	sb	$s2, ($s1)			# store char at next available space in buffer
@@ -535,7 +541,7 @@ putc_return:
 	jr	$ra
 	
 # ============================================================================
-# flush_buffer (LEAF)
+# flush_buffer
 # description:
 #	flushes putc_buffer to file
 # arguments: none
