@@ -1,0 +1,18 @@
+value a
+value bbb
+a:
+value a
+bbb: a + 6
+bbb + c * a
+c:
+d:
+ff:
+ff
+test abc:
+test abc
+ddd:
+a bbb c d ff ddd
+ddd ddd
+newlabel: test
+newlabel2: newlabel
+newlabel3: newlabel3

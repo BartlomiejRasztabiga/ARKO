@@ -28,3 +28,14 @@ Jump: 1559 (13%)
 Branch: 2368 (20%)
 Memory: 2323 (20%)
 Other: 1559 (13%)
+
+### Podejście 2 (czytanie do małego bufora)
+Przy takim samym pliku input.txt:
+
+Statystyki: 
+Total: 17316
+ALU: 6877 (39%)
+Jump: 1954 (12%)
+Branch: 2412 (13%)
+Memory: 4765 (28%)
+Other: 1308 (7%)
