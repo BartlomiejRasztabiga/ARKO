@@ -146,7 +146,7 @@ end_of_word_symbol:
 	jal	put_str				# put string representation of line number for symbol
 	
 	move	$a0, $s1			
-	jal	putc				# put LF or space
+	jal	putc				# put LF or space (last char of symbol-word)
 	
 	move	$a0, $t0
 	jal	clear_buffer			# clear itoa buffer
