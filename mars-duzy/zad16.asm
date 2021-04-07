@@ -91,9 +91,6 @@ replace_labels:
 	sw	$s1, 24($sp)			# push $s1
 	sw	$s2, 20($sp)			# push $s2
 	sw	$s3, 16($sp)			# push $s3
-	sw	$s4, 12($sp)			# push $s4
-	sw	$s5, 8($sp)			# push $s5
-	sw	$s6, 4($sp)			# push $s6
 	
 	la	$s0, labels			# store next free space of labels at $s0
 	li	$s2, 1				# current line of content
@@ -169,9 +166,6 @@ end_of_word_not_symbol:
 next_char:
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
-	lw	$s6, 4($sp)			# pop $s6
-	lw	$s5, 8($sp)			# pop $s5
-	lw	$s4, 12($sp)			# pop $s4
 	lw	$s3, 16($sp)			# pop $s3
 	lw	$s2, 20($sp)			# pop $s2
 	lw	$s1, 24($sp)			# pop $s1
@@ -273,7 +267,7 @@ compare_word:
 	lb	$t3, ($t1)			# load label's char
 
 	seq	$t6, $t3, $zero			# if label has ended
-	slti 	$t7, $t4, 11			# if word has ended (char is less than LF)
+	slti 	$t7, $t4, 33			# if word has ended (char is less than or equal space)
 	and	$t6, $t6, $t7
 	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
 	beqz	$t3, compare_word_not_equal	# if label has ended BUT word has not ended, try next label
