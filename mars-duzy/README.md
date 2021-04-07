@@ -33,11 +33,9 @@ Other: 1559 (13%)
 Przy takim samym pliku input.txt:
 
 Statystyki: 
-Total: 18959
-ALU: 7473 (39%)
-Jump: 2284 (13%)
-Branch: 2588 (13%)
-Memory: 5210 (28%)
-Other: 1404 (7%)
-
-7. dynamiczna alokacja dla labelek
+Total: 17316
+ALU: 6877 (39%)
+Jump: 1954 (12%)
+Branch: 2412 (13%)
+Memory: 4765 (28%)
+Other: 1308 (7%)
