@@ -1,67 +1,72 @@
-						# MAX NUMBER OF LABELS IN FILE IS 128 (can be changed by modifying LABELS_SIZE)
+						# MAX NUMBER OF LABELS IN FILE IS 100 (can be changed by modifying LABELS_SIZE)
 						# MAX NUMBER OF LINES IN FILE IS 999 (3 bytes for line number as a string)
-						# MAX SIZE OF FILE CAN BE SET BY PROGRAM ARGUMENTS
-						# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS
-						# PASS 'INPUT FILE NAME' AND 'INPUT FILE LENGTH +1' AS PROGRAM ARGUMENT
-						# MAX LENGTH OF LABEL IS 50 CHARS
+						# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS (WILL USE FIRST DECLARED)
+						# PASS INPUT FILE NAME AS PROGRAM ARGUMENT
+						# MAX LENGTH OF LABEL IS 63 CHARS
 
 .eqv	BUF_LEN 512
 .eqv 	ITOA_BUF_LEN 4
-.eqv	WORD_BUF_LEN 32
+.eqv	WORD_BUF_LEN 64
 .eqv	LABELS_SIZE 5200			# TODO: dynamic
 
         .data  
-output_fname:	.asciiz "output.txt"
-opnfile_err_txt:.asciiz	"Error while opening the file"
-read_err_txt:	.asciiz	"Error while reading the file"
-write_err_txt:	.asciiz	"Error while writing the file"
-.align 2
-labels:			.space LABELS_SIZE		# labels array for 100 labels 48chars+line number (48-4)
+output_fname:		.asciiz "output.txt"
+opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
+			.align 2
+labels:			.space LABELS_SIZE	# labels array for 100 labels 48chars+line number (48-4)
 			.word 0
 itoa_buffer: 		.space ITOA_BUF_LEN
 			.word 0
 getc_buffer: 		.space BUF_LEN
 			.word 0
-getc_buffer_pointer:	.space 4
-getc_buffer_chars:	.word 0
 putc_buffer: 		.space BUF_LEN
 			.word 0
+word_buffer:		.space WORD_BUF_LEN
+			.word 0
+getc_buffer_pointer:	.space 4
+getc_buffer_chars:	.word 0
 putc_buffer_pointer:	.space 4
 putc_buffer_chars:	.word BUF_LEN
 input_file_descriptor:	.space 4
 output_file_descriptor:	.space 4
-word_buffer:		.space WORD_BUF_LEN
-			.word 0
-        
+
         .text
 main:
-	blt	$a0, 1, exit			# not enough arguments provided, argc < 2, TODO: add error string
+	blt	$a0, 1, exit			# not enough arguments provided, argc < 1, TODO: add error string
 allocate_memory:
 	#li	$a0, LABELS_SIZE
 	#li	$v0, 9
 	#syscall				# allocate memory for labels
 	#la	$s1, labels			# store address of labels
 	#sw	$v0, ($s1)			# move allocated memory address to labels
-process_file:
+open_files:
 	lw	$a0, ($a1)			# load input file name
 	li	$a1, 0				# read only flag
-	la	$a3, input_file_descriptor
-	jal	open_file			# call open_file
-	bltz	$v0, exit			# if error during open_file, goto exit
+	la	$t0, input_file_descriptor
+	
+	li 	$v0, 13       			# system call to open file
+  	syscall          			# open a file (file descriptor returned in $v0)
+  	sw	$v0, ($t0) 			# save file descriptor in input_file_descriptor
+	bltz	$v0, open_file_err		# if error during open_file, goto open_file_err
+	
 	
 	la	$a0, output_fname		# load output file name
 	li	$a1, 1				# write only flag
-	la	$a3, output_file_descriptor
-	jal	open_file			# call open_file
-	bltz	$v0, exit			# if error during open_file, goto exit
-						# prepare putc buffer for future calls
+	la	$t0, output_file_descriptor
+	
+	li 	$v0, 13       			# system call to open file
+  	syscall          			# open a file (file descriptor returned in $v0)
+  	sw	$v0, ($t0) 			# save file descriptor in output_file_descriptor
+	bltz	$v0, open_file_err		# if error during open_file, goto open_file_err
+	
+						# prepare putc buffer pointer for future putc calls
 	la	$t0, putc_buffer		# load address of putc_buffer
 	sw	$t0, putc_buffer_pointer	# store new buffer_pointer
-
+process_file:
 	jal	replace_labels			# replace labels in output_content
-exit:
-	jal	flush_buffer			# flush buffer
 	
+	jal	flush_buffer			# flush buffer
+close_files:
 	la	$a0, input_file_descriptor
 	li	$v0, 16
 	syscall
@@ -69,9 +74,14 @@ exit:
 	la	$a0, output_file_descriptor
 	li	$v0, 16
 	syscall
-
+exit:
 	li 	$v0, 10
   	syscall
+open_file_err:
+	la	$a0, opnfile_err_txt
+	li	$v0, 4
+	syscall					# print error string
+	j	close_files
   	
 # ============================================================================  	
 # replace_labels
@@ -174,23 +184,6 @@ replace_labels_return:
 	add	$sp, $sp, 32
 
 	jr	$ra				# return
-  	
-# ============================================================================  	
-# open_file (LEAF)
-# description: 
-#	opens file and returns file descriptor
-# arguments:
-#	$a0 - file name to open
-#	$a1 - file open flag
-#	$a3 - address where to store file descriptor
-# variables: none
-# returns: none
-open_file:
-	li 	$v0, 13       			# system call to open file
-  	syscall          			# open a file (file descriptor returned in $v0)
-
-	sw	$v0, ($a3) 			# save file descriptor in $a2
-  	jr	$ra				# return
 
 # ============================================================================  	
 # clear_buffer (LEAF)
