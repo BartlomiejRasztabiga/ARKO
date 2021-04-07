@@ -7,14 +7,11 @@
 .eqv	BUF_LEN 512				# ANY REASONABLE VALUE
 .eqv 	ITOA_BUF_LEN 4				# AT LEAST 4, HAS TO SUPPORT NUMBERS UP TO 999
 .eqv	WORD_BUF_LEN 32				# AT LEAST AS LONG AS LONGEST WORD IN FILE +1
-.eqv	LABELS_SIZE 5200			# TODO: dynamic
+.eqv	LABELS_SIZE 5200			# SPACE FOR 100 LABELS (48 chars + 4 chars as line number = 52 * 100)
 
         .data  
-output_fname:		.asciiz "output.txt"
-opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
+
 			.align 2
-labels:			.space LABELS_SIZE	# labels array for 100 labels 48chars+line number (48-4)
-			.word 0
 itoa_buffer: 		.space ITOA_BUF_LEN
 			.word 0
 getc_buffer: 		.space BUF_LEN
@@ -29,16 +26,19 @@ putc_buffer_pointer:	.space 4
 putc_buffer_chars:	.word BUF_LEN
 input_file_descriptor:	.space 4
 output_file_descriptor:	.space 4
+labels_pointer:		.space 4
+output_fname:		.asciiz "output.txt"
+opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
 
         .text
 main:
 	blt	$a0, 1, exit			# not enough arguments provided, argc < 1, TODO: add error string
 allocate_memory:
-	#li	$a0, LABELS_SIZE
-	#li	$v0, 9
-	#syscall				# allocate memory for labels
-	#la	$s1, labels			# store address of labels
-	#sw	$v0, ($s1)			# move allocated memory address to labels
+	li	$a0, LABELS_SIZE
+	li	$v0, 9
+	syscall					# allocate memory for labels
+	la	$s1, labels_pointer		# store address of labels
+	sw	$v0, ($s1)			# move allocated memory address to labels
 open_files:
 	lw	$a0, ($a1)			# load input file name
 	li	$a1, 0				# read only flag
@@ -101,7 +101,8 @@ replace_labels:
 	sw	$s2, 8($sp)			# push $s2
 	sw	$s3, 4($sp)			# push $s3
 	
-	la	$s0, labels			# store next free space of labels at $s0
+	la	$s0, labels_pointer		# address of labels pointer
+	lw	$s0, ($s0)			# store next free space of labels at $s0
 	li	$s2, 1				# current line of content
 	la	$s3, word_buffer		# load pointer to buffer
 replace_labels_loop:
@@ -233,8 +234,9 @@ copy_src_range_return:
 #	$t7 - flag if word has ended
 # returns:
 #	$v0 - line number for symbol if word is a defined symbol, -1 if not defined
-get_symbol_for_word:	
-	la	$t0, labels			# first label pointer
+get_symbol_for_word:
+	la	$t0, labels_pointer		# address of labels pointer
+	lw	$t0, ($t0)			# first label pointer
 	la	$t5, word_buffer		# store word_buffer pointer in $t5
 get_symbol_for_word_loop:
 	move	$t1, $t0			# get start address of label
