@@ -23,19 +23,13 @@ itoa_buffer: 		.space ITOA_BUF_LEN
 getc_buffer: 		.space BUF_LEN
 			.word 0
 getc_buffer_pointer:	.space 4
-			.word 0
 getc_buffer_chars:	.word 0
-			.word 0
 putc_buffer: 		.space BUF_LEN
 			.word 0
 putc_buffer_pointer:	.space 4
-			.word 0
 putc_buffer_chars:	.word BUF_LEN
-			.word 0
 input_file_descriptor:	.space 4
-			.word 0
 output_file_descriptor:	.space 4
-			.word 0
 word_buffer:		.space WORD_BUF_LEN
 			.word 0
         
