@@ -1,5 +1,5 @@
 						# MAX NUMBER OF LABELS IN FILE IS 100 (can be changed by modifying LABELS_SIZE)
-						# MAX NUMBER OF LINES IN FILE IS 999 (3 bytes for line number as a string)
+						# LAST LABEL HAS TO BE AT MAX LINE 999 (3 bytes for line number as a string)
 						# PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS (WILL USE FIRST DECLARED)
 						# PASS INPUT FILE NAME AS PROGRAM ARGUMENT
 						# MAX LENGTH OF LABEL IS 63 CHARS
