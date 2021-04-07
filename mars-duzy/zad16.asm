@@ -4,9 +4,9 @@
 						# PASS INPUT FILE NAME AS PROGRAM ARGUMENT
 						# MAX LENGTH OF LABEL IS 63 CHARS
 
-.eqv	BUF_LEN 512
-.eqv 	ITOA_BUF_LEN 4
-.eqv	WORD_BUF_LEN 64
+.eqv	BUF_LEN 8				# ANY REASONABLE VALUE, MIGHT EVEN BE ONE
+.eqv 	ITOA_BUF_LEN 4				# AT LEAST 4, HAS TO SUPPORT NUMBERS UP TO 999
+.eqv	WORD_BUF_LEN 5				# AT LEAST 5 (I DON'T KNOW WHY EXACTLY 5)
 .eqv	LABELS_SIZE 5200			# TODO: dynamic
 
         .data  
@@ -64,7 +64,6 @@ open_files:
 	sw	$t0, putc_buffer_pointer	# store new buffer_pointer
 process_file:
 	jal	replace_labels			# replace labels in output_content
-	
 	jal	flush_buffer			# flush buffer
 close_files:
 	la	$a0, input_file_descriptor
@@ -404,12 +403,18 @@ putc_return:
 # variables:
 #	$t0 - available number of chars in buffer
 #	$t1 - pointer to buffer
+#	$t2 - number of chars left to write
+#	$t3 - value of BUF_LEN
 # returns: none
 flush_buffer:
+	lw	$t2, putc_buffer_chars		# load available buffer chars
+	li	$t3, BUF_LEN			# load value of BUF_LEN
+	subu	$t2, $t3, $t2			# set t2 to number of chars left to write to file
+
 	li 	$v0, 15       			# system call for write to file
 	lw	$a0, output_file_descriptor	# load output file descriptor to $a0
   	la 	$a1, putc_buffer   		# address of buffer which is being stored to file
-  	li 	$a2, BUF_LEN       		# buffer length
+  	move 	$a2, $t2       			# number of chars left to write
   	syscall          			# wrte to file
   	
   	li	$t0, BUF_LEN			# reset available buffer chars
