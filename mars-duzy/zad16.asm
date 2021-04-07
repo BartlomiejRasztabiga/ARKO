@@ -116,7 +116,7 @@ replace_labels_loop:
 	bltz	$s1, replace_labels_return	# if -1 (EOF) or NULL, goto replace_labels_return
 	
 	addiu	$s3, $s3, 1			# increment buffer pointer
-	j	next_char			# goto next_char
+	j	replace_labels_loop		# go back to loop
 new_label:
 	la	$a0, word_buffer		# start of copied string
 	move	$a1, $s3			# end of copied string
@@ -130,12 +130,7 @@ new_label:
 	la	$a0, word_buffer
 	jal	put_str
 						
-	la	$a0, word_buffer
-	jal	clear_buffer
-	
-	la	$s3, word_buffer		# reset word buffer
-	
-	j 	next_char
+	j 	next_word
 end_of_line:
 	addiu	$s2, $s2, 1			# current_line++
 end_of_word:					
@@ -156,23 +151,15 @@ end_of_word_symbol:
 	move	$a0, $t0
 	jal	clear_buffer			# clear itoa buffer
 	
-	la	$a0, word_buffer
-	jal	clear_buffer
-	
-	la	$s3, word_buffer		# reset word buffer
-	
-	j	next_char				
-end_of_word_not_symbol:
-						# if word is not a symbol, write string to file
-	la	$a0, word_buffer
+	j	next_word				
+end_of_word_not_symbol:			
+	la	$a0, word_buffer		# if word is not a symbol, write string to file
 	jal	put_str
-	
+next_word:
 	la	$a0, word_buffer
 	jal	clear_buffer
-	
 	la	$s3, word_buffer		# reset word buffer
-						
-next_char:
+
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
 	lw	$s3, 16($sp)			# pop $s3
