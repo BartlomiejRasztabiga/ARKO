@@ -94,12 +94,12 @@ open_file_err:
 #	$s3 - pointer to word buffer
 # returns: none
 replace_labels:
-	sub	$sp, $sp, 32
-	sw	$ra, 32($sp)			# push $ra
-	sw	$s0, 28($sp)			# push $s0
-	sw	$s1, 24($sp)			# push $s1
-	sw	$s2, 20($sp)			# push $s2
-	sw	$s3, 16($sp)			# push $s3
+	sub	$sp, $sp, 20
+	sw	$ra, 20($sp)			# push $ra
+	sw	$s0, 16($sp)			# push $s0
+	sw	$s1, 12($sp)			# push $s1
+	sw	$s2, 8($sp)			# push $s2
+	sw	$s3, 4($sp)			# push $s3
 	
 	la	$s0, labels			# store next free space of labels at $s0
 	li	$s2, 1				# current line of content
@@ -162,12 +162,12 @@ next_word:
 
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
-	lw	$s3, 16($sp)			# pop $s3
-	lw	$s2, 20($sp)			# pop $s2
-	lw	$s1, 24($sp)			# pop $s1
-	lw	$s0, 28($sp)			# pop $s0
-	lw	$ra, 32($sp)			# pop $ra
-	add	$sp, $sp, 32
+	lw	$s3, 4($sp)			# pop $s3
+	lw	$s2, 8($sp)			# pop $s2
+	lw	$s1, 12($sp)			# pop $s1
+	lw	$s0, 16($sp)			# pop $s0
+	lw	$ra, 20($sp)			# pop $ra
+	add	$sp, $sp, 20
 
 	jr	$ra				# return
 
