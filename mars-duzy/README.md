@@ -33,9 +33,9 @@ Other: 1559 (13%)
 Przy takim samym pliku input.txt:
 
 Statystyki: 
-Total: 17316
-ALU: 6877 (39%)
-Jump: 1954 (12%)
-Branch: 2412 (13%)
-Memory: 4765 (28%)
-Other: 1308 (7%)
+Total: 17140
+ALU: 6859 (40%)
+Jump: 1900 (12%)
+Branch: 2374 (13%)
+Memory: 4746 (28%)
+Other: 1261 (7%)
