@@ -258,8 +258,7 @@ symbol_not_found:
 	li	$v0, -1				# set 'symbol not found' flag
 	j 	get_symbol_for_word_return
 symbol_found:
-	addiu	$t0, $t0, 48			# move to v0 address of label's line number
-	lw	$v0, ($t0)			# load line number as return value
+	lw	$v0, ($t2)			# move to v0 address of label's line number
 get_symbol_for_word_return:
 	jr 	$ra
 	
