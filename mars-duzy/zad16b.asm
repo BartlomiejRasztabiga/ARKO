@@ -11,20 +11,20 @@
 
         .data  
 
-itoa_buffer: 		.space ITOA_BUF_LEN
-getc_buffer: 		.space BUF_LEN
-			.word 0
-putc_buffer: 		.space BUF_LEN
-			.word 0
-word_buffer:		.space WORD_BUF_LEN
-			.word 0
-getc_buffer_pointer:	.space 4
-getc_buffer_chars:	.word 0
-putc_buffer_pointer:	.space 4
-putc_buffer_chars:	.word BUF_LEN
-input_file_descriptor:	.space 4
-output_file_descriptor:	.space 4
-labels_pointer:		.space 4
+itoa_buffer: 		.space 	ITOA_BUF_LEN
+getc_buffer: 		.space 	BUF_LEN
+			.word 	0
+putc_buffer: 		.space 	BUF_LEN
+			.word 	0
+word_buffer:		.space 	WORD_BUF_LEN
+			.word 	0
+getc_buffer_pointer:	.space 	4
+getc_buffer_chars:	.word 	0
+putc_buffer_pointer:	.space 	4
+putc_buffer_chars:	.word 	BUF_LEN
+input_file_descriptor:	.space 	4
+output_file_descriptor:	.space 	4
+labels_pointer:		.space 	4
 output_fname:		.asciiz "output.txt"
 opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
 
