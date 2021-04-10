@@ -92,7 +92,7 @@ open_file_err:
 #	$s3 - pointer to word buffer
 # returns: none
 replace_labels:
-	sub	$sp, $sp, 20
+	subu	$sp, $sp, 20
 	sw	$ra, 20($sp)			# push $ra
 	sw	$s0, 16($sp)			# push $s0
 	sw	$s1, 12($sp)			# push $s1
@@ -161,7 +161,7 @@ replace_labels_return:
 	lw	$s1, 12($sp)			# pop $s1
 	lw	$s0, 16($sp)			# pop $s0
 	lw	$ra, 20($sp)			# pop $ra
-	add	$sp, $sp, 20
+	addu	$sp, $sp, 20
 
 	jr	$ra				# return
 
@@ -287,9 +287,9 @@ itoa_loop:
       	div  	$a0, $t2       			# a /= 10
       	mflo 	$a0
       	mfhi 	$t3            			# get remainder
-      	add  	$t3, $t3, $t1  			# convert to ASCII digit
+      	addu  	$t3, $t3, $t1  			# convert to ASCII digit
       	sb   	$t3, ($t0)     			# store it
-      	sub  	$t0, $t0, 1    			# decrement buffer pointer
+      	subu  	$t0, $t0, 1    			# decrement buffer pointer
       	bne  	$a0, $0, itoa_loop  		# if not zero, loop
 itoa_return:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
@@ -305,7 +305,7 @@ itoa_return:
 # variables: none
 # returns: none
 put_str:
-	sub	$sp, $sp, 16
+	subu	$sp, $sp, 16
 	sw	$ra, 16($sp)			# push $ra
 	sw	$s0, 12($sp)			# push $s0
 	sw 	$s1, 8($sp)			# push $s1
@@ -327,7 +327,7 @@ put_str_return:
 	lw	$s1, 8($sp)			# pop $s1			
 	lw	$s0, 12($sp)			# pop $s0			
 	lw	$ra, 16($sp)			# pop $ra
-	add	$sp, $sp, 16
+	addu	$sp, $sp, 16
 
 	jr	$ra
 
@@ -344,7 +344,7 @@ put_str_return:
 #	$s2 - char to store
 # returns: none
 putc:
-	sub	$sp, $sp, 16
+	subu	$sp, $sp, 16
 	sw	$ra, 16($sp)			# push $ra
 	sw	$s0, 12($sp)			# push $s0
 	sw 	$s1, 8($sp)			# push $s1
@@ -372,7 +372,7 @@ putc_return:
 	lw	$s1, 8($sp)			# pop $s1			
 	lw	$s0, 12($sp)			# pop $s0			
 	lw	$ra, 16($sp)			# pop $ra
-	add	$sp, $sp, 16
+	addu	$sp, $sp, 16
 
 	jr	$ra
 	
