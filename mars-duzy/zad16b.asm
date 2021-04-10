@@ -29,6 +29,7 @@ output_fname:		.asciiz "output.txt"
 opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
 
         .text
+        .globl	main
 main:
 	blt	$a0, 1, exit			# not enough arguments provided, argc < 1
 allocate_memory:
