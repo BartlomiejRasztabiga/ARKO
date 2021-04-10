@@ -12,7 +12,6 @@
         .data  
 
 itoa_buffer: 		.space ITOA_BUF_LEN
-			.word 0
 getc_buffer: 		.space BUF_LEN
 			.word 0
 putc_buffer: 		.space BUF_LEN
@@ -31,7 +30,7 @@ opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
 
         .text
 main:
-	blt	$a0, 1, exit			# not enough arguments provided, argc < 1, TODO: add error string
+	blt	$a0, 1, exit			# not enough arguments provided, argc < 1
 allocate_memory:
 	li	$a0, LABELS_SIZE
 	li	$v0, 9
@@ -140,16 +139,11 @@ end_of_word:
 end_of_word_symbol:
 	move 	$a0, $t0
 	jal	itoa				# address of string representation of line number
-	move	$t0, $v0			# store address in $t0
-	
-	move	$a0, $t0
+	move	$a0, $v0			# store address in $a0
 	jal	put_str				# put string representation of line number for symbol
 	
 	move	$a0, $s1			
 	jal	putc				# put LF or space (last char of symbol-word)
-	
-	move	$a0, $t0
-	jal	clear_buffer			# clear itoa buffer
 	
 	j	next_word				
 end_of_word_not_symbol:			
