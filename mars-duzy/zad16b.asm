@@ -204,12 +204,13 @@ clear_buffer_return:
 #	$v0 - address of next free char at destination
 copy_src_range_to_dest:
 	lb	$t0, ($a0)			# store buffer char in $t0
-	beq	$a0, $a1, copy_src_range_return	# if met end of range, return
-	
+copy_src_range_loop:
 	sb	$t0, ($a2)			# else, store src char at destination address
 	addiu	$a0, $a0, 1			# next src char
 	addiu	$a2, $a2, 1			# next destination char
-	j copy_src_range_to_dest		# if not met end of string, repeat loop
+	
+	lb	$t0, ($a0)			# store buffer char in $t0
+	bne	$a0, $a1, copy_src_range_loop	# if not met end of range, repeat loop, else return
 copy_src_range_return:
 	move	$v0, $a2
 	jr	$ra				# return new free char address of destination
@@ -249,11 +250,10 @@ compare_word:
 	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
 	beqz	$t3, compare_word_not_equal	# if label has ended BUT word has not ended, try next label
 	
-	bne	$t3, $t4, compare_word_not_equal# if label's char != word's char, symbol not found, try next label
 	addiu	$t1, $t1, 1			# next label's char
 	addiu	$t5, $t5, 1			# next word's char
-	j compare_word
-compare_word_not_equal:	
+	beq	$t3, $t4, compare_word		# if label's char == word's char, try next char, else try next label
+compare_word_not_equal:
 	addiu	$t0, $t0, 52			# next label
 	la	$t5, word_buffer		# reset word's pointer
 	j 	get_symbol_for_word_loop
