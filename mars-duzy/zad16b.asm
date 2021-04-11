@@ -180,13 +180,12 @@ replace_labels_return:
 # returns: none
 clear_buffer:
 	move	$t0, $a0			# load the address of buffer into $s0
-clear_buffer_loop:
 	lbu	$t1, ($t0)			# store char in $s1
-	beqz 	$t1, clear_buffer_return	# if met end of string, return
-	
-	sb	$zero, ($t0)			# else, store 0 at current char address
+clear_buffer_loop:
+	sb	$zero, ($t0)			# store 0 at current char address
 	addiu	$t0, $t0, 1			# next char
-	j	clear_buffer_loop		# if not met end of string, repeat loop
+	lbu	$t1, ($t0)			# store char in $s1
+	bnez	$t1, clear_buffer_loop		# if not met end of string, repeat loop
 clear_buffer_return:
 	jr	$ra				# return
 
@@ -205,7 +204,7 @@ clear_buffer_return:
 copy_src_range_to_dest:
 	lb	$t0, ($a0)			# store buffer char in $t0
 copy_src_range_loop:
-	sb	$t0, ($a2)			# else, store src char at destination address
+	sb	$t0, ($a2)			# store src char at destination address
 	addiu	$a0, $a0, 1			# next src char
 	addiu	$a2, $a2, 1			# next destination char
 	
