@@ -284,8 +284,6 @@ itoa:
       	li   	$t1, '0'  
       	sb   	$t1, ($t0)     			# init. with ascii 0
       	li   	$t2, 10        			# load 10
-
-      	beq  	$a0, $zero, itoa_return  		# end if number is 0
 itoa_loop:
       	div  	$a0, $t2       			# a /= 10
       	mflo 	$a0
