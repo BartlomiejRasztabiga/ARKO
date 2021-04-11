@@ -96,11 +96,11 @@ open_file_err:
 # returns: none
 replace_labels:
 	subu	$sp, $sp, 20
-	sw	$ra, 20($sp)			# push $ra
-	sw	$s0, 16($sp)			# push $s0
-	sw	$s1, 12($sp)			# push $s1
-	sw	$s2, 8($sp)			# push $s2
-	sw	$s3, 4($sp)			# push $s3
+	sw	$ra, 16($sp)			# push $ra
+	sw	$s0, 12($sp)			# push $s0
+	sw	$s1, 8($sp)			# push $s1
+	sw	$s2, 4($sp)			# push $s2
+	sw	$s3, 0($sp)			# push $s3
 	
 	la	$s0, labels_pointer		# address of labels pointer
 	lw	$s0, ($s0)			# store next free space of labels at $s0
@@ -159,11 +159,11 @@ next_word:
 
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
-	lw	$s3, 4($sp)			# pop $s3
-	lw	$s2, 8($sp)			# pop $s2
-	lw	$s1, 12($sp)			# pop $s1
-	lw	$s0, 16($sp)			# pop $s0
-	lw	$ra, 20($sp)			# pop $ra
+	lw	$s3, 0($sp)			# pop $s3
+	lw	$s2, 4($sp)			# pop $s2
+	lw	$s1, 8($sp)			# pop $s1
+	lw	$s0, 12($sp)			# pop $s0
+	lw	$ra, 16($sp)			# pop $ra
 	addu	$sp, $sp, 20
 
 	jr	$ra				# return
@@ -309,10 +309,10 @@ itoa_return:
 # returns: none
 put_str:
 	subu	$sp, $sp, 16
-	sw	$ra, 16($sp)			# push $ra
-	sw	$s0, 12($sp)			# push $s0
-	sw 	$s1, 8($sp)			# push $s1
-	sw 	$s2, 4($sp)			# push $s2
+	sw	$ra, 12($sp)			# push $ra
+	sw	$s0, 8($sp)			# push $s0
+	sw 	$s1, 4($sp)			# push $s1
+	sw 	$s2, 0($sp)			# push $s2
 	
 	move	$s0, $a0			# set address of string
 put_str_loop:
@@ -326,10 +326,10 @@ put_str_loop:
 	j 	put_str_loop
 	
 put_str_return:
-	lw	$s2, 4($sp)			# pop $s2		
-	lw	$s1, 8($sp)			# pop $s1			
-	lw	$s0, 12($sp)			# pop $s0			
-	lw	$ra, 16($sp)			# pop $ra
+	lw	$s2, 0($sp)			# pop $s2		
+	lw	$s1, 4($sp)			# pop $s1			
+	lw	$s0, 8($sp)			# pop $s0			
+	lw	$ra, 12($sp)			# pop $ra
 	addu	$sp, $sp, 16
 
 	jr	$ra
@@ -348,10 +348,10 @@ put_str_return:
 # returns: none
 putc:
 	subu	$sp, $sp, 16
-	sw	$ra, 16($sp)			# push $ra
-	sw	$s0, 12($sp)			# push $s0
-	sw 	$s1, 8($sp)			# push $s1
-	sw 	$s2, 4($sp)			# push $s2
+	sw	$ra, 12($sp)			# push $ra
+	sw	$s0, 8($sp)			# push $s0
+	sw 	$s1, 4($sp)			# push $s1
+	sw 	$s2, 0($sp)			# push $s2
 
 	move	$s2, $a0			# save char to store
 	lw	$s0, putc_buffer_chars		# load available buffer chars
@@ -371,10 +371,10 @@ putc_next_char:
 	subiu	$s0, $s0, 1			# decrement available buffer chars
 	sw	$s0, putc_buffer_chars		# store available buffer chars
 putc_return:
-	lw	$s2, 4($sp)			# pop $s2		
-	lw	$s1, 8($sp)			# pop $s1			
-	lw	$s0, 12($sp)			# pop $s0			
-	lw	$ra, 16($sp)			# pop $ra
+	lw	$s2, 0($sp)			# pop $s2		
+	lw	$s1, 4($sp)			# pop $s1			
+	lw	$s0, 8($sp)			# pop $s0			
+	lw	$ra, 12($sp)			# pop $ra
 	addu	$sp, $sp, 16
 
 	jr	$ra
