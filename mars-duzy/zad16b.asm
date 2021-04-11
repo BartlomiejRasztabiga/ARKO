@@ -315,16 +315,14 @@ put_str:
 	sw 	$s2, 0($sp)			# push $s2
 	
 	move	$s0, $a0			# set address of string
-put_str_loop:
 	lb	$s1, ($s0)			# load next char
-	beqz	$s1, put_str_return		# if NULL, goto put_str_return
-	
+put_str_loop:
 	move	$a0, $s1			# char to put
 	jal	putc				# call putc
 	
 	addiu	$s0, $s0, 1			# next char pointer
-	j 	put_str_loop
-	
+	lb	$s1, ($s0)			# load next char
+	bnez	$s1, put_str_loop		# if not NULL, go back to loop
 put_str_return:
 	lw	$s2, 0($sp)			# pop $s2		
 	lw	$s1, 4($sp)			# pop $s1			
