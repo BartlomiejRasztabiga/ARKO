@@ -66,10 +66,12 @@ process_file:
 	jal	flush_buffer			# flush buffer
 close_files:
 	la	$a0, input_file_descriptor
+	lw	$a0, ($a0)			# load input file descriptor
 	li	$v0, 16
 	syscall
 	
 	la	$a0, output_file_descriptor
+	lw	$a0, ($a0)			# load output file descriptor
 	li	$v0, 16
 	syscall
 exit:
