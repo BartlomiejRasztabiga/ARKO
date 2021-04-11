@@ -285,7 +285,7 @@ itoa:
       	sb   	$t1, ($t0)     			# init. with ascii 0
       	li   	$t2, 10        			# load 10
 
-      	beq  	$a0, $0, itoa_return  		# end if number is 0
+      	beq  	$a0, $zero, itoa_return  		# end if number is 0
 itoa_loop:
       	div  	$a0, $t2       			# a /= 10
       	mflo 	$a0
@@ -293,7 +293,7 @@ itoa_loop:
       	addu  	$t3, $t3, $t1  			# convert to ASCII digit
       	sb   	$t3, ($t0)     			# store it
       	subu  	$t0, $t0, 1    			# decrement buffer pointer
-      	bne  	$a0, $0, itoa_loop  		# if not zero, loop
+      	bne  	$a0, $zero, itoa_loop  		# if not zero, loop
 itoa_return:
 	addi 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
