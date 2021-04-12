@@ -5,7 +5,7 @@
 
 	.eqv	BUF_LEN 512			# ANY REASONABLE VALUE
 	.eqv 	ITOA_BUF_LEN 12			# SUPPORTS NUMBERS UP TO 2147483647 - MAX_INT
-	.eqv	WORD_BUF_LEN 48			# AT LEAST AS LONG AS LONGEST WORD IN FILE +1, SAME AS NUMBER OF CHARS IN LABEL (SEE BELOW)
+	.eqv	WORD_BUF_LEN 48			# AT LEAST AS LONG AS LONGEST WORD IN FILE +1
 	.eqv	LABELS_SIZE 5200		# SPACE FOR 100 LABELS (48 CHARS + 4 BYTES FOR INT LINE NUMBER = 52 * 100)
 
         .data  
@@ -14,7 +14,6 @@ itoa_buffer: 		.space 	ITOA_BUF_LEN
 getc_buffer: 		.space 	BUF_LEN
 putc_buffer: 		.space 	BUF_LEN
 word_buffer:		.space 	WORD_BUF_LEN
-			.word	0
 
 getc_buffer_chars:	.half 	0
 putc_buffer_chars:	.half 	BUF_LEN
@@ -153,9 +152,7 @@ end_of_word_not_symbol:
 	la	$a0, word_buffer		# if word is not a symbol, write string to file
 	jal	put_str
 next_word:
-	#la	$a0, word_buffer
-	#jal	clear_buffer
-	sb	$zero, ($s3)			# store current char at buffer pointer
+	sb	$zero, ($s3)			# store NULL at buffer pointer
 	la	$a0, word_buffer
 	jal	clear_buffer
 	la	$s3, word_buffer		# reset word buffer
