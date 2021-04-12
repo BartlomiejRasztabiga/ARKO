@@ -15,13 +15,18 @@ getc_buffer: 		.space 	BUF_LEN
 putc_buffer: 		.space 	BUF_LEN
 word_buffer:		.space 	WORD_BUF_LEN
 			.word	0
+
+getc_buffer_chars:	.half 	0
+putc_buffer_chars:	.half 	BUF_LEN
+
 getc_buffer_pointer:	.space 	4
-getc_buffer_chars:	.word 	0
 putc_buffer_pointer:	.space 	4
-putc_buffer_chars:	.word 	BUF_LEN
+
 input_file_descriptor:	.space 	4
 output_file_descriptor:	.space 	4
+
 labels_pointer:		.space 	4
+
 output_fname:		.asciiz "output.txt"
 opnfile_err_txt:	.asciiz	"Error while opening the file, check file name."
 
@@ -346,19 +351,19 @@ putc:
 	sw 	$s2, 0($sp)			# push $s2
 
 	move	$s2, $a0			# save char to store
-	lw	$s0, putc_buffer_chars		# load available buffer chars
+	lh	$s0, putc_buffer_chars		# load available buffer chars
 	bnez	$s0, putc_next_char		# if chars available, goto putc_next_char
 	
 	jal	flush_buffer			# flush buffer
 	
-	lw	$s0, putc_buffer_chars		# load available buffer chars
+	lh	$s0, putc_buffer_chars		# load available buffer chars
 putc_next_char:
 	lw	$s1, putc_buffer_pointer	# store buffer pointer address in $s1
 	sb	$s2, ($s1)			# store char at next available space in buffer
 	addiu	$s1, $s1, 1			# move buffer_pointer to next available space
 	sw	$s1, putc_buffer_pointer	# store new buffer_pointer
 	subiu	$s0, $s0, 1			# decrement available buffer chars
-	sw	$s0, putc_buffer_chars		# store available buffer chars
+	sh	$s0, putc_buffer_chars		# store available buffer chars
 putc_return:
 	lw	$s2, 0($sp)			# pop $s2		
 	lw	$s1, 4($sp)			# pop $s1			
@@ -380,7 +385,7 @@ putc_return:
 #	$t3 - value of BUF_LEN
 # returns: none
 flush_buffer:
-	lw	$t2, putc_buffer_chars		# load available buffer chars
+	lh	$t2, putc_buffer_chars		# load available buffer chars
 	li	$t3, BUF_LEN			# load value of BUF_LEN
 	subu	$t2, $t3, $t2			# set t2 to number of chars left to write to file
 
@@ -391,7 +396,7 @@ flush_buffer:
   	syscall          			# wrte to file
   	
   	li	$t0, BUF_LEN			# reset available buffer chars
-  	sw	$t0, putc_buffer_chars		# store available chars
+  	sh	$t0, putc_buffer_chars		# store available chars
   	
   	la	$t1, putc_buffer		# store buffer address in $t1
   	sw	$t1, putc_buffer_pointer	# set buffer_pointer to start of buffer
@@ -410,7 +415,7 @@ flush_buffer:
 # returns:
 #	$v0 - next available char, -1 if EOF
 getc:
-	lw	$t0, getc_buffer_chars		# load available buffer chars
+	lh	$t0, getc_buffer_chars		# load available buffer chars
 	bnez	$t0, getc_next_char		# if chars available, goto getc_next_char
 getc_refresh:
 	li 	$v0, 14       			# system call for read to file
@@ -420,7 +425,7 @@ getc_refresh:
   	syscall          			# read from file
   	
   	move	$t0, $v0			# save read chars to $t0
-  	sw	$t0, getc_buffer_chars		# store read chars as available chars
+  	sh	$t0, getc_buffer_chars		# store read chars as available chars
   	
   	beqz	$t0, getc_eof			# if no chars read (eof), goto getc_eof
   	
@@ -432,7 +437,7 @@ getc_next_char:
 	addiu	$t1, $t1, 1			# move buffer_pointer to next char
 	sw	$t1, getc_buffer_pointer	# store new buffer_pointer
 	subiu	$t0, $t0, 1			# decrement available buffer chars
-	sw	$t0, getc_buffer_chars		# store available buffer chars
+	sh	$t0, getc_buffer_chars		# store available buffer chars
 	move	$v0, $t2			# return next char
 	j	getc_return			# goto getc_return
 getc_eof:
