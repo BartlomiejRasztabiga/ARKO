@@ -14,7 +14,7 @@ itoa_buffer: 		.space 	ITOA_BUF_LEN
 getc_buffer: 		.space 	BUF_LEN
 putc_buffer: 		.space 	BUF_LEN
 word_buffer:		.space 	WORD_BUF_LEN
-			.word 	0
+			.word	0
 getc_buffer_pointer:	.space 	4
 getc_buffer_chars:	.word 	0
 putc_buffer_pointer:	.space 	4
@@ -148,6 +148,9 @@ end_of_word_not_symbol:
 	la	$a0, word_buffer		# if word is not a symbol, write string to file
 	jal	put_str
 next_word:
+	#la	$a0, word_buffer
+	#jal	clear_buffer
+	sb	$zero, ($s3)			# store current char at buffer pointer
 	la	$a0, word_buffer
 	jal	clear_buffer
 	la	$s3, word_buffer		# reset word buffer
