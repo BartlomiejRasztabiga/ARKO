@@ -12,9 +12,7 @@
 
 itoa_buffer: 		.space 	ITOA_BUF_LEN
 getc_buffer: 		.space 	BUF_LEN
-			.word 	0
 putc_buffer: 		.space 	BUF_LEN
-			.word 	0
 word_buffer:		.space 	WORD_BUF_LEN
 			.word 	0
 getc_buffer_pointer:	.space 	4
@@ -349,9 +347,6 @@ putc:
 	bnez	$s0, putc_next_char		# if chars available, goto putc_next_char
 	
 	jal	flush_buffer			# flush buffer
-	
-	la	$a0, putc_buffer		
-	jal	clear_buffer			# clear putc buffer
 	
 	lw	$s0, putc_buffer_chars		# load available buffer chars
 putc_next_char:
