@@ -97,7 +97,7 @@ open_file_err:
 #	$s3 - pointer to word buffer
 # returns: none
 replace_labels:
-	subu	$sp, $sp, 20
+	subiu	$sp, $sp, 20
 	sw	$ra, 16($sp)			# push $ra
 	sw	$s0, 12($sp)			# push $s0
 	sw	$s1, 8($sp)			# push $s1
@@ -167,7 +167,7 @@ replace_labels_return:
 	lw	$s1, 8($sp)			# pop $s1
 	lw	$s0, 12($sp)			# pop $s0
 	lw	$ra, 16($sp)			# pop $ra
-	addu	$sp, $sp, 20
+	addiu	$sp, $sp, 20
 
 	jr	$ra				# return
 
@@ -205,13 +205,13 @@ clear_buffer_return:
 # returns:
 #	$v0 - address of next free char at destination
 copy_src_range_to_dest:
-	lb	$t0, ($a0)			# store buffer char in $t0
+	lbu	$t0, ($a0)			# store buffer char in $t0
 copy_src_range_loop:
 	sb	$t0, ($a2)			# store src char at destination address
 	addiu	$a0, $a0, 1			# next src char
 	addiu	$a2, $a2, 1			# next destination char
 	
-	lb	$t0, ($a0)			# store buffer char in $t0
+	lbu	$t0, ($a0)			# store buffer char in $t0
 	bne	$a0, $a1, copy_src_range_loop	# if not met end of range, repeat loop, else return
 copy_src_range_return:
 	move	$v0, $a2
@@ -239,11 +239,11 @@ get_symbol_for_word:
 	la	$t5, word_buffer		# store word_buffer pointer in $t5
 get_symbol_for_word_loop:
 	move	$t1, $t0			# get start address of label
-	lb	$t3, ($t1)			# load label's char
+	lbu	$t3, ($t1)			# load label's char
 	beqz	$t3, symbol_not_found		# if label's first char is NULL, there is no label = symbol_not_found
 compare_word:
-	lb	$t4, ($t5)			# load word's char
-	lb	$t3, ($t1)			# load label's char
+	lbu	$t4, ($t5)			# load word's char
+	lbu	$t3, ($t1)			# load label's char
 
 	seq	$t6, $t3, $zero			# if label has ended
 	sleu	$t7, $t4, ' '			# if word has ended (char is less than or equal space)
@@ -286,15 +286,15 @@ itoa:
       	sb   	$t1, ($t0)     			# init. with ascii 0
       	li   	$t2, 10        			# load 10
 itoa_loop:
-      	div  	$a0, $t2       			# a /= 10
+      	divu  	$a0, $t2       			# a /= 10
       	mflo 	$a0
       	mfhi 	$t3            			# get remainder
       	addu  	$t3, $t3, $t1  			# convert to ASCII digit
-      	sb   	$t3, ($t0)     			# store it
-      	subu  	$t0, $t0, 1    			# decrement buffer pointer
+      	sb	$t3, ($t0)     			# store it
+      	subiu  	$t0, $t0, 1    			# decrement buffer pointer
       	bne  	$a0, $zero, itoa_loop  		# if not zero, loop
 itoa_return:
-	addi 	$t0, $t0, 1    			# adjust buffer pointer
+	addiu 	$t0, $t0, 1    			# adjust buffer pointer
 	move 	$v0, $t0      			# return the addres for first ascii char
       	jr   	$ra
 
@@ -307,27 +307,27 @@ itoa_return:
 # variables: none
 # returns: none
 put_str:
-	subu	$sp, $sp, 16
+	subiu	$sp, $sp, 16
 	sw	$ra, 12($sp)			# push $ra
 	sw	$s0, 8($sp)			# push $s0
 	sw 	$s1, 4($sp)			# push $s1
 	sw 	$s2, 0($sp)			# push $s2
 	
 	move	$s0, $a0			# set address of string
-	lb	$s1, ($s0)			# load next char
+	lbu	$s1, ($s0)			# load next char
 put_str_loop:
 	move	$a0, $s1			# char to put
 	jal	putc				# call putc
 	
 	addiu	$s0, $s0, 1			# next char pointer
-	lb	$s1, ($s0)			# load next char
+	lbu	$s1, ($s0)			# load next char
 	bnez	$s1, put_str_loop		# if not NULL, go back to loop
 put_str_return:
 	lw	$s2, 0($sp)			# pop $s2		
 	lw	$s1, 4($sp)			# pop $s1			
 	lw	$s0, 8($sp)			# pop $s0			
 	lw	$ra, 12($sp)			# pop $ra
-	addu	$sp, $sp, 16
+	addiu	$sp, $sp, 16
 
 	jr	$ra
 
@@ -344,19 +344,19 @@ put_str_return:
 #	$s2 - char to store
 # returns: none
 putc:
-	subu	$sp, $sp, 16
+	subiu	$sp, $sp, 16
 	sw	$ra, 12($sp)			# push $ra
 	sw	$s0, 8($sp)			# push $s0
 	sw 	$s1, 4($sp)			# push $s1
 	sw 	$s2, 0($sp)			# push $s2
 
 	move	$s2, $a0			# save char to store
-	lh	$s0, putc_buffer_chars		# load available buffer chars
+	lhu	$s0, putc_buffer_chars		# load available buffer chars
 	bnez	$s0, putc_next_char		# if chars available, goto putc_next_char
 	
 	jal	flush_buffer			# flush buffer
 	
-	lh	$s0, putc_buffer_chars		# load available buffer chars
+	lhu	$s0, putc_buffer_chars		# load available buffer chars
 putc_next_char:
 	lw	$s1, putc_buffer_pointer	# store buffer pointer address in $s1
 	sb	$s2, ($s1)			# store char at next available space in buffer
@@ -369,7 +369,7 @@ putc_return:
 	lw	$s1, 4($sp)			# pop $s1			
 	lw	$s0, 8($sp)			# pop $s0			
 	lw	$ra, 12($sp)			# pop $ra
-	addu	$sp, $sp, 16
+	addiu	$sp, $sp, 16
 
 	jr	$ra
 	
@@ -385,7 +385,7 @@ putc_return:
 #	$t3 - value of BUF_LEN
 # returns: none
 flush_buffer:
-	lh	$t2, putc_buffer_chars		# load available buffer chars
+	lhu	$t2, putc_buffer_chars		# load available buffer chars
 	li	$t3, BUF_LEN			# load value of BUF_LEN
 	subu	$t2, $t3, $t2			# set t2 to number of chars left to write to file
 
@@ -415,7 +415,7 @@ flush_buffer:
 # returns:
 #	$v0 - next available char, -1 if EOF
 getc:
-	lh	$t0, getc_buffer_chars		# load available buffer chars
+	lhu	$t0, getc_buffer_chars		# load available buffer chars
 	bnez	$t0, getc_next_char		# if chars available, goto getc_next_char
 getc_refresh:
 	li 	$v0, 14       			# system call for read to file
@@ -433,7 +433,7 @@ getc_refresh:
   	sw	$t1, getc_buffer_pointer	# set buffer_pointer to start of buffer
 getc_next_char:
 	lw	$t1, getc_buffer_pointer	# store buffer pointer address in $t1
-	lb	$t2, ($t1)			# read available char from buffer
+	lbu	$t2, ($t1)			# read available char from buffer
 	addiu	$t1, $t1, 1			# move buffer_pointer to next char
 	sw	$t1, getc_buffer_pointer	# store new buffer_pointer
 	subiu	$t0, $t0, 1			# decrement available buffer chars
