@@ -110,9 +110,8 @@ replace_labels_loop:
 	move	$s1, $v0			# load current char
 	sb	$s1, ($s3)			# store current char at buffer pointer
 	
-	beq	$s1, ' ', end_of_word		# if space, goto end_of_word
-	beq	$s1, '\t', end_of_word		# if tab, goto end_of_word
 	beq	$s1, '\n', end_of_line		# if LF, goto end_of_line
+	bleu	$s1, ' ', end_of_word		# if separator (less or equal space), goto end_of_word
 	beq	$s1, ':', new_label		# label detected
 	bltz	$s1, replace_labels_return	# if -1 (EOF) or NULL, goto replace_labels_return
 	
@@ -124,8 +123,7 @@ new_label:
 	move	$a2, $s0			# destination of copied string
 	jal	copy_src_range_to_dest
 
-	addiu	$t0, $s0, 48			# get address of place in labels to store line number
-	sw	$s2, ($t0)			# store label line number
+	sw	$s2, 48($s0)			# store label line number
 	addiu	$s0, $s0, 52			# next free space at labels
 	
 	la	$a0, word_buffer
@@ -237,13 +235,12 @@ get_symbol_for_word_loop:
 	move	$t1, $t0			# get start address of label
 	lb	$t3, ($t1)			# load label's char
 	beqz	$t3, symbol_not_found		# if label's first char is NULL, there is no label = symbol_not_found
-	addiu	$t2, $t0, 48			# get end address of label
 compare_word:
 	lb	$t4, ($t5)			# load word's char
 	lb	$t3, ($t1)			# load label's char
 
 	seq	$t6, $t3, $zero			# if label has ended
-	slti 	$t7, $t4, 33			# if word has ended (char is less than or equal space)
+	sleu	$t7, $t4, ' '			# if word has ended (char is less than or equal space)
 	and	$t6, $t6, $t7
 	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
 	beqz	$t3, compare_word_not_equal	# if label has ended BUT word has not ended, try next label
@@ -259,7 +256,7 @@ symbol_not_found:
 	li	$v0, -1				# set 'symbol not found' flag
 	j 	get_symbol_for_word_return
 symbol_found:
-	lw	$v0, ($t2)			# move to v0 address of label's line number
+	lw	$v0, 48($t0)			# move to v0 address of label's line number
 get_symbol_for_word_return:
 	jr 	$ra
 	
