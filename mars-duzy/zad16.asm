@@ -1,11 +1,11 @@
 # MAX NUMBER OF LABELS IN FILE IS 100 (can be changed by modifying LABELS_SIZE)
-# MAX LENGTH OF LABEL IS 47 CHARS
+# MAX LENGTH OF LABEL IS 46 CHARS
 # PROGRAM DOESN'T SUPPORT DUPLICATED LABEL DEFINITIONS (WILL USE FIRST DECLARED)
 # PASS INPUT FILE NAME AS PROGRAM ARGUMENT
 
 	.eqv	BUF_LEN 512			# ANY REASONABLE VALUE
 	.eqv 	ITOA_BUF_LEN 12			# SUPPORTS NUMBERS UP TO 2147483647 - MAX_INT
-	.eqv	WORD_BUF_LEN 48			# AT LEAST AS LONG AS LONGEST WORD IN FILE +1
+	.eqv	WORD_BUF_LEN 48			# AT LEAST AS LONG AS LONGEST WORD IN FILE +2
 	.eqv	LABELS_SIZE 5200		# SPACE FOR 100 LABELS (48 CHARS + 4 BYTES FOR INT LINE NUMBER = 52 * 100)
 
         .data  
@@ -69,12 +69,12 @@ close_files:
 	la	$a0, input_file_descriptor
 	lw	$a0, ($a0)			# load input file descriptor
 	li	$v0, 16
-	syscall
+	syscall					# close input file
 	
 	la	$a0, output_file_descriptor
 	lw	$a0, ($a0)			# load output file descriptor
 	li	$v0, 16
-	syscall
+	syscall					# close output file
 exit:
 	li 	$v0, 10
   	syscall
@@ -129,7 +129,7 @@ new_label:
 	addiu	$s0, $s0, 52			# next free space at labels
 	
 	la	$a0, word_buffer
-	jal	put_str
+	jal	put_str				# put word_buffer to file
 						
 	j 	next_word
 end_of_line:
@@ -154,8 +154,8 @@ end_of_word_not_symbol:
 next_word:
 	sb	$zero, ($s3)			# store NULL at buffer pointer
 	la	$a0, word_buffer
-	jal	clear_buffer
-	la	$s3, word_buffer		# reset word buffer
+	jal	clear_buffer			# clear word buffer
+	la	$s3, word_buffer		# reset word buffer pointer
 
 	j	replace_labels_loop		# go back to loop
 replace_labels_return:
@@ -244,7 +244,7 @@ compare_word:
 
 	seq	$t6, $t3, $zero			# if label has ended
 	sleu	$t7, $t4, ' '			# if word has ended (char is less than or equal space)
-	and	$t6, $t6, $t7
+	and	$t6, $t6, $t7			# t6 = t6 && t7
 	beq	$t6, 1, symbol_found		# if label ended AND word has ended, symbol_found
 	beqz	$t3, compare_word_not_equal	# if label has ended BUT word has not ended, try next label
 	
