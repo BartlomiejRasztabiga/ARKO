@@ -120,6 +120,8 @@ replace_labels_loop:
 	addiu	$s3, $s3, 1			# increment buffer pointer
 	j	replace_labels_loop		# go back to loop
 new_label:
+	sb	$zero, 1($s3)			# store NULL at next byte of buffer
+
 	la	$a0, word_buffer		# start of copied string
 	move	$a1, $s3			# end of copied string
 	move	$a2, $s0			# destination of copied string
@@ -148,13 +150,12 @@ end_of_word_symbol:
 	jal	putc				# put LF or space (last char of symbol-word)
 	
 	j	next_word				
-end_of_word_not_symbol:			
+end_of_word_not_symbol:		
+	sb	$zero, 1($s3)			# store NULL at next byte of buffer
+		
 	la	$a0, word_buffer		# if word is not a symbol, write string to file
 	jal	put_str
 next_word:
-	sb	$zero, ($s3)			# store NULL at buffer pointer
-	la	$a0, word_buffer
-	jal	clear_buffer			# clear word buffer
 	la	$s3, word_buffer		# reset word buffer pointer
 
 	j	replace_labels_loop		# go back to loop
@@ -166,27 +167,6 @@ replace_labels_return:
 	lw	$ra, 16($sp)			# pop $ra
 	addiu	$sp, $sp, 20
 
-	jr	$ra				# return
-
-# ============================================================================  	
-# clear_buffer (LEAF)
-# description: 
-#	clears buffer by setting all bytes to /0
-# arguments:
-#	$a0 - address of buffer to clear
-# variables:
-#	$t0 - address of buffer to clear
-#	$t1 - current char of buffer
-# returns: none
-clear_buffer:
-	move	$t0, $a0			# load the address of buffer into $s0
-	lbu	$t1, ($t0)			# store char in $s1
-clear_buffer_loop:
-	sb	$zero, ($t0)			# store 0 at current char address
-	addiu	$t0, $t0, 1			# next char
-	lbu	$t1, ($t0)			# store char in $s1
-	bnez	$t1, clear_buffer_loop		# if not met end of string, repeat loop
-clear_buffer_return:
 	jr	$ra				# return
 
 # ============================================================================
