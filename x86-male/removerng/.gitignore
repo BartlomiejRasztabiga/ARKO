@@ -1,3 +1,6 @@
-/removerng
-/removerng.o
-/removerng.lst
+removerng
+removerng.o
+removerng.lst
+errors.txt
+main
+main.o
