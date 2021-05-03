@@ -1,4 +1,3 @@
 #!/usr/bin/env sh
 
-./assemble.sh
-./consolidate.sh
+cc -m32 -std=c99 -c main.c

@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-ld -m elf_i386 -o removerng removerng.o
+cc -m32 -o main main.o removerng.o
