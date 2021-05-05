@@ -27,9 +27,6 @@ removerng:
         mov     BYTE [ebp-11], dl       ; B local variable
 
 ; push saved registers
-        ;push    ebx
-        ;push    esi
-        ;push    edi
 
 ; function body
         mov     eax, DWORD [ebp+8]      ; s argument
@@ -68,9 +65,6 @@ removerng_ret:
         mov     eax, DWORD [ebp+8]      ; return s (in eax)
 
 ; pop saved registers
-        ;pop     edi
-        ;pop     esi
-        ;pop     ebx
 
 ; epilogue
         leave                           ; restore esp and ebp
