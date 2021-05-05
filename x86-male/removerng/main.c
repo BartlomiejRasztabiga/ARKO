@@ -10,6 +10,7 @@ char *removerng1(char *s, char a, char b) {
 
     while (1) {
         char currentChar = *source;
+        source++;
 
         if (currentChar == 0) {
             break;
@@ -19,8 +20,6 @@ char *removerng1(char *s, char a, char b) {
             *dest = currentChar;
             dest++;
         }
-
-        source++;
     }
 
     *dest = 0;
@@ -32,7 +31,7 @@ int main() {
 
     char src[] = "ala ma kota";
 
-    char *out = removerng1(src, 'a', 'b');
+    char *out = removerng(src, 'a', 'b');
 
     printf("%s", out);
 
