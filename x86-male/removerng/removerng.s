@@ -13,11 +13,18 @@ removerng:
 ;       char *source        - ebp-4
 ;       char *dest          - ebp-8
 ;       char currentChar    - ebp-9
+;       char a              - ebp-10
 
 ; prologue
         push    ebp
         mov     ebp, esp
-        sub     esp, 9
+        sub     esp, 12
+
+        mov     eax, DWORD [ebp+12]     ; a argument
+        mov     BYTE [ebp-10], al       ; A local variable
+
+        mov     edx, DWORD [ebp+16]     ; b argument
+        mov     BYTE [ebp-11], dl       ; B local variable
 
 ; push saved registers
         ;push    ebx
@@ -39,16 +46,17 @@ removerng_next_char:
         je      removerng_ret           ; if char is NULL, goto removerng_ret
 
         movzx   eax, BYTE [ebp-9]       ; eax = currentChar
-        cmp     eax, [ebp+12]           ; compare current char with A
+        cmp     al, BYTE [ebp-10]       ; compare current char with A
         jl      removerng_write_char    ; if currentChar < A, write that char
 
         movzx   eax, BYTE [ebp-9]       ; eax = currentChar
-        cmp     eax, [ebp+16]           ; compare current char with B
+        cmp     al, BYTE [ebp-11]       ; compare current char with B
         jle     removerng_next_char     ; if currentChar <= B, go back to loop
                                         ; if currentChar > B, write that char
 removerng_write_char:
         mov     eax, DWORD [ebp-8]      ; eax = dest
-        mov     [eax], edx              ; *dest = currentChar;
+        movzx   edx, BYTE [ebp-9]       ; edx = currentChar
+        mov     BYTE [eax], dl          ; *dest = currentChar;
 
         add     DWORD [ebp-8], 1        ; dest++
 
