@@ -39,23 +39,13 @@ char *remrep1(char *s) {
             dest++;
 
             // add to visited
-            while (1) {
-                char visitedChar = *visitedPointer;
-
-                if (visitedChar == 0) {
-                    *visitedPointer = currentChar;
-                    break;
-                }
-
-                visitedPointer++;
-            }
+            *visitedPointer = currentChar;
         }
 
         source++;
     }
 
     *dest = 0;
-
     return s;
 }
 
