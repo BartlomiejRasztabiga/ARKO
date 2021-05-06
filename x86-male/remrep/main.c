@@ -52,7 +52,7 @@ char *remrep1(char *s) {
 
 int main() {
 
-    char src[] = "abcd";
+    char src[] = "thequickbrownfoxjumpsoverthelazydog";
 
     char *out = remrep(src);
 

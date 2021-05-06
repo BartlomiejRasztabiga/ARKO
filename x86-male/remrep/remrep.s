@@ -1,5 +1,5 @@
         section .bss
-buffer: resb    32
+visited: resb    32
 
 
         section .text
@@ -15,12 +15,15 @@ remrep:
 ; local variables:
 ;       char *source        - ebp-4
 ;       char *dest          - ebp-8
-;       char currentChar    - ebp-9
+;       char visitedPointer - ebp-12
+;       char isVisited      - ebp-16
+;       char currentChar    - ebp-17
+;       char visitedChar    - ebp-18
 
 ; prologue
         push    ebp
         mov     ebp, esp
-        sub     esp, 12
+        sub     esp, 18
 
 ; push saved registers
 
@@ -31,29 +34,45 @@ remrep:
 remrep_next_char:
         mov     eax, DWORD [ebp-4]      ; get address of source to eax
         movzx   eax, BYTE [eax]         ; read char to eax
-        mov     BYTE [ebp-9], al        ; char currentChar = *source;
+        mov     BYTE [ebp-17], al       ; char currentChar = *source;
 
-        add     DWORD [ebp-4], 1        ; source++ (next char)
-
-        cmp     BYTE [ebp-9], 0         ; check if currentChar is NULL
+        cmp     BYTE [ebp-17], 0        ; check if currentChar is NULL
         je      remrep_ret              ; if char is NULL, goto removerng_ret
 
-        movzx   eax, BYTE [ebp-9]       ; eax = currentChar
-        cmp     al, BYTE [ebp-10]       ; compare current char with A
-        jl      remrep_write_char       ; if currentChar < A, write that char
+        mov     DWORD [ebp-12], visited ; *visitedPointer = visited
+        mov     DWORD [ebp-16], 0       ; isVisited = false
+remrep_is_visited:
+        mov     eax, DWORD [ebp-12]     ; eax = visitedPointer
+        movzx   eax, BYTE [eax]         ; eax = *visitedPointer
+        mov     BYTE [ebp-18], al       ; visitedChar = *visitedPointer
 
-        movzx   eax, BYTE [ebp-9]       ; eax = currentChar
-        cmp     al, BYTE [ebp-11]       ; compare current char with B
-        jle     remrep_next_char        ; if currentChar <= B, go back to loop
-                                        ; if currentChar > B, write that char
-remrep_write_char:
+        cmp     BYTE [ebp-18], 0        ; compare visitedChar with NULL
+        je      remrep_after_is_visited ; if visitedChar is NULL, goto remrep_after_is_visited
+
+        movzx   eax, BYTE [ebp-18]      ; eax = visitedChar
+        cmp     al, BYTE [ebp-17]       ; compare visitedChar with currentChar
+        jne     remrep_is_visited_next_char; if not equal, get next char from visited
+        mov     DWORD  [ebp-16], 1      ; isVisited = true
+        jmp     remrep_after_is_visited
+remrep_is_visited_next_char:
+        add     DWORD [ebp-12], 1       ; visitedPointer++
+        jmp     remrep_is_visited ; exit isVisited loop
+remrep_after_is_visited:
+        cmp     DWORD [ebp-16], 0       ; compare isVisited with false
+        jne     remrep_get_next_char    ; if isVisited is true, goto remrep_get_next_char
+
         mov     eax, DWORD [ebp-8]      ; eax = dest
-        movzx   edx, BYTE [ebp-9]       ; edx = currentChar
-        mov     BYTE [eax], dl          ; *dest = currentChar;
+        movzx   edx, BYTE [ebp-17]      ; edx = currentChar
+        mov     BYTE [eax], dl          ; *dest = currentChar
 
         add     DWORD [ebp-8], 1        ; dest++
 
-        jmp     remrep_next_char        ; read next char
+        ; add char to visited
+        mov     eax, DWORD [ebp-12]     ; eax = visitedPointer
+        mov     BYTE [eax], dl          ; *visitedPointer = currentChar
+remrep_get_next_char:
+        add     DWORD [ebp-4], 1        ; source++
+        jmp     remrep_next_char        ; go back to loop
 remrep_ret:
         mov     eax, DWORD [ebp-8]      ; eax = dest
         mov     BYTE [eax], 0           ; store NULL at dest, TODO: change to xor
