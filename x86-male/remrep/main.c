@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-char *remrep(char *s);
+extern char *remrep(char *s);
 
 char visited[32];
 
@@ -52,9 +52,9 @@ char *remrep1(char *s) {
 
 int main() {
 
-    char src[] = "abcdabcafd";
+    char src[] = "abcd";
 
-    char *out = remrep1(src);
+    char *out = remrep(src);
 
     printf("%s", out);
 
