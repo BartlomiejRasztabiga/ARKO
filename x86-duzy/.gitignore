@@ -8,3 +8,5 @@ main2.c
 main3.c
 /output.txt
 /input.txt
+/expected.txt
+/input_raw.txt

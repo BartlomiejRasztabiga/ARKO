@@ -118,5 +118,7 @@ int main() {
     else
         printf("No solution exists");
 
+    printf("%c", '\n');
+
     return 0;
 }
