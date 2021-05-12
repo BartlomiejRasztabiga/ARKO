@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 // N is the size of the 2D matrix   N*N
 #define N 9
@@ -105,16 +104,14 @@ int solveSuduko(char grid[N][N], int row, int col) {
 }
 
 int main() {
-    // 0 means unassigned cells
-    char grid[N][N] = {{'3', '#', '6', '5', '#', '8', '4', '#', '#'},
-                       {'5', '2', '#', '#', '#', '#', '#', '#', '#'},
-                       {'#', '8', '7', '#', '#', '#', '#', '3', '1'},
-                       {'#', '#', '3', '#', '1', '#', '#', '8', '#'},
-                       {'9', '#', '#', '8', '6', '3', '#', '#', '5'},
-                       {'#', '5', '#', '#', '9', '#', '6', '#', '#'},
-                       {'1', '3', '#', '#', '#', '#', '2', '5', '#'},
-                       {'#', '#', '#', '#', '#', '#', '#', '7', '4'},
-                       {'#', '#', '5', '2', '#', '6', '3', '#', '#'}};
+    char grid[N][N];
+    char dummy;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            scanf("%c", &grid[i][j]);
+        }
+        scanf("%c", &dummy); // consume LF
+    }
 
     if (solveSuduko(grid, 0, 0) == 1)
         print(grid);
