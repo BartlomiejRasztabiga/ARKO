@@ -5,10 +5,10 @@
 #define N 9
 
 /* A utility function to print grid */
-void print(int arr[N][N]) {
+void print(char arr[N][N]) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++)
-            printf("%d ", arr[i][j]);
+            printf("%c ", arr[i][j]);
         printf("\n");
     }
 }
@@ -16,8 +16,8 @@ void print(int arr[N][N]) {
 // Checks whether it will be legal
 // to assign num to the
 // given row, col
-int isSafe(int grid[N][N], int row,
-           int col, int num) {
+int isSafe(char grid[N][N], int row,
+           int col, char num) {
 
     // Check if we find the same num
     // in the similar row , we return 0
@@ -50,7 +50,7 @@ to assign values to all unassigned locations in
 such a way to meet the requirements for
 Sudoku solution (non-duplication across rows,
 columns, and boxes) */
-int solveSuduko(int grid[N][N], int row, int col) {
+int solveSuduko(char grid[N][N], int row, int col) {
 
     // Check if we have reached the 8th row
     // and 9th column (0
@@ -71,10 +71,10 @@ int solveSuduko(int grid[N][N], int row, int col) {
     // Check if the current position
     // of the grid already contains
     // value >0, we iterate for next column
-    if (grid[row][col] > 0)
+    if (grid[row][col] != '#')
         return solveSuduko(grid, row, col + 1);
 
-    for (int num = 1; num <= N; num++) {
+    for (char num = '1'; num <= '9'; num++) {
 
         // Check if it is safe to place
         // the num (1-9)  in the
@@ -99,22 +99,22 @@ int solveSuduko(int grid[N][N], int row, int col) {
         // was wrong , and we go for next
         // assumption with
         // diff num value
-        grid[row][col] = 0;
+        grid[row][col] = '#';
     }
     return 0;
 }
 
 int main() {
     // 0 means unassigned cells
-    int grid[N][N] = {{3, 0, 6, 5, 0, 8, 4, 0, 0},
-                      {5, 2, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 8, 7, 0, 0, 0, 0, 3, 1},
-                      {0, 0, 3, 0, 1, 0, 0, 8, 0},
-                      {9, 0, 0, 8, 6, 3, 0, 0, 5},
-                      {0, 5, 0, 0, 9, 0, 6, 0, 0},
-                      {1, 3, 0, 0, 0, 0, 2, 5, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 7, 4},
-                      {0, 0, 5, 2, 0, 6, 3, 0, 0}};
+    char grid[N][N] = {{'3', '#', '6', '5', '#', '8', '4', '#', '#'},
+                       {'5', '2', '#', '#', '#', '#', '#', '#', '#'},
+                       {'#', '8', '7', '#', '#', '#', '#', '3', '1'},
+                       {'#', '#', '3', '#', '1', '#', '#', '8', '#'},
+                       {'9', '#', '#', '8', '6', '3', '#', '#', '5'},
+                       {'#', '5', '#', '#', '9', '#', '6', '#', '#'},
+                       {'1', '3', '#', '#', '#', '#', '2', '5', '#'},
+                       {'#', '#', '#', '#', '#', '#', '#', '7', '4'},
+                       {'#', '#', '5', '2', '#', '6', '3', '#', '#'}};
 
     if (solveSuduko(grid, 0, 0) == 1)
         print(grid);
