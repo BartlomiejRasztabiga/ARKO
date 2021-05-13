@@ -13,7 +13,6 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: Replace mov 0 with xor x,x
 sudoku:
         push    ebp
         mov     ebp, esp
@@ -154,7 +153,6 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
         cmp     BYTE [ebp-21], al               ; test if grid[row][x] == num
         jne     .isSafe_row_loop_increment      ; if not equal, get next col
-        xor     eax, eax                        ; eax = 0, TODO why?
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_row_loop_increment:
         add     DWORD [ebp-4], 1                ; x++
@@ -173,7 +171,6 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     BYTE [ebp-21], al               ; test if grid[x][col] == num
         jne     .isSafe_col_loop_increment      ; if not equal, get next row
-        xor     eax, eax                        ; eax = 0, TODO why
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_col_loop_increment:
         add     DWORD [ebp-4], 1                ; x++
