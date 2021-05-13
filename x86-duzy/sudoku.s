@@ -42,7 +42,7 @@ sudoku:
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
 
-                                                ; if not equal, return sudoku(grid, row, col + 1);
+        ; if not equal, return sudoku(grid, row, col + 1);
         mov     eax, DWORD [ebp+16]             ; eax = col
         add     eax, 1                          ; eax = col + 1
         sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
@@ -55,7 +55,6 @@ sudoku:
 ; TODO: Rearrange jumps
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
-        jmp     .sudoku_find_value_loop_condition
 .sudoku_find_value_loop:
         movsx   eax, BYTE [ebp-9]
         push    eax
@@ -160,7 +159,7 @@ isSafe:
         add     DWORD [ebp-4], 1                ; x++
 .isSafe_row_loop_condition:
         cmp     DWORD [ebp-4], 8                ; if x <= 8
-        jle     .isSafe_row_loop                ; jmp to loop if condition met
+        jle     .isSafe_row_loop                ; goto loop if condition met
 
         mov     DWORD [ebp-4], 0                ; int x = 0
 .isSafe_col_loop:
@@ -179,7 +178,7 @@ isSafe:
         add     DWORD [ebp-4], 1                ; x++
 .isSafe_col_loop_condition:
         cmp     DWORD [ebp-4], 8                ; if x <= 8
-        jle     .isSafe_col_loop                ; jmp to loop if condition met
+        jle     .isSafe_col_loop                ; goto loop if condition met
 
 ; TODO: any optimisations?
 ; int startRow = row - row % 3
@@ -201,12 +200,10 @@ isSafe:
         mov     DWORD [ebp-12], ecx             ; startCol = ecx
 
         mov     DWORD [ebp-16], 0               ; i = 0
-        jmp     .isSafe_3_3matrix_row_loop_condition
 
-; TODO: rearrange jumps? one loop pass is assured
+; TODO: rearrange jumps?
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-20], 0               ; j = 0
-        jmp     .isSafe_3_3matrix_col_loop_condition
 .isSafe_3_3matrix_col_loop:
         mov     edx, DWORD [ebp-16]             ; edx = i
         mov     eax, DWORD [ebp-8]             ; eax = startRow
