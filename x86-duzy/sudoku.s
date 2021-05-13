@@ -56,7 +56,8 @@ sudoku:
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
 .sudoku_find_value_loop:
-        movsx   eax, BYTE [ebp-9]
+        ; TODO: continue from here
+        movsx   eax, BYTE [ebp-4]
         push    eax
         push    DWORD [ebp+16]
         push    DWORD [ebp+12]
@@ -74,7 +75,7 @@ sudoku:
         add     edx, eax
         mov     eax, DWORD [ebp+16]
         add     edx, eax
-        movzx   eax, BYTE [ebp-9]
+        movzx   eax, BYTE [ebp-4]
         mov     BYTE [edx], al
 
         mov     eax, DWORD [ebp+16]
@@ -102,9 +103,9 @@ sudoku:
         mov     BYTE [eax], 35
 
                                                 ; num++, try next char
-        movzx   eax, BYTE [ebp-9]
+        movzx   eax, BYTE [ebp-4]
         add     eax, 1
-        mov     BYTE [ebp-9], al
+        mov     BYTE [ebp-4], al
 
 .sudoku_find_value_loop_condition:
         cmp     BYTE [ebp-4], '9'               ; test if num <= '9'

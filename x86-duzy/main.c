@@ -3,6 +3,7 @@
 #define N 9
 
 extern unsigned int isSafe(char grid[N][N], unsigned int row, unsigned int col, char num);
+extern unsigned int sudoku(char grid[N][N], unsigned int row, unsigned int col);
 
 void printGrid(char arr[N][N]) {
     for (unsigned int i = 0; i < N; i++) {
@@ -91,7 +92,7 @@ int main() {
         scanf("%c", &dummy); // consume LF
     }
 
-    if (sudoku_(grid, 0, 0) == 1) {
+    if (sudoku(grid, 0, 0) == 1) {
         printGrid(grid);
     } else {
         printf("No solution exists");
