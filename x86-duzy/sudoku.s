@@ -191,7 +191,7 @@ isSafe:
         div     ecx                             ; edx = col % 3
         mov     ecx, DWORD [ebp+16]             ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
-        mov     DWORD [ebp-8], ecx             ; startCol = ecx
+        mov     DWORD [ebp-8], ecx              ; startCol = ecx
 
         mov     DWORD [ebp-12], 0               ; i = 0
 
