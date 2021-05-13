@@ -14,7 +14,7 @@ void printGrid(char arr[N][N]) {
 }
 
 // Checks whether it will be legal to assign num to the given row, col
-unsigned int isSafe_(char **grid, unsigned int row, unsigned int col, char num) {
+unsigned int isSafe_(char grid[N][N], unsigned int row, unsigned int col, char num) {
     // Check if we find the same num in the similar row , we return 0
     for (unsigned int x = 0; x <= 8; x++) {
         if (grid[row][x] == num) {
@@ -44,7 +44,7 @@ unsigned int isSafe_(char **grid, unsigned int row, unsigned int col, char num) 
     return 1;
 }
 
-unsigned int solveSudoku(char grid[N][N], unsigned int row, unsigned int col) {
+unsigned int sudoku(char **grid, unsigned int row, unsigned int col) {
     // Check if we have reached the 8th row and 9th column, returning true to avoid backtracking
     if (row == N - 1 && col == N) {
         return 1;
@@ -58,7 +58,7 @@ unsigned int solveSudoku(char grid[N][N], unsigned int row, unsigned int col) {
 
     // Check if the current position of the grid already contains value, if yes, fill next column
     if (grid[row][col] != '#') {
-        return solveSudoku(grid, row, col + 1);
+        return sudoku(grid, row, col + 1);
     }
 
     for (char num = '1'; num <= '9'; num++) {
@@ -67,7 +67,7 @@ unsigned int solveSudoku(char grid[N][N], unsigned int row, unsigned int col) {
             grid[row][col] = num;
 
             //  Checking for next possibility with next column
-            if (solveSudoku(grid, row, col + 1) == 1) {
+            if (sudoku(grid, row, col + 1) == 1) {
                 return 1;
             }
         }
@@ -89,7 +89,7 @@ int main() {
         scanf("%c", &dummy); // consume LF
     }
 
-    if (solveSudoku(grid, 0, 0) == 1) {
+    if (sudoku(grid, 0, 0) == 1) {
         printGrid(grid);
     } else {
         printf("No solution exists");
