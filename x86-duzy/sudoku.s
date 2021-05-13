@@ -110,7 +110,7 @@ sudoku:
 .sudoku_find_value_loop_condition:
         cmp     BYTE [ebp-4], '9'               ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
-        mov     eax, 0                          ; return 0
+        xor     eax, eax                        ; return 0
 .sudoku_return:
         leave
         ret
@@ -154,7 +154,7 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
         cmp     BYTE [ebp-21], al               ; test if grid[row][x] == num
         jne     .isSafe_row_loop_increment      ; if not equal, get next col
-        mov     eax, 0
+        xor     eax, eax                        ; eax = 0, TODO why?
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_row_loop_increment:
         add     DWORD [ebp-4], 1                ; x++
@@ -173,7 +173,7 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     BYTE [ebp-21], al               ; test if grid[x][col] == num
         jne     .isSafe_col_loop_increment      ; if not equal, get next row
-        mov     eax, 0
+        xor     eax, eax                        ; eax = 0, TODO why
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_col_loop_increment:
         add     DWORD [ebp-4], 1                ; x++
@@ -220,7 +220,7 @@ isSafe:
         cmp     BYTE [ebp-21], al               ; test if grid[i + startRow][j + startCol] == num
         jne     .isSafe_3_3matrix_col_loop_increment    ; if not equal, try next column
 
-        mov     eax, 0                          ; if equal, return 0
+        xor     eax, eax                        ; if equal, return 0
         jmp     .isSafe_return                  ; goto return
 .isSafe_3_3matrix_col_loop_increment:
         add     DWORD [ebp-20], 1               ; j++
