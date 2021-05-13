@@ -44,7 +44,7 @@ unsigned int isSafe_(char grid[N][N], unsigned int row, unsigned int col, char n
     return 1;
 }
 
-unsigned int sudoku(char **grid, unsigned int row, unsigned int col) {
+unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
     // Check if we have reached the 8th row and 9th column, returning true to avoid backtracking
     if (row == N - 1 && col == N) {
         return 1;
@@ -58,7 +58,7 @@ unsigned int sudoku(char **grid, unsigned int row, unsigned int col) {
 
     // Check if the current position of the grid already contains value, if yes, fill next column
     if (grid[row][col] != '#') {
-        return sudoku(grid, row, col + 1);
+        return sudoku_(grid, row, col + 1);
     }
 
     for (char num = '1'; num <= '9'; num++) {
@@ -67,7 +67,7 @@ unsigned int sudoku(char **grid, unsigned int row, unsigned int col) {
             grid[row][col] = num;
 
             //  Checking for next possibility with next column
-            if (sudoku(grid, row, col + 1) == 1) {
+            if (sudoku_(grid, row, col + 1) == 1) {
                 return 1;
             }
         }
@@ -89,7 +89,7 @@ int main() {
         scanf("%c", &dummy); // consume LF
     }
 
-    if (sudoku(grid, 0, 0) == 1) {
+    if (sudoku_(grid, 0, 0) == 1) {
         printGrid(grid);
     } else {
         printf("No solution exists");
