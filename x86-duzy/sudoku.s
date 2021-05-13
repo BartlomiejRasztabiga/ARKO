@@ -133,7 +133,7 @@ sudoku:
 isSafe:
         push    ebp
         mov     ebp, esp
-        sub     esp, 21
+        sub     esp, 16
 
         push    ebx
         push    esi
