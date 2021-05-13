@@ -126,7 +126,8 @@ sudoku:
 ;   - int startCol      ebp-12
 ;   - int i             ebp-16
 ;   - int j             ebp-20
-;   - char num          ebp-21
+; registers:
+;   - ebx: char num     ebp+20
 ; returns:
 ;   - eax: 1 if legal, 0 otherwise
 isSafe:
@@ -134,8 +135,10 @@ isSafe:
         mov     ebp, esp
         sub     esp, 21
 
-        mov     eax, DWORD [ebp+20]
-        mov     BYTE [ebp-21], al               ; ebp-21 = char num
+        push    ebx
+
+        mov     bl, BYTE [ebp+20]               ; ebx (bl) = char num
+
         mov     DWORD [ebp-4], 0                ; int x = 0
 .isSafe_row_loop:
         mov     edx, DWORD [ebp+12]             ; edx = int row
@@ -145,7 +148,7 @@ isSafe:
         mov     eax, DWORD [ebp-4]              ; eax = x
         add     eax, edx                        ; eax = pointer to grid's tile at [row][x]
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
-        cmp     BYTE [ebp-21], al               ; test if grid[row][x] == num
+        cmp     bl, al                          ; test if grid[row][x] == num
         jne     .isSafe_row_loop_increment      ; if not equal, get next col
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_row_loop_increment:
@@ -163,7 +166,7 @@ isSafe:
         mov     eax, DWORD [ebp+16]             ; eax = int col;
         add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
-        cmp     BYTE [ebp-21], al               ; test if grid[x][col] == num
+        cmp     bl, al                          ; test if grid[x][col] == num
         jne     .isSafe_col_loop_increment      ; if not equal, get next row
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_col_loop_increment:
@@ -197,7 +200,7 @@ isSafe:
         mov     DWORD [ebp-20], 0               ; j = 0
 .isSafe_3_3matrix_col_loop:
         mov     edx, DWORD [ebp-16]             ; edx = i
-        mov     eax, DWORD [ebp-8]             ; eax = startRow
+        mov     eax, DWORD [ebp-8]              ; eax = startRow
         add     edx, eax                        ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
@@ -207,7 +210,7 @@ isSafe:
         mov     eax, DWORD [ebp-12]             ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
-        cmp     BYTE [ebp-21], al               ; test if grid[i + startRow][j + startCol] == num
+        cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
         jne     .isSafe_3_3matrix_col_loop_increment    ; if not equal, try next column
 
         xor     eax, eax                        ; if equal, return 0
@@ -225,5 +228,7 @@ isSafe:
         mov     eax, 1                          ; else, escape loop, return 1
 
 .isSafe_return:
+        pop     ebx
+
         leave
         ret
