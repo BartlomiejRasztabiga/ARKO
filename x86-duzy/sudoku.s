@@ -97,7 +97,7 @@ sudoku:
         add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
         mov     BYTE [eax], '#'                 ; grid[row][col] = '#'
 
-       ; num++, try next char
+        ; num++, try next char
         movzx   eax, BYTE [ebp-4]               ; eax = num
         inc     eax                             ; eax++
         mov     BYTE [ebp-4], al                ; num = num + 1
@@ -167,8 +167,8 @@ isSafe:
         add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     bl, al                          ; test if grid[x][col] == num
-        jne     .isSafe_col_loop_increment      ; if not equal, get next row
-        jmp     .isSafe_return                  ; if equal, num illegal, return 0
+        je      .isSafe_return                  ; if equal, num illegal, return 0
+                                                ; if not equal, get next row
 .isSafe_col_loop_increment:
         inc     esi                             ; x++
 .isSafe_col_loop_condition:
