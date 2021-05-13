@@ -28,7 +28,7 @@ sudoku:
         mov     eax, 1
         jmp     .sudoku_return                  ; if last row, return 1
 .sudoku_not_last_row:
-        add     DWORD [ebp+12], 1               ; row++
+        inc     DWORD [ebp+12]                  ; row++
         mov     DWORD [ebp+16], 0               ; col = 0
 .sudoku_not_last_col:
         mov     edx, DWORD [ebp+12]             ; edx = row
@@ -43,7 +43,7 @@ sudoku:
 
         ; if not equal, return sudoku(grid, row, col + 1);
         mov     eax, DWORD [ebp+16]             ; eax = col
-        add     eax, 1                          ; eax = col + 1
+        inc     eax                             ; eax = col + 1
         sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
         push    eax                             ; push (col+1)
         push    DWORD [ebp+12]                  ; push row
@@ -76,7 +76,7 @@ sudoku:
         mov     BYTE [edx], al                  ; grid[row][col] = eax (num)
                                                 ; solve next column
         mov     eax, DWORD [ebp+16]             ; eax = int col
-        add     eax, 1                          ; eax = col + 1
+        inc     eax                             ; eax = col + 1
         sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
         push    eax                             ; push (col+1)
         push    DWORD [ebp+12]                  ; push row
@@ -99,7 +99,7 @@ sudoku:
 
        ; num++, try next char
         movzx   eax, BYTE [ebp-4]               ; eax = num
-        add     eax, 1                          ; eax++
+        inc     eax                             ; eax++
         mov     BYTE [ebp-4], al                ; num = num + 1
 
 .sudoku_find_value_loop_condition:
@@ -149,7 +149,7 @@ isSafe:
         jne     .isSafe_row_loop_increment      ; if not equal, get next col
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_row_loop_increment:
-        add     DWORD [ebp-4], 1                ; x++
+        inc     DWORD [ebp-4]                   ; x++
 .isSafe_row_loop_condition:
         cmp     DWORD [ebp-4], 8                ; if x <= 8
         jle     .isSafe_row_loop                ; goto loop if condition met
@@ -167,7 +167,7 @@ isSafe:
         jne     .isSafe_col_loop_increment      ; if not equal, get next row
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_col_loop_increment:
-        add     DWORD [ebp-4], 1                ; x++
+        inc     DWORD [ebp-4]                   ; x++
 .isSafe_col_loop_condition:
         cmp     DWORD [ebp-4], 8                ; if x <= 8
         jle     .isSafe_col_loop                ; goto loop if condition met
@@ -213,11 +213,11 @@ isSafe:
         xor     eax, eax                        ; if equal, return 0
         jmp     .isSafe_return                  ; goto return
 .isSafe_3_3matrix_col_loop_increment:
-        add     DWORD [ebp-20], 1               ; j++
+        inc     DWORD [ebp-20]                  ; j++
 .isSafe_3_3matrix_col_loop_condition:
         cmp     DWORD [ebp-20], 2               ; test j <= 2
         jbe     .isSafe_3_3matrix_col_loop      ; if true, go back to loop
-        add     DWORD [ebp-16], 1               ; else i++
+        inc     DWORD [ebp-16]                  ; else i++
 
 .isSafe_3_3matrix_row_loop_condition:
         cmp     DWORD [ebp-16], 2               ; test i <= 2
