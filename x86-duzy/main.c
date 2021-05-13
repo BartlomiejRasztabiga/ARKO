@@ -45,13 +45,15 @@ unsigned int isSafe_(char grid[N][N], unsigned int row, unsigned int col, char n
 }
 
 unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
-    // Check if we have reached the 8th row and 9th column, returning true to avoid backtracking
-    if (row == N - 1 && col == N) {
-        return 1;
-    }
+    // TODO: remove recursion?
 
-    //  Check if column value is 9, then move to the next row and new column
+    // check if we have finished filling all columns for the row
     if (col == N) {
+        // if we're at last column and last row, then we've finished the sudoku, return 1
+        if (row == N - 1) {
+            return 1;
+        }
+        // if we're not at last row, go to next row
         row++;
         col = 0;
     }
@@ -62,17 +64,17 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
     }
 
     for (char num = '1'; num <= '9'; num++) {
-        // Check if it is safe to place the num (1-9) in the given row ,col. Then move to next column
+        // Check if it is safe to place the num (1-9) in the given [row][col]. Then move to next column.
         if (isSafe(grid, row, col, num) == 1) {
             grid[row][col] = num;
 
-            //  Checking for next possibility with next column
+            // Solving next column
             if (sudoku_(grid, row, col + 1) == 1) {
                 return 1;
             }
         }
 
-        // Removing the assigned num, since our assumption was wrong
+        // Removing the assigned num, our solution was wrong
         grid[row][col] = '#';
     }
 

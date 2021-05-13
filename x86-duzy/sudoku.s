@@ -1,6 +1,3 @@
-        section .data
-N:      equ     9
-
         section .text
         global  sudoku, isSafe
 
@@ -9,12 +6,22 @@ N:      equ     9
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char arr[N][N]
-; variables: none
-; returns: none
+;   - char arr[N][N]    ebp+8
+;   - unsigned int row  ebp+12
+;   - unsigned int col  ebp+16
+; variables:
+;   -
+; returns:
+;   - eax: 1 if found solution, 0 otherwise
 sudoku:
+        push    ebp
+        mov     ebp, esp
+        sub     esp, 24
 
 
+;        jne
+
+.sudoku_not_finished:
 
 
 ; ============================================================================
