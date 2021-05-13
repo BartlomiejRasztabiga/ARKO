@@ -32,6 +32,7 @@ sudoku:
 ;   - int startCol      ebp-12
 ;   - int i             ebp-16
 ;   - int j             ebp-20
+;   - char num          ebp-36
 ; registers:
 ;   -
 ; returns:
@@ -81,11 +82,13 @@ isSafe:
         cmp     DWORD [ebp-4], 8                ; if x <= 8
         jle     .isSafe_col_loop                ; jmp to loop if condition met
 
+; TODO: any optimisations?
 ; int startRow = row - row % 3
         mov     ecx, 3
         mov     eax, DWORD [ebp+12]             ; eax = int row
         xor     edx, edx                        ; edx = 0
         div     ecx                             ; edx = row % 3
+        mov     ecx, DWORD [ebp+12]             ; ecx = int row
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     DWORD [ebp-8], ecx              ; startRow = ecx
 
@@ -94,18 +97,20 @@ isSafe:
         mov     eax, DWORD [ebp+16]             ; eax = int col
         xor     edx, edx                        ; edx = 0
         div     ecx                             ; edx = col % 3
+        mov     ecx, DWORD [ebp+16]             ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     DWORD [ebp-12], ecx             ; startCol = ecx
 
         mov     DWORD [ebp-16], 0               ; i = 0
         jmp     .isSafe_3_3matrix_row_loop_condition
 
+; TODO: rearrange jumps? one loop pass is assured
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-20], 0               ; j = 0
         jmp     .isSafe_3_3matrix_col_loop_condition
 .isSafe_3_3matrix_col_loop:
         mov     edx, DWORD [ebp-16]             ; edx = i
-        mov     eax, DWORD [ebp-20]             ; eax = startRow
+        mov     eax, DWORD [ebp-8]             ; eax = startRow
         add     edx, eax                        ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         mov     eax, DWORD [ebp+8]              ; eax = pointer to grid

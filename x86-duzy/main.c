@@ -14,15 +14,13 @@ void printGrid(char arr[N][N]) {
 }
 
 // Checks whether it will be legal to assign num to the given row, col
-unsigned int isSafe1(char grid[N][N], unsigned int row, unsigned int col, char num) {
-
+unsigned int isSafe_(char **grid, unsigned int row, unsigned int col, char num) {
     // Check if we find the same num in the similar row , we return 0
     for (unsigned int x = 0; x <= 8; x++) {
         if (grid[row][x] == num) {
             return 0;
         }
     }
-
 
     // Check if we find the same num in the similar column , we return 0
     for (unsigned int x = 0; x <= 8; x++) {
@@ -32,25 +30,8 @@ unsigned int isSafe1(char grid[N][N], unsigned int row, unsigned int col, char n
     }
 
     // Check if we find the same num in the particular 3*3 matrix, we return 0
-    // TODO: can modulo be replaced?
     unsigned int startRow = row - row % 3;
     unsigned int startCol = col - col % 3;
-
-    // new code
-//    unsigned int startRow = 0;
-//    if (row >= 6) {
-//        startRow = 6;
-//    } else if (row >= 3) {
-//        startRow = 3;
-//    }
-//
-//    unsigned int startCol = 0;
-//    if (col >= 6) {
-//        startCol = 6;
-//    } else if (col >= 3) {
-//        startCol = 3;
-//    }
-    // new code
 
     for (unsigned int i = 0; i < 3; i++) {
         for (unsigned int j = 0; j < 3; j++) {
