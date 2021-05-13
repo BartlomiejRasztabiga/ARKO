@@ -32,7 +32,7 @@ sudoku:
 ;   - int startCol      ebp-12
 ;   - int i             ebp-16
 ;   - int j             ebp-20
-;   - char num          ebp-36
+;   - char num          ebp-21
 ; registers:
 ;   -
 ; returns:
@@ -40,10 +40,10 @@ sudoku:
 isSafe:
         push    ebp
         mov     ebp, esp
-        sub     esp, 36
+        sub     esp, 32                         ; is 32-bit stack alignment required?
 
         mov     eax, DWORD [ebp+20]
-        mov     BYTE [ebp-36], al               ; ebp-36 = char num
+        mov     BYTE [ebp-21], al               ; ebp-21 = char num
         mov     DWORD [ebp-4], 0                ; int x = 0
 .isSafe_row_loop:
         mov     edx, DWORD [ebp+12]             ; edx = int row
@@ -53,7 +53,7 @@ isSafe:
         mov     eax, DWORD [ebp-4]              ; eax = x
         add     eax, edx                        ; eax = pointer to grid's tile at [row][x]
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
-        cmp     BYTE [ebp-36], al               ; test if grid[row][x] == num
+        cmp     BYTE [ebp-21], al               ; test if grid[row][x] == num
         jne     .isSafe_row_loop_increment      ; if not equal, get next col
         mov     eax, 0
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
@@ -72,7 +72,7 @@ isSafe:
         mov     eax, DWORD [ebp+16]             ; eax = int col;
         add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
-        cmp     BYTE [ebp-36], al               ; test if grid[x][col] == num
+        cmp     BYTE [ebp-21], al               ; test if grid[x][col] == num
         jne     .isSafe_col_loop_increment      ; if not equal, get next row
         mov     eax, 0
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
@@ -120,7 +120,7 @@ isSafe:
         mov     eax, DWORD [ebp-12]             ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
-        cmp     BYTE [ebp-36], al               ; test if grid[i + startRow][j + startCol] == num
+        cmp     BYTE [ebp-21], al               ; test if grid[i + startRow][j + startCol] == num
         jne     .isSafe_3_3matrix_col_loop_increment    ; if not equal, try next column
 
         mov     eax, 0                          ; if equal, return 0

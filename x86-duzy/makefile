@@ -3,6 +3,7 @@ ASMBIN=nasm
 ASM_SRC=sudoku
 
 all: assemble compile link
+
 assemble: $(ASM_SRC).s
 	$(ASMBIN) -o $(ASM_SRC).o -f elf32 -F dwarf $(ASM_SRC).s -g -l $(ASM_SRC).lst
 
@@ -18,5 +19,4 @@ run:
 clean:
 	rm *.o
 	rm main
-	rm errors.txt
 	rm $(ASM_SRC).lst
