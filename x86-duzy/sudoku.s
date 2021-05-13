@@ -1,5 +1,5 @@
         section .text
-        global  sudoku, isSafe
+        global  sudoku
 
 ; ============================================================================
 ; sudoku
@@ -16,7 +16,7 @@
 sudoku:
         push    ebp
         mov     ebp, esp
-        sub     esp, 24
+        sub     esp, 24                         ; stack has to be aligned to 16 according to calling convention
 
 ; TODO: rearrange jumps?
         cmp     DWORD [ebp+16], 9               ; test if col == 9
@@ -48,63 +48,59 @@ sudoku:
         push    eax                             ; push (col+1)
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
-        call    sudoku                          ; call sudoku
+        call    sudoku                          ; call sudoku(grid, row, col)
         add     esp, 16                         ; free stack
         jmp     .sudoku_return                  ; return eax (return value from sudoku(grid, row, col + 1))
 ; TODO: Rearrange jumps
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
 .sudoku_find_value_loop:
-        ; TODO: continue from here
-        movsx   eax, BYTE [ebp-4]
-        push    eax
-        push    DWORD [ebp+16]
-        push    DWORD [ebp+12]
-        push    DWORD [ebp+8]
-        call    isSafe
-        add     esp, 16
-        cmp     eax, 1
-        jne     .sudoku_find_value_loop_next_num
-
-        mov     edx, DWORD [ebp+12]
-        mov     eax, edx
-        sal     eax, 3
-        add     edx, eax
-        mov     eax, DWORD [ebp+8]
-        add     edx, eax
-        mov     eax, DWORD [ebp+16]
-        add     edx, eax
-        movzx   eax, BYTE [ebp-4]
-        mov     BYTE [edx], al
-
-        mov     eax, DWORD [ebp+16]
-        add     eax, 1
-        sub     esp, 4
-        push    eax
-        push    DWORD [ebp+12]
-        push    DWORD [ebp+8]
-        call    sudoku
-        add     esp, 16
-        cmp     eax, 1
-        jne     .sudoku_find_value_loop_next_num
-
+        movsx   eax, BYTE [ebp-4]               ; eax = char num
+        push    eax                             ; push num
+        push    DWORD [ebp+16]                  ; push col
+        push    DWORD [ebp+12]                  ; push row
+        push    DWORD [ebp+8]                   ; push grid
+        call    isSafe                          ; call isSafe(grid, row, col, num)
+        add     esp, 16                         ; free stack
+        cmp     eax, 1                          ; test if isSafe returned 1 (true)
+        jne     .sudoku_find_value_loop_next_num; if false, try next number
+                                                ; if true, put that number into sudoku matrix
+        ; TODO: replace getCharFromMatrix, setCharToMatrix with functions or macros?
+        mov     edx, DWORD [ebp+12]             ; edx = row
+        lea     edx, [edx, edx*8]               ; edx = 9 * x
+        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        add     edx, eax                        ; edx = pointer to grid's row
+        mov     eax, DWORD [ebp+16]             ; eax = int col;
+        add     edx, eax                        ; eax = pointer to grid's tile at [row][col]
+        movzx   eax, BYTE [ebp-4]               ; eax = char from grid' tile at [row][col]
+        mov     BYTE [edx], al                  ; grid[row][col] = eax (num)
+                                                ; solve next column
+        mov     eax, DWORD [ebp+16]             ; eax = int col
+        add     eax, 1                          ; eax = col + 1
+        sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
+        push    eax                             ; push (col+1)
+        push    DWORD [ebp+12]                  ; push row
+        push    DWORD [ebp+8]                   ; push grid
+        call    sudoku                          ; call sudoku(grid, row, col+1)
+        add     esp, 16                         ; free stack
+        cmp     eax, 1                          ; test if sudoku returned 1 (true)
+        jne     .sudoku_find_value_loop_next_num; if false, try next number
+                                                ; if true, return 1
         mov     eax, 1
-        jmp     .sudoku_return
+        jmp     .sudoku_return                  ; return 1
 .sudoku_find_value_loop_next_num:
-        mov     edx, DWORD [ebp+12]
-        mov     eax, edx
-        sal     eax, 3
-        add     edx, eax
-        mov     eax, DWORD [ebp+8]
-        add     edx, eax
-        mov     eax, DWORD [ebp+16]
-        add     eax, edx
-        mov     BYTE [eax], 35
+        mov     edx, DWORD [ebp+12]             ; edx = row
+        lea     edx, [edx, edx*8]               ; edx = 9 * x
+        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        add     edx, eax                        ; edx = pointer to grid's row
+        mov     eax, DWORD [ebp+16]             ; eax = int col;
+        add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
+        mov     BYTE [eax], '#'                 ; grid[row][col] = '#'
 
-                                                ; num++, try next char
-        movzx   eax, BYTE [ebp-4]
-        add     eax, 1
-        mov     BYTE [ebp-4], al
+       ; num++, try next char
+        movzx   eax, BYTE [ebp-4]               ; eax = num
+        add     eax, 1                          ; eax++
+        mov     BYTE [ebp-4], al                ; num = num + 1
 
 .sudoku_find_value_loop_condition:
         cmp     BYTE [ebp-4], '9'               ; test if num <= '9'
@@ -131,8 +127,6 @@ sudoku:
 ;   - int i             ebp-16
 ;   - int j             ebp-20
 ;   - char num          ebp-21
-; registers:
-;   -
 ; returns:
 ;   - eax: 1 if legal, 0 otherwise
 isSafe:

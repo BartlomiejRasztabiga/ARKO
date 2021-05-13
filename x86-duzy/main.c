@@ -2,7 +2,6 @@
 
 #define N 9
 
-extern unsigned int isSafe(char grid[N][N], unsigned int row, unsigned int col, char num);
 extern unsigned int sudoku(char grid[N][N], unsigned int row, unsigned int col);
 
 void printGrid(char arr[N][N]) {
@@ -46,8 +45,6 @@ unsigned int isSafe_(char grid[N][N], unsigned int row, unsigned int col, char n
 }
 
 unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
-    // TODO: remove recursion?
-
     // check if we have finished filling all columns for the row
     if (col == N) {
         // if we're at last column and last row, then we've finished the sudoku, return 1
@@ -66,7 +63,7 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
 
     for (char num = '1'; num <= '9'; num++) {
         // Check if it is safe to place the num (1-9) in the given [row][col]. Then move to next column.
-        if (isSafe(grid, row, col, num) == 1) {
+        if (isSafe_(grid, row, col, num) == 1) {
             grid[row][col] = num;
 
             // Solving next column
