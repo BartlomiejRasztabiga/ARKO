@@ -211,10 +211,9 @@ isSafe:
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
-        jne     .isSafe_3_3matrix_col_loop_increment    ; if not equal, try next column
+        mov     eax, 0                          ; TODO: xor doesnt work here
 
-        xor     eax, eax                        ; if equal, return 0
-        jmp     .isSafe_return                  ; goto return
+        je     .isSafe_return                   ; if equal, return 0
 .isSafe_3_3matrix_col_loop_increment:
         inc     DWORD [ebp-16]                  ; j++
 .isSafe_3_3matrix_col_loop_condition:
