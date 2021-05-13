@@ -40,7 +40,7 @@ sudoku:
 isSafe:
         push    ebp
         mov     ebp, esp
-        sub     esp, 32                         ; is 32-bit stack alignment required?
+        sub     esp, 32                         ; is 16-bit stack alignment required?
 
         mov     eax, DWORD [ebp+20]
         mov     BYTE [ebp-21], al               ; ebp-21 = char num
