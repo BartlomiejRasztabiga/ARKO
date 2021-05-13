@@ -149,12 +149,12 @@ isSafe:
         add     eax, edx                        ; eax = pointer to grid's tile at [row][x]
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
         cmp     bl, al                          ; test if grid[row][x] == num
-        jne     .isSafe_row_loop_increment      ; if not equal, get next col
-        jmp     .isSafe_return                  ; if equal, num illegal, return 0
+        je      .isSafe_return                  ; if equal, num illegal, return 0
+                                                ; if not equal, get next col
 .isSafe_row_loop_increment:
         inc     esi                             ; x++
 .isSafe_row_loop_condition:
-        cmp     esi, 8                           ; if x <= 8
+        cmp     esi, 8                          ; if x <= 8
         jle     .isSafe_row_loop                ; goto loop if condition met
 
         mov     esi, 0                          ; int x = 0
@@ -207,7 +207,7 @@ isSafe:
         add     edx, eax                        ; edx = pointer to grid's row
 
         mov     ecx, DWORD [ebp-16]             ; ecx = j
-        mov     eax, DWORD [ebp-8]             ; eax = startCol
+        mov     eax, DWORD [ebp-8]              ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
