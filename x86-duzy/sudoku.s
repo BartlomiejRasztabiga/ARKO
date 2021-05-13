@@ -121,13 +121,13 @@ sudoku:
 ;   - int col           ebp+16
 ;   - char num          ebp+20
 ; variables:
-;   - int x             ebp-4
-;   - int startRow      ebp-8
-;   - int startCol      ebp-12
-;   - int i             ebp-16
-;   - int j             ebp-20
+;   - int startRow      ebp-4
+;   - int startCol      ebp-8
+;   - int i             ebp-12
+;   - int j             ebp-16
 ; registers:
-;   - ebx: char num     ebp+20
+;   - ebx: char num from ebp+20
+;   - esi: int x
 ; returns:
 ;   - eax: 1 if legal, 0 otherwise
 isSafe:
@@ -136,30 +136,30 @@ isSafe:
         sub     esp, 21
 
         push    ebx
+        push    esi
 
         mov     bl, BYTE [ebp+20]               ; ebx (bl) = char num
-
-        mov     DWORD [ebp-4], 0                ; int x = 0
+        xor     esi, esi                        ; int x = 0
 .isSafe_row_loop:
         mov     edx, DWORD [ebp+12]             ; edx = int row
         lea     edx, [edx+edx*8]                ; edx = 9 * row
         mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, DWORD [ebp-4]              ; eax = x
+        mov     eax, esi                        ; eax = x
         add     eax, edx                        ; eax = pointer to grid's tile at [row][x]
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
         cmp     bl, al                          ; test if grid[row][x] == num
         jne     .isSafe_row_loop_increment      ; if not equal, get next col
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_row_loop_increment:
-        inc     DWORD [ebp-4]                   ; x++
+        inc     esi                             ; x++
 .isSafe_row_loop_condition:
-        cmp     DWORD [ebp-4], 8                ; if x <= 8
+        cmp     esi, 8                           ; if x <= 8
         jle     .isSafe_row_loop                ; goto loop if condition met
 
-        mov     DWORD [ebp-4], 0                ; int x = 0
+        mov     esi, 0                          ; int x = 0
 .isSafe_col_loop:
-        mov     edx, DWORD [ebp-4]              ; edx = x
+        mov     edx, esi                        ; edx = x
         lea     edx, [edx, edx*8]               ; edx = 9 * x
         mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
@@ -170,9 +170,9 @@ isSafe:
         jne     .isSafe_col_loop_increment      ; if not equal, get next row
         jmp     .isSafe_return                  ; if equal, num illegal, return 0
 .isSafe_col_loop_increment:
-        inc     DWORD [ebp-4]                   ; x++
+        inc     esi                             ; x++
 .isSafe_col_loop_condition:
-        cmp     DWORD [ebp-4], 8                ; if x <= 8
+        cmp     esi, 8                          ; if x <= 8
         jle     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
@@ -182,7 +182,7 @@ isSafe:
         div     ecx                             ; edx = row % 3
         mov     ecx, DWORD [ebp+12]             ; ecx = int row
         sub     ecx, edx                        ; ecx = ecx - edx
-        mov     DWORD [ebp-8], ecx              ; startRow = ecx
+        mov     DWORD [ebp-4], ecx              ; startRow = ecx
 
 ; int startCol = col - col % 3
         mov     ecx, 3
@@ -191,23 +191,23 @@ isSafe:
         div     ecx                             ; edx = col % 3
         mov     ecx, DWORD [ebp+16]             ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
-        mov     DWORD [ebp-12], ecx             ; startCol = ecx
+        mov     DWORD [ebp-8], ecx             ; startCol = ecx
 
-        mov     DWORD [ebp-16], 0               ; i = 0
+        mov     DWORD [ebp-12], 0               ; i = 0
 
 ; TODO: rearrange jumps?
 .isSafe_3_3matrix_col_loop_init:
-        mov     DWORD [ebp-20], 0               ; j = 0
+        mov     DWORD [ebp-16], 0               ; j = 0
 .isSafe_3_3matrix_col_loop:
-        mov     edx, DWORD [ebp-16]             ; edx = i
-        mov     eax, DWORD [ebp-8]              ; eax = startRow
+        mov     edx, DWORD [ebp-12]             ; edx = i
+        mov     eax, DWORD [ebp-4]              ; eax = startRow
         add     edx, eax                        ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
 
-        mov     ecx, DWORD [ebp-20]             ; ecx = j
-        mov     eax, DWORD [ebp-12]             ; eax = startCol
+        mov     ecx, DWORD [ebp-16]             ; ecx = j
+        mov     eax, DWORD [ebp-8]             ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
@@ -216,18 +216,19 @@ isSafe:
         xor     eax, eax                        ; if equal, return 0
         jmp     .isSafe_return                  ; goto return
 .isSafe_3_3matrix_col_loop_increment:
-        inc     DWORD [ebp-20]                  ; j++
+        inc     DWORD [ebp-16]                  ; j++
 .isSafe_3_3matrix_col_loop_condition:
-        cmp     DWORD [ebp-20], 2               ; test j <= 2
+        cmp     DWORD [ebp-16], 2               ; test j <= 2
         jbe     .isSafe_3_3matrix_col_loop      ; if true, go back to loop
-        inc     DWORD [ebp-16]                  ; else i++
+        inc     DWORD [ebp-12]                  ; else i++
 
 .isSafe_3_3matrix_row_loop_condition:
-        cmp     DWORD [ebp-16], 2               ; test i <= 2
+        cmp     DWORD [ebp-12], 2               ; test i <= 2
         jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 
 .isSafe_return:
+        pop     esi
         pop     ebx
 
         leave
