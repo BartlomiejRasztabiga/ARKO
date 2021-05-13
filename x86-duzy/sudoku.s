@@ -36,7 +36,7 @@ sudoku:
 ; registers:
 ;   -
 ; returns:
-;   - eax: 1 if legal, 0 if otherwise
+;   - eax: 1 if legal, 0 otherwise
 isSafe:
         push    ebp
         mov     ebp, esp
