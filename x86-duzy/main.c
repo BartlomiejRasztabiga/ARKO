@@ -2,6 +2,8 @@
 
 #define N 9
 
+extern unsigned int isSafe(char grid[N][N], unsigned int row, unsigned int col, char num);
+
 void printGrid(char arr[N][N]) {
     for (unsigned int i = 0; i < N; i++) {
         for (unsigned int j = 0; j < N; j++) {
@@ -12,7 +14,7 @@ void printGrid(char arr[N][N]) {
 }
 
 // Checks whether it will be legal to assign num to the given row, col
-unsigned int isSafe(char grid[N][N], unsigned int row, unsigned int col, char num) {
+unsigned int isSafe1(char grid[N][N], unsigned int row, unsigned int col, char num) {
 
     // Check if we find the same num in the similar row , we return 0
     for (unsigned int x = 0; x <= 8; x++) {
