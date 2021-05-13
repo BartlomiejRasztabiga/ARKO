@@ -101,7 +101,6 @@ sudoku:
         movzx   eax, BYTE [ebp-4]               ; eax = num
         inc     eax                             ; eax++
         mov     BYTE [ebp-4], al                ; num = num + 1
-
 .sudoku_find_value_loop_condition:
         cmp     BYTE [ebp-4], '9'               ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
@@ -150,7 +149,6 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
         cmp     bl, al                          ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
-                                                ; if not equal, get next col
 .isSafe_row_loop_increment:
         inc     esi                             ; x++
 .isSafe_row_loop_condition:
@@ -168,7 +166,6 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     bl, al                          ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
-                                                ; if not equal, get next row
 .isSafe_col_loop_increment:
         inc     esi                             ; x++
 .isSafe_col_loop_condition:
@@ -194,7 +191,6 @@ isSafe:
         mov     DWORD [ebp-8], ecx              ; startCol = ecx
 
         mov     DWORD [ebp-12], 0               ; i = 0
-
 ; TODO: rearrange jumps?
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-16], 0               ; j = 0
@@ -220,12 +216,10 @@ isSafe:
         cmp     DWORD [ebp-16], 2               ; test j <= 2
         jbe     .isSafe_3_3matrix_col_loop      ; if true, go back to loop
         inc     DWORD [ebp-12]                  ; else i++
-
 .isSafe_3_3matrix_row_loop_condition:
         cmp     DWORD [ebp-12], 2               ; test i <= 2
         jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
-
 .isSafe_return:
         pop     esi
         pop     ebx
