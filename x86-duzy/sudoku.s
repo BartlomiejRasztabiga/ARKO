@@ -132,7 +132,7 @@ sudoku:
 isSafe:
         push    ebp
         mov     ebp, esp
-        sub     esp, 32                         ; is 16-bit stack alignment required?
+        sub     esp, 21
 
         mov     eax, DWORD [ebp+20]
         mov     BYTE [ebp-21], al               ; ebp-21 = char num
@@ -172,7 +172,6 @@ isSafe:
         cmp     DWORD [ebp-4], 8                ; if x <= 8
         jle     .isSafe_col_loop                ; goto loop if condition met
 
-; TODO: any optimisations?
 ; int startRow = row - row % 3
         mov     ecx, 3
         mov     eax, DWORD [ebp+12]             ; eax = int row
