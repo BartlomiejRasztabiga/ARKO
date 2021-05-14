@@ -75,7 +75,7 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
             }
         }
 
-        // Removing the assigned num, our solution was wrong
+        // Solution is invalid, remove last assigned num
         grid[row][col] = '#';
     }
 
