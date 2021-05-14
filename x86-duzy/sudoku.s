@@ -45,8 +45,8 @@ sudoku:
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
 .sudoku_find_value_loop:
-        movsx   eax, BYTE [ebp-4]               ; eax = char num
-        push    eax                             ; push num
+        movsx   edx, BYTE [ebp-4]               ; edx = char num
+        push    edx                             ; push num
         push    DWORD [ebp+16]                  ; push col
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
@@ -56,14 +56,13 @@ sudoku:
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
         ; TODO: replace getCharFromMatrix, setCharToMatrix with functions or macros?
-        mov     edx, [ebp+12]                   ; edx = row
-        lea     edx, [edx+edx*8]                ; edx = 9 * x
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col;
-        add     edx, eax                        ; eax = pointer to grid's tile at [row][col]
-        movzx   eax, BYTE [ebp-4]               ; eax = char from grid' tile at [row][col]
-        mov     [edx], al                       ; grid[row][col] = eax (num)
+        push    DWORD [ebp-4]                   ; push num
+        push    DWORD [ebp+16]                  ; push col
+        push    DWORD [ebp+12]                  ; push row
+        push    DWORD [ebp+8]                   ; push grid
+        call    setCellValue                    ; call setCellValue(grid, row, col, num)
+        add     esp, 20                         ; free stack
+
                                                 ; solve next column
         mov     eax, [ebp+16]                   ; eax = int col
         inc     eax                             ; eax = col + 1
@@ -79,13 +78,12 @@ sudoku:
         je     .sudoku_return                   ; if true, return 1
                                                 ; if false, try next number
 .sudoku_find_value_loop_next_num:
-        mov     edx, [ebp+12]                   ; edx = row
-        lea     edx, [edx+edx*8]                ; edx = 9 * x
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col
-        add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
-        mov     BYTE [eax], '#'                 ; grid[row][col] = '#'
+        push    DWORD '#'                       ; push '#'
+        push    DWORD [ebp+16]                  ; push col
+        push    DWORD [ebp+12]                  ; push row
+        push    DWORD [ebp+8]                   ; push grid
+        call    setCellValue                    ; call setCellValue(grid, row, col, num)
+        add     esp, 20                         ; free stack
 
         ; num++, try next char
         movzx   eax, BYTE [ebp-4]               ; eax = num
