@@ -55,7 +55,6 @@ sudoku:
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
-        ; TODO: replace getCharFromMatrix, setCharToMatrix with functions or macros?
         push    DWORD [ebp-4]                   ; push num
         push    DWORD [ebp+16]                  ; push col
         push    DWORD [ebp+12]                  ; push row
