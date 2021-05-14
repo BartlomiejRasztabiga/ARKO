@@ -13,7 +13,6 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO Shrink types to shorts or bytes
 sudoku:
         push    ebp
         mov     ebp, esp
