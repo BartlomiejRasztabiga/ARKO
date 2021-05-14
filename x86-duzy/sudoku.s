@@ -61,7 +61,6 @@ sudoku:
         push    DWORD [ebp+8]                   ; push grid
         call    setCellValue                    ; call setCellValue(grid, row, col, num)
         add     esp, 20                         ; free stack
-
                                                 ; solve next column
         mov     eax, [ebp+16]                   ; eax = int col
         inc     eax                             ; eax = col + 1
