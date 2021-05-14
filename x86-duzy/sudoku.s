@@ -144,13 +144,12 @@ isSafe:
 
         mov     esi, 0                          ; int x = 0
 .isSafe_col_loop:
-        mov     edx, esi                        ; edx = x
-        lea     edx, [edx+edx*8]                ; edx = 9 * x
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col;
-        add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
-        movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
+        push    DWORD [ebp+16]                  ; push col
+        push    DWORD esi                       ; push x
+        push    DWORD [ebp+8]                   ; push grid
+        call    getCellValue                    ; call getCellValue(grid, row, col)
+        add     esp, 12                         ; free stack
+
         cmp     bl, al                          ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
