@@ -45,22 +45,23 @@ unsigned int isSafe_(char grid[N][N], unsigned int row, unsigned int col, char n
 }
 
 unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
-    // check if we have finished filling all columns for the row
-    if (col == N) {
-        col = 0;
-    }
-
     // Find next cell that is not yet filled
-    while (grid[row][col] != '#') {
-        col++;
-        // if last column and last row, we're finished, return 1
+    while (1) {
+        // check if we have finished filling all columns for the row
         if (col == N) {
-            if (row == N - 1) {
-                return 1;
-            }
             row++;
             col = 0;
+            if (row == N) {
+                return 1;
+            }
         }
+
+        if (grid[row][col] == '#') {
+            // found next cell to fill
+            break;
+        }
+        // try next column
+        col++;
     }
 
     for (char num = '1'; num <= '9'; num++) {
