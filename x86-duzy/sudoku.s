@@ -35,7 +35,7 @@ sudoku:
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
         call    getCellValue                    ; call getCellValue(grid, row, col)
-        add     esp, 16                         ; free stack
+        add     esp, 12                         ; free stack
 
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
@@ -51,7 +51,7 @@ sudoku:
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
         call    isSafe                          ; call isSafe(grid, row, col, num)
-        add     esp, 16                         ; free stack
+        add     esp, 12                         ; free stack
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
@@ -129,13 +129,12 @@ isSafe:
         mov     bl, [ebp+20]                    ; ebx (bl) = char num
         xor     esi, esi                        ; int x = 0
 .isSafe_row_loop:
-        mov     edx, [ebp+12]                   ; edx = int row
-        lea     edx, [edx+edx*8]                ; edx = 9 * row
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, esi                        ; eax = x
-        add     eax, edx                        ; eax = pointer to grid's tile at [row][x]
-        movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
+        push    esi                             ; push x
+        push    DWORD [ebp+12]                  ; push row
+        push    DWORD [ebp+8]                   ; push grid
+        call    getCellValue                    ; call getCellValue(grid, row, col)
+        add     esp, 12                         ; free stack
+
         cmp     bl, al                          ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
