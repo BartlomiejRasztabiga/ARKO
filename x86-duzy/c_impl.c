@@ -42,8 +42,12 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
     }
 
     // Check if the current position of the grid already contains value, if yes, fill next column
-    if (grid[row][col] != '#') {
-        return sudoku_(grid, row, col + 1);
+    while (grid[row][col] != '#') {
+        col++;
+        if (col == N) {
+
+        }
+//        return sudoku_(grid, row, col + 1);
     }
 
     for (char num = '1'; num <= '9'; num++) {

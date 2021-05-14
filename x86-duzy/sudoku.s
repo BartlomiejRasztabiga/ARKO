@@ -18,7 +18,6 @@ sudoku:
         mov     ebp, esp
         sub     esp, 24                         ; stack has to be aligned to 16 according to calling convention
 
-; TODO: rearrange jumps?
         cmp     DWORD [ebp+16], 9               ; test if col == 9
         jne     .sudoku_not_last_col            ; if not equal, goto .sudoku_not_last_col
 
