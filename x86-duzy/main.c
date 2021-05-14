@@ -54,7 +54,6 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
             }
             row++;
             col = 0;
-
         }
 
         if (grid[row][col] == '#') {
