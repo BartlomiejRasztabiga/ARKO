@@ -13,10 +13,11 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
+; TODO should methods sub esp before call with parameters?
 sudoku:
         push    ebp
         mov     ebp, esp
-        sub     esp, 24                         ; stack has to be aligned to 16 according to calling convention
+        sub     esp, 24                         ; TODO why 24? stack has to be aligned to 16 according to calling convention
 
 .sudoku_find_next_cell:
         cmp     DWORD [ebp+16], 9               ; test if col == 9
