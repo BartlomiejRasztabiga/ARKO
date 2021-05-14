@@ -6,7 +6,7 @@
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char arr[N][N]    ebp+8
+;   - char grid[N][N]    ebp+8
 ;   - unsigned int row  ebp+12
 ;   - unsigned int col  ebp+16
 ; variables:
@@ -35,7 +35,7 @@ sudoku:
         lea     edx, [edx+edx*8]                ; edx = 9 * x
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col;
+        mov     eax, [ebp+16]                   ; eax = int col
         add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
@@ -84,7 +84,7 @@ sudoku:
         lea     edx, [edx+edx*8]                ; edx = 9 * x
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col;
+        mov     eax, [ebp+16]                   ; eax = int col
         add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
         mov     BYTE [eax], '#'                 ; grid[row][col] = '#'
 
@@ -105,7 +105,7 @@ sudoku:
 ; description:
 ;   checks whether it will be legal to assign num to the given row, col
 ; arguments:
-;   - char arr[N][N]    ebp+8
+;   - char grid[N][N]    ebp+8
 ;   - int row           ebp+12
 ;   - int col           ebp+16
 ;   - char num          ebp+20
@@ -212,3 +212,23 @@ isSafe:
 
         leave
         ret
+
+; ============================================================================
+; getCellValue
+; description:
+;   return char from sudoku grid at [row][col]
+; arguments:
+;   - char grid[N][N]    ebp+8
+;   - unsigned int row  ebp+12
+;   - unsigned int col  ebp+16
+; returns:
+;   - eax: char from grid[row][col]
+getCellValue:
+         mov     edx, [ebp+12]                   ; edx = int row
+         lea     edx, [edx+edx*8]                ; edx = 9 * row
+         mov     eax, [ebp+8]                    ; eax = pointer to grid
+         add     edx, eax                        ; edx = pointer to grid's row
+         mov     eax, [ebp+16]                   ; eax = int col
+         add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
+         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
+         ret                                     ; return eax
