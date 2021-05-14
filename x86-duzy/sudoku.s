@@ -6,7 +6,7 @@
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char grid[N][N]    ebp+8
+;   - char grid[N][N]   ebp+8
 ;   - unsigned int row  ebp+12
 ;   - unsigned int col  ebp+16
 ; variables:
@@ -104,7 +104,7 @@ sudoku:
 ; description:
 ;   checks whether it will be legal to assign num to the given row, col
 ; arguments:
-;   - char grid[N][N]    ebp+8
+;   - char grid[N][N]   ebp+8
 ;   - int row           ebp+12
 ;   - int col           ebp+16
 ;   - char num          ebp+20
@@ -215,7 +215,7 @@ isSafe:
 ; description:
 ;   return char from sudoku grid at [row][col]
 ; arguments:
-;   - char grid[N][N]    ebp+8
+;   - char grid[N][N]   ebp+8
 ;   - unsigned int row  ebp+12
 ;   - unsigned int col  ebp+16
 ; returns:
