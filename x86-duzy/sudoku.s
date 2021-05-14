@@ -13,25 +13,28 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
+; TODO: Use WORD for ints
+; TODO: Rearrange jumps
 sudoku:
         push    ebp
         mov     ebp, esp
         sub     esp, 24                         ; stack has to be aligned to 16 according to calling convention
 
+.sudoku_find_next_cell:
         cmp     DWORD [ebp+16], 9               ; test if col == 9
-        jne     .sudoku_not_last_col            ; if not equal, goto .sudoku_not_last_col
+        jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
-        cmp     DWORD [ebp+12], 8               ; test if row == 8
+        inc     DWORD [ebp+12]                  ; row++
+        mov     DWORD [ebp+16], 0                     ; col = 0
+
+        cmp     DWORD [ebp+12], 9               ; test if row == 9
+        jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
         mov     eax, 1
         je     .sudoku_return                   ; if last row, return 1
-.sudoku_not_last_row:
-        inc     DWORD [ebp+12]                  ; row++
-        mov     DWORD [ebp+16], 0               ; col = 0
-.sudoku_not_last_col:
+.sudoku_not_finished:
         mov     edx, DWORD [ebp+12]             ; edx = row
         lea     edx, [edx+edx*8]                ; edx = 9 * x
-;        lea     edx, [edx, ebp+8]
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
         mov     eax, [ebp+16]                   ; eax = int col;
@@ -40,16 +43,9 @@ sudoku:
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
 
-        ; if not equal, return sudoku(grid, row, col + 1);
-        mov     eax, [ebp+16]             ; eax = col
-        inc     eax                             ; eax = col + 1
-        sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
-        push    eax                             ; push (col+1)
-        push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
-        call    sudoku                          ; call sudoku(grid, row, col)
-        add     esp, 16                         ; free stack
-        jmp     .sudoku_return                  ; return eax (return value from sudoku(grid, row, col + 1))
+        inc     DWORD [ebp+16]                  ; col++
+        jmp     .sudoku_find_next_cell          ; if not equal, try next col
+
 ; TODO: Rearrange jumps
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
