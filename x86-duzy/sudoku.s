@@ -75,10 +75,10 @@ sudoku:
         call    sudoku                          ; call sudoku(grid, row, col+1)
         add     esp, 16                         ; free stack
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
-        jne     .sudoku_find_value_loop_next_num; if false, try next number
-                                                ; if true, return 1
+
         mov     eax, 1
-        jmp     .sudoku_return                  ; return 1
+        je     .sudoku_return                   ; if true, return 1
+                                                ; if false, try next number
 .sudoku_find_value_loop_next_num:
         mov     edx, [ebp+12]                   ; edx = row
         lea     edx, [edx+edx*8]                ; edx = 9 * x
