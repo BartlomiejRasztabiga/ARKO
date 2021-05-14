@@ -13,6 +13,7 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
+; TODO Shrink types to shorts or bytes
 sudoku:
         push    ebp
         mov     ebp, esp
@@ -23,26 +24,26 @@ sudoku:
         jne     .sudoku_not_last_col            ; if not equal, goto .sudoku_not_last_col
 
         cmp     DWORD [ebp+12], 8               ; test if row == 8
-        jne     .sudoku_not_last_row            ; if not equal, goto .sudoku_not_last_row
 
         mov     eax, 1
-        jmp     .sudoku_return                  ; if last row, return 1
+        je     .sudoku_return                   ; if last row, return 1
 .sudoku_not_last_row:
         inc     DWORD [ebp+12]                  ; row++
         mov     DWORD [ebp+16], 0               ; col = 0
 .sudoku_not_last_col:
         mov     edx, DWORD [ebp+12]             ; edx = row
-        lea     edx, [edx, edx*8]               ; edx = 9 * x
-        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        lea     edx, [edx+edx*8]                ; edx = 9 * x
+;        lea     edx, [edx, ebp+8]
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, DWORD [ebp+16]             ; eax = int col;
+        mov     eax, [ebp+16]                   ; eax = int col;
         add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
 
         ; if not equal, return sudoku(grid, row, col + 1);
-        mov     eax, DWORD [ebp+16]             ; eax = col
+        mov     eax, [ebp+16]             ; eax = col
         inc     eax                             ; eax = col + 1
         sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
         push    eax                             ; push (col+1)
@@ -66,16 +67,16 @@ sudoku:
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
         ; TODO: replace getCharFromMatrix, setCharToMatrix with functions or macros?
-        mov     edx, DWORD [ebp+12]             ; edx = row
-        lea     edx, [edx, edx*8]               ; edx = 9 * x
-        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        mov     edx, [ebp+12]                   ; edx = row
+        lea     edx, [edx+edx*8]                ; edx = 9 * x
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, DWORD [ebp+16]             ; eax = int col;
+        mov     eax, [ebp+16]                   ; eax = int col;
         add     edx, eax                        ; eax = pointer to grid's tile at [row][col]
         movzx   eax, BYTE [ebp-4]               ; eax = char from grid' tile at [row][col]
-        mov     BYTE [edx], al                  ; grid[row][col] = eax (num)
+        mov     [edx], al                       ; grid[row][col] = eax (num)
                                                 ; solve next column
-        mov     eax, DWORD [ebp+16]             ; eax = int col
+        mov     eax, [ebp+16]                   ; eax = int col
         inc     eax                             ; eax = col + 1
         sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
         push    eax                             ; push (col+1)
@@ -89,18 +90,18 @@ sudoku:
         mov     eax, 1
         jmp     .sudoku_return                  ; return 1
 .sudoku_find_value_loop_next_num:
-        mov     edx, DWORD [ebp+12]             ; edx = row
-        lea     edx, [edx, edx*8]               ; edx = 9 * x
-        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        mov     edx, [ebp+12]                   ; edx = row
+        lea     edx, [edx+edx*8]                ; edx = 9 * x
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, DWORD [ebp+16]             ; eax = int col;
+        mov     eax, [ebp+16]                   ; eax = int col;
         add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
         mov     BYTE [eax], '#'                 ; grid[row][col] = '#'
 
         ; num++, try next char
         movzx   eax, BYTE [ebp-4]               ; eax = num
         inc     eax                             ; eax++
-        mov     BYTE [ebp-4], al                ; num = num + 1
+        mov     [ebp-4], al                     ; num = num + 1
 .sudoku_find_value_loop_condition:
         cmp     BYTE [ebp-4], '9'               ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
@@ -137,12 +138,12 @@ isSafe:
         push    ebx
         push    esi
 
-        mov     bl, BYTE [ebp+20]               ; ebx (bl) = char num
+        mov     bl, [ebp+20]                    ; ebx (bl) = char num
         xor     esi, esi                        ; int x = 0
 .isSafe_row_loop:
-        mov     edx, DWORD [ebp+12]             ; edx = int row
+        mov     edx, [ebp+12]                   ; edx = int row
         lea     edx, [edx+edx*8]                ; edx = 9 * row
-        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
         mov     eax, esi                        ; eax = x
         add     eax, edx                        ; eax = pointer to grid's tile at [row][x]
@@ -158,10 +159,10 @@ isSafe:
         mov     esi, 0                          ; int x = 0
 .isSafe_col_loop:
         mov     edx, esi                        ; edx = x
-        lea     edx, [edx, edx*8]               ; edx = 9 * x
-        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        lea     edx, [edx+edx*8]                ; edx = 9 * x
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, DWORD [ebp+16]             ; eax = int col;
+        mov     eax, [ebp+16]                   ; eax = int col;
         add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     bl, al                          ; test if grid[x][col] == num
@@ -174,36 +175,36 @@ isSafe:
 
 ; int startRow = row - row % 3
         mov     ecx, 3
-        mov     eax, DWORD [ebp+12]             ; eax = int row
+        mov     eax, [ebp+12]                   ; eax = int row
         xor     edx, edx                        ; edx = 0
         div     ecx                             ; edx = row % 3
-        mov     ecx, DWORD [ebp+12]             ; ecx = int row
+        mov     ecx, [ebp+12]                   ; ecx = int row
         sub     ecx, edx                        ; ecx = ecx - edx
-        mov     DWORD [ebp-4], ecx              ; startRow = ecx
+        mov     [ebp-4], ecx                    ; startRow = ecx
 
 ; int startCol = col - col % 3
         mov     ecx, 3
-        mov     eax, DWORD [ebp+16]             ; eax = int col
+        mov     eax, [ebp+16]                   ; eax = int col
         xor     edx, edx                        ; edx = 0
         div     ecx                             ; edx = col % 3
-        mov     ecx, DWORD [ebp+16]             ; ecx = int col
+        mov     ecx, [ebp+16]                   ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
-        mov     DWORD [ebp-8], ecx              ; startCol = ecx
+        mov     [ebp-8], ecx                    ; startCol = ecx
 
         mov     DWORD [ebp-12], 0               ; i = 0
 ; TODO: rearrange jumps?
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-16], 0               ; j = 0
 .isSafe_3_3matrix_col_loop:
-        mov     edx, DWORD [ebp-12]             ; edx = i
-        mov     eax, DWORD [ebp-4]              ; eax = startRow
+        mov     edx, [ebp-12]                   ; edx = i
+        mov     eax, [ebp-4]                    ; eax = startRow
         add     edx, eax                        ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
-        mov     eax, DWORD [ebp+8]              ; eax = pointer to grid
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
 
-        mov     ecx, DWORD [ebp-16]             ; ecx = j
-        mov     eax, DWORD [ebp-8]              ; eax = startCol
+        mov     ecx, [ebp-16]                   ; ecx = j
+        mov     eax, [ebp-8]                    ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
