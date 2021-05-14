@@ -49,11 +49,12 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
     while (1) {
         // check if we have finished filling all columns for the row
         if (col == N) {
-            row++;
-            col = 0;
-            if (row == N) {
+            if (row == N - 1) {
                 return 1;
             }
+            row++;
+            col = 0;
+
         }
 
         if (grid[row][col] == '#') {
