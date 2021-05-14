@@ -31,13 +31,12 @@ sudoku:
         je     .sudoku_return                   ; if last row, return 1
                                                 ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
-        mov     edx, [ebp+12]                   ; edx = row
-        lea     edx, [edx+edx*8]                ; edx = 9 * x
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col
-        add     eax, edx                        ; eax = pointer to grid's tile at [x][col]
-        movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
+        push    DWORD [ebp+16]                  ; push col
+        push    DWORD [ebp+12]                  ; push row
+        push    DWORD [ebp+8]                   ; push grid
+        call    getCellValue                    ; call getCellValue(grid, row, col)
+        add     esp, 16                         ; free stack
+
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
 
@@ -224,11 +223,16 @@ isSafe:
 ; returns:
 ;   - eax: char from grid[row][col]
 getCellValue:
-         mov     edx, [ebp+12]                   ; edx = int row
-         lea     edx, [edx+edx*8]                ; edx = 9 * row
-         mov     eax, [ebp+8]                    ; eax = pointer to grid
-         add     edx, eax                        ; edx = pointer to grid's row
-         mov     eax, [ebp+16]                   ; eax = int col
-         add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
-         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
-         ret                                     ; return eax
+        push    ebp
+        mov     ebp, esp
+
+        mov     edx, [ebp+12]                   ; edx = int row
+        lea     edx, [edx+edx*8]                ; edx = 9 * row
+        mov     eax, [ebp+8]                    ; eax = pointer to grid
+        add     edx, eax                        ; edx = pointer to grid's row
+        mov     eax, [ebp+16]                   ; eax = int col
+        add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
+        movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
+
+        leave
+        ret                                     ; return eax
