@@ -92,7 +92,7 @@ sudoku:
         movzx   eax, BYTE [ebp-4]               ; eax = num
         inc     eax                             ; eax++
         mov     [ebp-4], al                     ; num = num + 1
-.sudoku_find_value_loop_condition:
+
         cmp     BYTE [ebp-4], '9'               ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
