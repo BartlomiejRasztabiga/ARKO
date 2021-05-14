@@ -13,8 +13,6 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: Use WORD for ints
-; TODO: Rearrange jumps
 sudoku:
         push    ebp
         mov     ebp, esp
@@ -25,15 +23,15 @@ sudoku:
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
         inc     DWORD [ebp+12]                  ; row++
-        mov     DWORD [ebp+16], 0                     ; col = 0
+        mov     DWORD [ebp+16], 0               ; col = 0
 
         cmp     DWORD [ebp+12], 9               ; test if row == 9
-        jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
         mov     eax, 1
         je     .sudoku_return                   ; if last row, return 1
+                                                ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
-        mov     edx, DWORD [ebp+12]             ; edx = row
+        mov     edx, [ebp+12]                   ; edx = row
         lea     edx, [edx+edx*8]                ; edx = 9 * x
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
@@ -45,8 +43,6 @@ sudoku:
 
         inc     DWORD [ebp+16]                  ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
-
-; TODO: Rearrange jumps
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
 .sudoku_find_value_loop:
@@ -103,7 +99,6 @@ sudoku:
 .sudoku_return:
         leave
         ret
-
 
 ; ============================================================================
 ; isSafe
@@ -184,9 +179,8 @@ isSafe:
         mov     ecx, [ebp+16]                   ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     [ebp-8], ecx                    ; startCol = ecx
-
+; TODO: optimisation?
         mov     DWORD [ebp-12], 0               ; i = 0
-; TODO: rearrange jumps?
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-16], 0               ; j = 0
 .isSafe_3_3matrix_col_loop:

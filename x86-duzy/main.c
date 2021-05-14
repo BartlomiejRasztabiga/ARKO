@@ -64,6 +64,7 @@ unsigned int sudoku_(char grid[N][N], unsigned int row, unsigned int col) {
         col++;
     }
 
+    // TODO: optimisation?
     for (char num = '1'; num <= '9'; num++) {
         // Check if it is safe to place the num (1-9) in the given [row][col]. Then move to next column.
         if (isSafe_(grid, row, col, num) == 1) {
