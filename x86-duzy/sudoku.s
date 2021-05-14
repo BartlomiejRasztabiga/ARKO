@@ -139,9 +139,8 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
         cmp     bl, al                          ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
-.isSafe_row_loop_increment:
+
         inc     esi                             ; x++
-.isSafe_row_loop_condition:
         cmp     esi, 8                          ; if x <= 8
         jle     .isSafe_row_loop                ; goto loop if condition met
 
@@ -156,9 +155,8 @@ isSafe:
         movzx   eax, BYTE [eax]                 ; eax = char from grid' tile at [x][col]
         cmp     bl, al                          ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
-.isSafe_col_loop_increment:
+
         inc     esi                             ; x++
-.isSafe_col_loop_condition:
         cmp     esi, 8                          ; if x <= 8
         jle     .isSafe_col_loop                ; goto loop if condition met
 
@@ -196,16 +194,15 @@ isSafe:
         add     eax, ecx                        ; eax = j + startCol
         movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
-        mov     eax, 0                          ; TODO: xor doesnt work here
 
+        mov     eax, 0                          ; TODO: xor doesnt work here
         je     .isSafe_return                   ; if equal, return 0
-.isSafe_3_3matrix_col_loop_increment:
+
         inc     DWORD [ebp-16]                  ; j++
-.isSafe_3_3matrix_col_loop_condition:
         cmp     DWORD [ebp-16], 2               ; test j <= 2
         jbe     .isSafe_3_3matrix_col_loop      ; if true, go back to loop
+
         inc     DWORD [ebp-12]                  ; else i++
-.isSafe_3_3matrix_row_loop_condition:
         cmp     DWORD [ebp-12], 2               ; test i <= 2
         jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
