@@ -13,6 +13,9 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
+; TODO: add esp?? o ile trzeba przesuwać esp?
+; TODO: przejsc bardziej na uzycie rejestrów?
+; TODO: uzywac test do porownywania z 0
 sudoku:
         push    ebp
         mov     ebp, esp
@@ -51,7 +54,7 @@ sudoku:
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
         call    isSafe                          ; call isSafe(grid, row, col, num)
-        add     esp, 12                         ; free stack
+        add     esp, 16                         ; free stack
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
@@ -60,7 +63,7 @@ sudoku:
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
         call    setCellValue                    ; call setCellValue(grid, row, col, num)
-        add     esp, 20                         ; free stack
+        add     esp, 16                         ; free stack
                                                 ; solve next column
         mov     eax, [ebp+16]                   ; eax = int col
         inc     eax                             ; eax = col + 1
@@ -69,7 +72,7 @@ sudoku:
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
         call    sudoku                          ; call sudoku(grid, row, col+1)
-        add     esp, 16                         ; free stack
+        add     esp, 12                         ; free stack
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
 
         mov     eax, 1
@@ -81,7 +84,7 @@ sudoku:
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
         call    setCellValue                    ; call setCellValue(grid, row, col, num)
-        add     esp, 20                         ; free stack
+        add     esp, 16                         ; free stack
 
         ; num++, try next char
         movzx   eax, BYTE [ebp-4]               ; eax = num
@@ -223,10 +226,9 @@ getCellValue:
         mov     edx, [ebp+12]                   ; edx = int row
         lea     edx, [edx+edx*8]                ; edx = 9 * row
         mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
+        lea     edx, [edx+eax]                  ; edx = pointer to grid's row
         mov     eax, [ebp+16]                   ; eax = int col
-        add     eax, edx                        ; eax = pointer to grid's tile at [row][col]
-        movzx   eax, BYTE [eax]                 ; eax = char from grid's tile at [row][x]
+        movzx   eax, BYTE [eax+edx]             ; eax = char from grid's tile at [row][x]
 
         leave
         ret                                     ; return eax
@@ -248,9 +250,9 @@ setCellValue:
         mov     edx, [ebp+12]                   ; edx = int row
         lea     edx, [edx+edx*8]                ; edx = 9 * row
         mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
+        lea     edx, [edx+eax]                  ; edx = pointer to grid's row
         mov     eax, [ebp+16]                   ; eax = int col
-        add     edx, eax                        ; edx = pointer to grid's tile at [row][col]
+        lea     edx, [edx+eax]                  ; edx = pointer to grid's tile at [row][col]
         movzx   eax, BYTE [ebp+20]              ; eax = char to insert
         mov     [edx], al                       ; grid[row][col] = eax (num)
 
