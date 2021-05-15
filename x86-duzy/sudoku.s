@@ -13,7 +13,6 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: przesledzic zachowanie sie stosu przy rekurencji, randomowy segfault przy alignmencie? czemu sub esp, 4
 sudoku:
         push    ebp
         mov     ebp, esp
