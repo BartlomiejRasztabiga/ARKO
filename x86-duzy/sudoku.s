@@ -16,6 +16,8 @@
 ; TODO: add esp?? o ile trzeba przesuwać esp?
 ; TODO: przejsc bardziej na uzycie rejestrów?
 ; TODO: uzywac test do porownywania z 0
+; TODO: uzywac krotszych przesłań (WORD zamiast DOWRD)?
+; TODO: uzywac krotszych rejestrów (AX zamiast EAX)
 sudoku:
         push    ebp
         mov     ebp, esp
