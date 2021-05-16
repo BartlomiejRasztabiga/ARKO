@@ -28,7 +28,6 @@ sudoku:
         push    ebx
         push    esi
         push    edi
-        push    ecx                             ; save extra register - ecx, used by sudoku
 
         mov     ebx, [ebp+8]                    ; ebx = grid
         mov     esi, [ebp+12]                   ; esi = row
@@ -64,7 +63,8 @@ sudoku:
         push    esi                             ; push row
         push    ebx                             ; push grid
         call    isSafe                          ; call isSafe(grid, row, col, num)
-        add     esp, 16                         ; free stack
+        add     esp, 12                         ; free stack
+        pop     ecx                             ; restore ecx
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
@@ -77,11 +77,13 @@ sudoku:
                                                 ; solve next column
         mov     eax, edi                        ; eax = int col
         inc     eax                             ; eax = col + 1
+        push    ecx                             ; save ecx (num)
         push    eax                             ; push (col+1)
         push    esi                             ; push row
         push    ebx                             ; push grid
         call    sudoku                          ; call sudoku(grid, row, col+1)
         add     esp, 12                         ; free stack
+        pop     ecx                             ; restore ecx (num)
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
 
         mov     eax, 1
@@ -100,7 +102,6 @@ sudoku:
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
-        pop     ecx                             ; pop extra register - ecx, used by sudoku
         pop     edi
         pop     esi
         pop     ebx
@@ -134,7 +135,6 @@ isSafe:
 
         push    ebx
         push    esi
-        push    ecx                             ; save extra register - ecx, used by sudoku
 
         mov     bl, [ebp+20]                    ; ebx (bl) = char num
         xor     esi, esi                        ; int x = 0
@@ -214,7 +214,6 @@ isSafe:
         jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
-        pop     ecx                             ; pop extra register - ecx, used by sudoku
         pop     esi
         pop     ebx
 
