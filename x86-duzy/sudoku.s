@@ -13,9 +13,7 @@
 ;   - char num          ebp-4
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: add esp?? o ile trzeba przesuwać esp?
 ; TODO: przejsc bardziej na uzycie rejestrów?
-; TODO: uzywac test do porownywania z 0
 ; TODO: uzywac krotszych przesłań (WORD zamiast DOWRD)?
 ; TODO: uzywac krotszych rejestrów (AX zamiast EAX)
 sudoku:
@@ -69,7 +67,6 @@ sudoku:
                                                 ; solve next column
         mov     eax, [ebp+16]                   ; eax = int col
         inc     eax                             ; eax = col + 1
-        sub     esp, 4                          ; stack has to be aligned to 16, 3*4 + 4 = 16
         push    eax                             ; push (col+1)
         push    DWORD [ebp+12]                  ; push row
         push    DWORD [ebp+8]                   ; push grid
