@@ -202,7 +202,7 @@ isSafe:
         mov     eax, [edx+eax]                  ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
 
-        mov     eax, 0                          ; TODO: xor doesnt work here
+        mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
 
         inc     DWORD [ebp-16]                  ; j++
