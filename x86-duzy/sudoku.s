@@ -248,7 +248,7 @@ isSafe:
 ;   - unsigned int row  ebp+12
 ;   - unsigned int col  ebp+16
 ; returns:
-;   - eax: char from grid[row][col]
+;   - al: char from grid[row][col]
 getCellValue:
         push    ebp
         mov     ebp, esp
@@ -258,10 +258,10 @@ getCellValue:
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         lea     edx, [edx+eax]                  ; edx = pointer to grid's row
         mov     eax, [ebp+16]                   ; eax = int col
-        mov     eax, [eax+edx]                  ; eax = char from grid's tile at [row][x]
+        mov     al, BYTE [eax+edx]              ; al = char from grid's tile at [row][x]
 
         leave
-        ret                                     ; return eax
+        ret                                     ; return al
 
 ; ============================================================================
 ; setCellValue
