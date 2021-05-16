@@ -168,7 +168,6 @@ isSafe:
         jle     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
-; TODO safe to usi esi here, esi = startRow, edi = startCol?
         mov     ecx, 3
         mov     eax, [ebp+12]                   ; eax = int row
         xor     edx, edx                        ; edx = 0
