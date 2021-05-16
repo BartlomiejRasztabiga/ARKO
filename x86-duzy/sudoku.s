@@ -21,7 +21,7 @@
 sudoku:
         push    ebp
         mov     ebp, esp
-        sub     esp, 24                         ; stack has to be aligned to 16 according to calling convention
+        sub     esp, 8                          ; stack has to be aligned to 16 according to calling convention
 
 .sudoku_find_next_cell:
         cmp     DWORD [ebp+16], 9               ; test if col == 9
