@@ -186,18 +186,18 @@ isSafe:
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     edi, ecx                        ; startCol = ecx
 ; TODO: optimisation, replace i and j with one variable
-        mov     DWORD [ebp-4], 0               ; i = 0
+        mov     DWORD [ebp-4], 0                ; i = 0
 .isSafe_3_3matrix_col_loop_init:
-        mov     DWORD [ebp-8], 0               ; j = 0
+        mov     DWORD [ebp-8], 0                ; j = 0
 .isSafe_3_3matrix_col_loop:
-        mov     edx, [ebp-4]                   ; edx = i
+        mov     edx, [ebp-4]                    ; edx = i
         mov     eax, esi                        ; eax = startRow
         add     edx, eax                        ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         add     edx, eax                        ; edx = pointer to grid's row
 
-        mov     ecx, [ebp-8]                   ; ecx = j
+        mov     ecx, [ebp-8]                    ; ecx = j
         mov     eax, edi                        ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         mov     eax, [edx+eax]                  ; eax = char from grid' tile at [i + startRow][j + startCol]
@@ -206,12 +206,12 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
 
-        inc     DWORD [ebp-8]                  ; j++
-        cmp     DWORD [ebp-8], 2               ; test j <= 2
+        inc     DWORD [ebp-8]                   ; j++
+        cmp     DWORD [ebp-8], 2                ; test j <= 2
         jbe     .isSafe_3_3matrix_col_loop      ; if true, go back to loop
 
-        inc     DWORD [ebp-4]                  ; else i++
-        cmp     DWORD [ebp-4], 2               ; test i <= 2
+        inc     DWORD [ebp-4]                   ; else i++
+        cmp     DWORD [ebp-4], 2                ; test i <= 2
         jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
