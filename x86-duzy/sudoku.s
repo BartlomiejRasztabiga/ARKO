@@ -199,7 +199,7 @@ isSafe:
         mov     ecx, [ebp-16]                   ; ecx = j
         mov     eax, [ebp-8]                    ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
-        movzx   eax, BYTE [edx+eax]             ; eax = char from grid' tile at [i + startRow][j + startCol]
+        mov     eax, [edx+eax]                  ; eax = char from grid' tile at [i + startRow][j + startCol]
         cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
 
         mov     eax, 0                          ; TODO: xor doesnt work here
@@ -239,7 +239,7 @@ getCellValue:
         mov     eax, [ebp+8]                    ; eax = pointer to grid
         lea     edx, [edx+eax]                  ; edx = pointer to grid's row
         mov     eax, [ebp+16]                   ; eax = int col
-        movzx   eax, BYTE [eax+edx]             ; eax = char from grid's tile at [row][x]
+        mov     eax, [eax+edx]                  ; eax = char from grid's tile at [row][x]
 
         leave
         ret                                     ; return eax
@@ -264,7 +264,7 @@ setCellValue:
         lea     edx, [edx+eax]                  ; edx = pointer to grid's row
         mov     eax, [ebp+16]                   ; eax = int col
         lea     edx, [edx+eax]                  ; edx = pointer to grid's tile at [row][col]
-        movzx   eax, BYTE [ebp+20]              ; eax = char to insert
+        mov     eax, [ebp+20]                   ; eax = char to insert
         mov     [edx], al                       ; grid[row][col] = eax (num)
 
         leave
