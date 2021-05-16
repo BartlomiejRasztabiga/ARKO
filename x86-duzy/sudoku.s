@@ -38,7 +38,7 @@ sudoku:
 ;   - ecx: num (char) local variable
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: uzywac krotszych rejestrów dla char
+; TODO: use shorter registers
 .sudoku:
         push    ebp
         mov     ebp, esp
