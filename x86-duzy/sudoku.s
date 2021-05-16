@@ -38,7 +38,7 @@ sudoku:
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
         inc     esi                             ; row++
-        mov     edi, 0                          ; col = 0, TODO: repalce with xor
+        xor     edi, edi                        ; col = 0
 
         cmp     esi, 9                          ; test if row == 9
 
