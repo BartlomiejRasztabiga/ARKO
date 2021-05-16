@@ -155,7 +155,7 @@ isSafe:
         mov     esi, 0                          ; int x = 0
 .isSafe_col_loop:
         push    DWORD [ebp+16]                  ; push col
-        push    DWORD esi                       ; push x
+        push    esi                             ; push x
         push    DWORD [ebp+8]                   ; push grid
         call    getCellValue                    ; call getCellValue(grid, row, col)
         add     esp, 12                         ; free stack
