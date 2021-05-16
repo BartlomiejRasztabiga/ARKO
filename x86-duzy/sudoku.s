@@ -202,23 +202,18 @@ isSafe:
         mov     ecx, [ebp+16]                   ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     edi, ecx                        ; startCol = ecx
-; TODO: optimisation, replace i and j with one variable
         mov     DWORD [ebp-4], 0                ; i = 0
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-8], 0                ; j = 0
 .isSafe_3_3matrix_col_loop:
         mov     edx, [ebp-4]                    ; edx = i
-        mov     eax, esi                        ; eax = startRow
-        add     edx, eax                        ; edx = i + startRow
+        lea     edx, [edx+esi]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        add     edx, eax                        ; edx = pointer to grid's row
+        add     edx, [ebp+8]                    ; edx = pointer to grid's row
 
-        mov     ecx, [ebp-8]                    ; ecx = j
-        mov     eax, edi                        ; eax = startCol
-        add     eax, ecx                        ; eax = j + startCol
-        mov     eax, [edx+eax]                  ; eax = char from grid' tile at [i + startRow][j + startCol]
-        cmp     al, bl                          ; test if grid[i + startRow][j + startCol] == num
+        mov     eax, [ebp-8]                    ; ecx = j
+        lea     eax, [eax+edi]                  ; eax = j + startCol
+        cmp     BYTE [edx+eax], bl              ; test if grid[i + startRow][j + startCol] == num
 
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
