@@ -184,7 +184,7 @@ isSafe:
         mov     ecx, [ebp+16]                   ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     [ebp-8], ecx                    ; startCol = ecx
-; TODO: optimisation?
+; TODO: optimisation, replace i and j with one variable
         mov     DWORD [ebp-12], 0               ; i = 0
 .isSafe_3_3matrix_col_loop_init:
         mov     DWORD [ebp-16], 0               ; j = 0
