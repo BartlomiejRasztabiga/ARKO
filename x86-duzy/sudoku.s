@@ -23,7 +23,7 @@ sudoku:
         ret
 
 ; ============================================================================
-; solveSudoku
+; .sudoku (recursive helper for sudoku)
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
