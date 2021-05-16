@@ -203,9 +203,9 @@ isSafe:
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     edi, ecx                        ; startCol = ecx
         mov     DWORD [ebp-4], 0                ; i = 0
-.isSafe_3_3matrix_col_loop_init:
+.isSafe_box_loop_init:
         mov     DWORD [ebp-8], 0                ; j = 0
-.isSafe_3_3matrix_col_loop:
+.isSafe_box_loop:
         mov     edx, [ebp-4]                    ; edx = i
         lea     edx, [edx+esi]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
@@ -220,11 +220,11 @@ isSafe:
 
         inc     DWORD [ebp-8]                   ; j++
         cmp     DWORD [ebp-8], 2                ; test j <= 2
-        jbe     .isSafe_3_3matrix_col_loop      ; if true, go back to loop
+        jbe     .isSafe_box_loop                ; if true, go back to loop
 
         inc     DWORD [ebp-4]                   ; else i++
         cmp     DWORD [ebp-4], 2                ; test i <= 2
-        jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
+        jbe     .isSafe_box_loop_init           ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
         pop     edi
