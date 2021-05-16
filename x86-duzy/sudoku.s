@@ -17,7 +17,6 @@
 ;   - ecx: num (char) local variable
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: przejsc bardziej na uzycie rejestrów?
 ; TODO: uzywac krotszych przesłań (WORD zamiast DOWRD)?
 ; TODO: uzywac krotszych rejestrów (AX zamiast EAX)
 sudoku:
