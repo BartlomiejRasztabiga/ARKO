@@ -11,6 +11,10 @@
 ;   - unsigned int col  ebp+16
 ; variables:
 ;   - char num          ebp-4
+; registers:
+;   - ebx: grid argument from ebp+8
+;   - esi: row argument from  ebp+12
+;   - edi: col argument from  ebp+16
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 ; TODO: przejsc bardziej na uzycie rejestrów?
@@ -21,55 +25,63 @@ sudoku:
         mov     ebp, esp
         sub     esp, 8                          ; stack has to be aligned to 16 according to calling convention
 
+        push    ebx
+        push    esi
+        push    edi
+
+        mov     ebx, [ebp+8]                    ; ebx = grid
+        mov     esi, [ebp+12]                   ; esi = row
+        mov     edi, [ebp+16]                   ; edi = col
+
 .sudoku_find_next_cell:
-        cmp     DWORD [ebp+16], 9               ; test if col == 9
+        cmp     edi, 9                          ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
-        inc     DWORD [ebp+12]                  ; row++
-        mov     DWORD [ebp+16], 0               ; col = 0
+        inc     esi                             ; row++
+        mov     edi, 0                          ; col = 0, TODO: repalce with xor
 
-        cmp     DWORD [ebp+12], 9               ; test if row == 9
+        cmp     esi, 9                          ; test if row == 9
 
         mov     eax, 1
         je     .sudoku_return                   ; if last row, return 1
                                                 ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
-        push    DWORD [ebp+16]                  ; push col
-        push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
+        push    edi                             ; push col
+        push    esi                             ; push row
+        push    ebx                             ; push grid
         call    getCellValue                    ; call getCellValue(grid, row, col)
         add     esp, 12                         ; free stack
 
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
 
-        inc     DWORD [ebp+16]                  ; col++
+        inc     edi                             ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value:
         mov     BYTE [ebp-4], '1'               ; num = '1'
 .sudoku_find_value_loop:
         movsx   edx, BYTE [ebp-4]               ; edx = char num
         push    edx                             ; push num
-        push    DWORD [ebp+16]                  ; push col
-        push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
+        push    edi                             ; push col
+        push    esi                             ; push row
+        push    ebx                             ; push grid
         call    isSafe                          ; call isSafe(grid, row, col, num)
         add     esp, 16                         ; free stack
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
         push    DWORD [ebp-4]                   ; push num
-        push    DWORD [ebp+16]                  ; push col
-        push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
+        push    edi                             ; push col
+        push    esi                             ; push row
+        push    ebx                             ; push grid
         call    setCellValue                    ; call setCellValue(grid, row, col, num)
         add     esp, 16                         ; free stack
                                                 ; solve next column
-        mov     eax, [ebp+16]                   ; eax = int col
+        mov     eax, edi                        ; eax = int col
         inc     eax                             ; eax = col + 1
         push    eax                             ; push (col+1)
-        push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
+        push    esi                             ; push row
+        push    ebx                             ; push grid
         call    sudoku                          ; call sudoku(grid, row, col+1)
         add     esp, 12                         ; free stack
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
@@ -79,9 +91,9 @@ sudoku:
                                                 ; if false, try next number
 .sudoku_find_value_loop_next_num:
         push    DWORD '#'                       ; push '#'
-        push    DWORD [ebp+16]                  ; push col
-        push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
+        push    edi                             ; push col
+        push    esi                             ; push row
+        push    ebx                             ; push grid
         call    setCellValue                    ; call setCellValue(grid, row, col, num)
         add     esp, 16                         ; free stack
 
@@ -94,6 +106,10 @@ sudoku:
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
+        pop     edi
+        pop     esi
+        pop     ebx
+
         leave
         ret
 
