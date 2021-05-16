@@ -22,7 +22,6 @@
 sudoku:
         push    ebp
         mov     ebp, esp
-        sub     esp, 8                          ; stack has to be aligned to 16 due to calling convention
 
         push    ebx
         push    esi
