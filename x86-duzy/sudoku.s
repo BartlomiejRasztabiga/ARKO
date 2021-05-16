@@ -7,6 +7,27 @@
 ;   solves given sudoku matrix
 ; arguments:
 ;   - char grid[N][N]   ebp+8
+; returns:
+;   - eax: 1 if found solution, 0 otherwise
+sudoku:
+        push    ebp
+        mov     ebp, esp
+
+        push    0
+        push    0
+        push    DWORD [ebp+8]
+
+        call    .sudoku
+
+        leave
+        ret
+
+; ============================================================================
+; solveSudoku
+; description:
+;   solves given sudoku matrix
+; arguments:
+;   - char grid[N][N]   ebp+8
 ;   - unsigned int row  ebp+12
 ;   - unsigned int col  ebp+16
 ; variables: none
@@ -19,7 +40,7 @@
 ;   - eax: 1 if found solution, 0 otherwise
 ; TODO: uzywac krotszych przesłań (WORD zamiast DOWRD)?
 ; TODO: uzywac krotszych rejestrów (AX zamiast EAX)
-sudoku:
+.sudoku:
         push    ebp
         mov     ebp, esp
 
@@ -79,7 +100,7 @@ sudoku:
         push    eax                             ; push (col+1)
         push    esi                             ; push row
         push    ebx                             ; push grid
-        call    sudoku                          ; call sudoku(grid, row, col+1)
+        call    .sudoku                          ; call sudoku(grid, row, col+1)
         add     esp, 12                         ; free stack
         pop     ecx                             ; restore ecx (num)
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
