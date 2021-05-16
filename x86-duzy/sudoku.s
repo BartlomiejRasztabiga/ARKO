@@ -90,7 +90,7 @@ sudoku:
         je     .sudoku_return                   ; if true, return 1
                                                 ; if false, try next number
 .sudoku_find_value_loop_next_num:
-        push    '#'                             ; push '#'
+        push    '#'                             ; push '#' - num
         push    edi                             ; push col
         push    esi                             ; push row
         push    ebx                             ; push grid
