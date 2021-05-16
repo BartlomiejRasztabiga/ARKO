@@ -38,8 +38,7 @@ sudoku:
 ;   - ecx: num (char) local variable
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: uzywac krotszych przesłań (WORD zamiast DOWRD)?
-; TODO: uzywac krotszych rejestrów (AX zamiast EAX)
+; TODO: uzywac krotszych rejestrów dla char
 .sudoku:
         push    ebp
         mov     ebp, esp
