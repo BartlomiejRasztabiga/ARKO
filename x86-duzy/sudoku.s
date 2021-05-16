@@ -145,7 +145,7 @@ isSafe:
         call    getCellValue                    ; call getCellValue(grid, row, col)
         add     esp, 12                         ; free stack
 
-        cmp     bl, al                          ; test if grid[row][x] == num
+        cmp     al, bl                          ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         inc     esi                             ; x++
@@ -160,7 +160,7 @@ isSafe:
         call    getCellValue                    ; call getCellValue(grid, row, col)
         add     esp, 12                         ; free stack
 
-        cmp     bl, al                          ; test if grid[x][col] == num
+        cmp     al, bl                          ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         inc     esi                             ; x++
@@ -200,7 +200,7 @@ isSafe:
         mov     eax, [ebp-8]                    ; eax = startCol
         add     eax, ecx                        ; eax = j + startCol
         mov     eax, [edx+eax]                  ; eax = char from grid' tile at [i + startRow][j + startCol]
-        cmp     bl, al                          ; test if grid[i + startRow][j + startCol] == num
+        cmp     al, bl                          ; test if grid[i + startRow][j + startCol] == num
 
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
