@@ -9,12 +9,12 @@
 ;   - char grid[N][N]   ebp+8
 ;   - unsigned int row  ebp+12
 ;   - unsigned int col  ebp+16
-; variables:
-;   - char num          ebp-4
+; variables: none
 ; registers:
 ;   - ebx: grid argument from ebp+8
 ;   - esi: row argument from  ebp+12
 ;   - edi: col argument from  ebp+16
+;   - ecx: num (char) local variable
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 ; TODO: przejsc bardziej na uzycie rejestrów?
@@ -23,16 +23,17 @@
 sudoku:
         push    ebp
         mov     ebp, esp
-        sub     esp, 8                          ; stack has to be aligned to 16 according to calling convention
+        sub     esp, 8                          ; stack has to be aligned to 16 due to calling convention
 
         push    ebx
         push    esi
         push    edi
+        push    ecx                             ; save extra register - ecx, used by sudoku
 
         mov     ebx, [ebp+8]                    ; ebx = grid
         mov     esi, [ebp+12]                   ; esi = row
         mov     edi, [ebp+16]                   ; edi = col
-
+        mov     ecx, '1'                        ; num = '1'
 .sudoku_find_next_cell:
         cmp     edi, 9                          ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
@@ -53,15 +54,12 @@ sudoku:
         add     esp, 12                         ; free stack
 
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
-        je      .sudoku_find_value              ; if equal, goto .sudoku_find_value
+        je      .sudoku_find_value_loop         ; if equal, goto .sudoku_find_value_loop
 
         inc     edi                             ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
-.sudoku_find_value:
-        mov     BYTE [ebp-4], '1'               ; num = '1'
 .sudoku_find_value_loop:
-        movsx   edx, BYTE [ebp-4]               ; edx = char num
-        push    edx                             ; push num
+        push    ecx                             ; push num
         push    edi                             ; push col
         push    esi                             ; push row
         push    ebx                             ; push grid
@@ -70,7 +68,7 @@ sudoku:
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
-        push    DWORD [ebp-4]                   ; push num
+        push    ecx                             ; push num
         push    edi                             ; push col
         push    esi                             ; push row
         push    ebx                             ; push grid
@@ -97,15 +95,12 @@ sudoku:
         call    setCellValue                    ; call setCellValue(grid, row, col, num)
         add     esp, 16                         ; free stack
 
-        ; num++, try next char
-        movzx   eax, BYTE [ebp-4]               ; eax = num
-        inc     eax                             ; eax++
-        mov     [ebp-4], al                     ; num = num + 1
-
-        cmp     BYTE [ebp-4], '9'               ; test if num <= '9'
+        inc     ecx                             ; num++, try next char
+        cmp     ecx, '9'                        ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
+        pop     ecx                             ; pop extra register - ecx, used by sudoku
         pop     edi
         pop     esi
         pop     ebx
@@ -139,6 +134,7 @@ isSafe:
 
         push    ebx
         push    esi
+        push    ecx                             ; save extra register - ecx, used by sudoku
 
         mov     bl, [ebp+20]                    ; ebx (bl) = char num
         xor     esi, esi                        ; int x = 0
@@ -218,6 +214,7 @@ isSafe:
         jbe     .isSafe_3_3matrix_col_loop_init ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
+        pop     ecx                             ; pop extra register - ecx, used by sudoku
         pop     esi
         pop     ebx
 
