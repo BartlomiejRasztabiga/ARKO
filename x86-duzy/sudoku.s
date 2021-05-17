@@ -78,9 +78,7 @@ sudoku:
         inc     bl                              ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value_loop:
-;        push    cx                              ; push num
         call    isSafe                          ; call isSafe(row, col, num)
-;        pop     cx                              ; restore ecx
 
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
@@ -95,13 +93,14 @@ sudoku:
         mov     [eax], cl                       ; grid[row][col] = cl (num)
 
         ; solve next column
-        push    bx                              ; push col
+        push    bx                              ; save row,col
+        push    cx                              ; save cx (char num)
 
-        inc     bl
-        push    cx                              ; save ecx (num)
+        inc     bl                              ; col++
         call    .sudoku                         ; call .sudoku(grid, row, col+1)
-        pop     cx                              ; restore ecx (num)
-        pop     bx
+
+        pop     cx                              ; restore cx (char num)
+        pop     bx                              ; restore row,col
 
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
 
@@ -150,9 +149,6 @@ sudoku:
 ; TODO: pass col,row by ex register
 ; TODO try to delete local variables
 ; TODO check if we can simplify after refactor
-; TODO save ecx here
-
-; TODO pass char num by cl
 isSafe:
         push    ebp
         mov     ebp, esp
