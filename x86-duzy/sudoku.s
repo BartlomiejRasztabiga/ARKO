@@ -20,9 +20,8 @@ sudoku:
 
         mov     edi, [ebp+8]                    ; edi = grid
         xor     ebx, ebx                        ; bh = row = 0; bl = col = 0;
-        push    bx                              ; row, col argument
+
         call    .sudoku                         ; call recursive helper
-        add     esp, 2                          ; free stack
 
         ; restore callee-saved registers
         pop     edi
@@ -38,11 +37,11 @@ sudoku:
 ;   solves given sudoku matrix
 ; arguments:
 ;   - char grid[N][N]   edi
-;   - unsigned int row  ebp+8
-;   - unsigned int col  ebp+9
+;   - unsigned int row  bh
+;   - unsigned int col  bl
 ; variables: none
 ; registers:
-;   - edi: grid argument from ebp+8
+;   - edi: grid argument
 ;   - bh: row argument
 ;   - bl: col argument
 ;   - ecx: num (char) local variable
@@ -57,8 +56,6 @@ sudoku:
         push    edi
 
         mov     ecx, '1'                        ; num = '1'
-        mov     bh, [ebp+8]
-        mov     bl, [ebp+9]
 .sudoku_find_next_cell:
         cmp     bl, 9                          ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
