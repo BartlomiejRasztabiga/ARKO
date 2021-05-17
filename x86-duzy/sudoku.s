@@ -17,8 +17,8 @@ sudoku:
         push    esi
         push    edi
 
-        xor     esi, esi                        ; row
-        xor     edi, edi                        ; col
+        xor     esi, esi                        ; row = 0
+        xor     edi, edi                        ; col = 0
         push    DWORD [ebp+8]                   ; grid
         call    .sudoku                         ; call recursive helper
 
@@ -68,11 +68,10 @@ sudoku:
         je     .sudoku_return                   ; if last row, return 1
                                                 ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
-        push    edi                             ; push col
-        push    esi                             ; push row
-        push    ebx                             ; push grid
-        call    getCellValue                    ; call getCellValue(grid, row, col)
-        add     esp, 12                         ; free stack
+        ; getCellValue at [row][x]
+        lea     eax, [esi+esi*8]                ; eax = 9 * row
+        lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
+        mov     al, BYTE [edi+eax]              ; al = char from grid's tile at [row][x]
 
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value_loop         ; if equal, goto .sudoku_find_value_loop
