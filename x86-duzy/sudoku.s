@@ -13,12 +13,18 @@ sudoku:
         push    ebp
         mov     ebp, esp
 
-        ; TODO save calee-saved registers
+        ; save callee-saved registers
+        push    esi
+        push    edi
 
         xor     esi, esi                        ; row
         xor     edi, edi                        ; col
         push    DWORD [ebp+8]                   ; grid
         call    .sudoku                         ; call recursive helper
+
+        ; restore callee-saved registers
+        pop     edi
+        pop     esi
 
         leave
         ret
