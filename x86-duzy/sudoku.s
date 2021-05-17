@@ -114,12 +114,11 @@ sudoku:
         je     .sudoku_return                   ; if true, return 1 (1 already in eax)
                                                 ; if false, try next number
 .sudoku_find_value_loop_next_num:
-        push    '#'                             ; push '#' <- num
-        push    edi                             ; push col
-        push    esi                             ; push row
-        push    ebx                             ; push grid
-        call    setCellValue                    ; call setCellValue(grid, row, col, num)
-        add     esp, 16                         ; free stack
+        ; setCellValue at [row][col] <- '#'
+        lea     eax, [esi+esi*8]                ; eax = 9 * row
+        lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
+        lea     eax, [eax+edi]                  ; eax = pointer to grid's tile at [row][col]
+        mov     [eax], BYTE '#'                 ; grid[row][col] = '#'
 
         inc     ecx                             ; num++, try next char
         cmp     ecx, '9'                        ; test if num <= '9'
