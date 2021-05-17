@@ -79,9 +79,7 @@ sudoku:
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value_loop:
         push    ecx                             ; push num
-        push    WORD 0                          ; push nothing
         call    isSafe                          ; call isSafe(row, col, num)
-        add     esp, 2                          ; free stack
         pop     ecx                             ; restore ecx
 
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
@@ -134,7 +132,7 @@ sudoku:
 ;   - char grid[N][N]   edi
 ;   - int col           bl
 ;   - int row           bh
-;   - char num          ebp+10
+;   - char num          ebp+8
 ; variables:
 ;   - byte startCol     ebp-1
 ;   - byte x/startRow   ebp-2
@@ -142,7 +140,7 @@ sudoku:
 ;   - bh: row argument
 ;   - bl: col argument
 ;   - ch: int i <- local variable
-;   - cl: char num from ebp+10
+;   - cl: char num from ebp+8
 ;   - edi: char **grid
 ;   - esi: int j <- local variable
 ; returns:
@@ -152,8 +150,8 @@ sudoku:
 ; TODO: pass col,row by ex register
 ; TODO try to delete local variables
 ; TODO check if we can simplify after refactor
+; TODO save ecx here
 
-; TODO pass col,row by bh,bl
 ; TODO pass char num by cl
 isSafe:
         push    ebp
@@ -165,7 +163,7 @@ isSafe:
         push    esi
         push    edi
 
-        mov     cl, [ebp+10]                    ; ecx (cl) = char num
+        mov     cl, [ebp+8]                     ; ecx (cl) = char num
         mov     BYTE [ebp-2], 0                 ; int x = 0
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
