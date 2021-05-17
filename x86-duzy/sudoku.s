@@ -142,8 +142,8 @@ sudoku:
 ;   - int col           ebp+16
 ;   - char num          ebp+20
 ; registers:
-;   - bl: char num from ebp+20
 ;   - bh: int i <- local variable
+;   - bl: char num from ebp+20
 ;   - esi: int x/int startRow
 ;   - edi: int startCol
 ; returns:
