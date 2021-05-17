@@ -133,8 +133,8 @@ sudoku:
 ;   - int row           bh
 ;   - char num          cl
 ; variables:
-;   - byte startCol     esp+11
-;   - byte x/startRow   esp+12
+;   - byte startCol     esp+12
+;   - byte x/startRow   esp+13
 ; registers:
 ;   - bh: row argument
 ;   - bl: col argument
@@ -144,12 +144,11 @@ sudoku:
 ;   - esi: int j <- local variable
 ; returns:
 ;   - eax: 1 if legal, 0 otherwise
-; TODO try to pass arguments through registers
 ; TODO try to return by EFLAGS, not return value
-; TODO: pass col,row by ex register
-; TODO try to delete local variables
-; TODO check if we can simplify after refactor
+
 ; TODO use ebp to avoid using local variables
+; TODO check if we can simplify after refactor
+; TODO try to delete local variables
 isSafe:
         sub     esp, 2
 
