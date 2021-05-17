@@ -13,11 +13,10 @@ sudoku:
         push    ebp
         mov     ebp, esp
 
-        push    0
-        push    0
-        push    DWORD [ebp+8]
-
-        call    .sudoku
+        xor     esi, esi                        ; row
+        xor     edi, edi                        ; col
+        push    DWORD [ebp+8]                   ; grid
+        call    .sudoku                         ; call recursive helper
 
         leave
         ret
@@ -28,8 +27,8 @@ sudoku:
 ;   solves given sudoku matrix
 ; arguments:
 ;   - char grid[N][N]   ebp+8
-;   - unsigned int row  ebp+12
-;   - unsigned int col  ebp+16
+;   - unsigned int row  esi
+;   - unsigned int col  edi
 ; variables: none
 ; registers:
 ;   - ebx: grid argument from ebp+8
@@ -47,8 +46,6 @@ sudoku:
         push    edi
 
         mov     ebx, [ebp+8]                    ; ebx = grid
-        mov     esi, [ebp+12]                   ; esi = row
-        mov     edi, [ebp+16]                   ; edi = col
         mov     ecx, '1'                        ; num = '1'
 .sudoku_find_next_cell:
         cmp     edi, 9                          ; test if col == 9
