@@ -241,31 +241,3 @@ isSafe:
 
         leave
         ret
-
-; ============================================================================
-; setCellValue
-; description:
-;   set char at sudoku[row][col]
-; arguments:
-;   - char grid[N][N]   ebp+8
-;   - unsigned int row  ebp+12
-;   - unsigned int col  ebp+16
-;   - char value        ebp+20
-; returns: none
-setCellValue:
-; TODO pass arguments through registers -> try to inline
-; TODO row, col, value should be BYTEs
-        push    ebp
-        mov     ebp, esp
-
-        mov     edx, [ebp+12]                   ; edx = int row
-        lea     edx, [edx+edx*8]                ; edx = 9 * row
-        mov     eax, [ebp+8]                    ; eax = pointer to grid
-        lea     edx, [edx+eax]                  ; edx = pointer to grid's row
-        mov     eax, [ebp+16]                   ; eax = int col
-        lea     edx, [edx+eax]                  ; edx = pointer to grid's tile at [row][col]
-        mov     eax, [ebp+20]                   ; eax = char to insert
-        mov     [edx], al                       ; grid[row][col] = eax (num)
-
-        leave
-        ret                                     ; return
