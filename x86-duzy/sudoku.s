@@ -10,6 +10,8 @@
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 sudoku:
+; TODO Use shorter registers?
+; TODO lea with 8/16 bits?
         ; save callee-saved registers
         push    ebx
         push    esi
