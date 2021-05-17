@@ -151,6 +151,7 @@ sudoku:
 ;   - eax: 1 if legal, 0 otherwise
 ; TODO try to pass arguments through registers
 ; TODO try to return by EFLAGS, not return value
+; TODO try to get rid of local variables
 isSafe:
         push    ebp
         mov     ebp, esp
