@@ -96,19 +96,20 @@ sudoku:
         mov     eax, edi                        ; eax = int col
         inc     eax                             ; eax = col + 1
         push    ecx                             ; save ecx (num)
+
         push    eax                             ; push (col+1)
         push    esi                             ; push row
         push    ebx                             ; push grid
-        call    .sudoku                          ; call sudoku(grid, row, col+1)
+        call    .sudoku                         ; call .sudoku(grid, row, col+1)
         add     esp, 12                         ; free stack
+
         pop     ecx                             ; restore ecx (num)
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
 
-        mov     eax, 1
-        je     .sudoku_return                   ; if true, return 1
+        je     .sudoku_return                   ; if true, return 1 (1 already in eax)
                                                 ; if false, try next number
 .sudoku_find_value_loop_next_num:
-        push    '#'                             ; push '#' - num
+        push    '#'                             ; push '#' <- num
         push    edi                             ; push col
         push    esi                             ; push row
         push    ebx                             ; push grid
@@ -130,7 +131,7 @@ sudoku:
 ; ============================================================================
 ; isSafe
 ; description:
-;   checks whether it will be legal to assign num to the given row, col
+;   checks whether it will be legal to assign num to the given [row][col]
 ; arguments:
 ;   - char grid[N][N]   ebp+8
 ;   - int row           ebp+12
