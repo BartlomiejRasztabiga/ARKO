@@ -6,19 +6,16 @@
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char grid[N][N]   ebp+8
+;   - char grid[N][N]   esp+20
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 sudoku:
-        push    ebp
-        mov     ebp, esp
-
         ; save callee-saved registers
         push    ebx
         push    esi
         push    edi
 
-        mov     edi, [ebp+8]                    ; edi = grid
+        mov     edi, [esp+16]                   ; edi = grid
         xor     ebx, ebx                        ; bh = row = 0; bl = col = 0;
 
         call    .sudoku                         ; call recursive helper
@@ -28,7 +25,6 @@ sudoku:
         pop     esi
         pop     ebx
 
-        leave
         ret
 
 ; ============================================================================
@@ -135,7 +131,7 @@ sudoku:
 ;   - bh: row argument
 ;   - bl: col argument
 ;   - ch: int i <- local variable
-;   - cl: char num from ebp+8
+;   - cl: char num
 ;   - edi: char **grid
 ;   - esi: int j <- local variable
 ; returns:
