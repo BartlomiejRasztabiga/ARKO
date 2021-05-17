@@ -93,14 +93,10 @@ sudoku:
 
 
         ; setCellValue at [row][col] <- num
-        mov     edx, esi                        ; edx = int row
-        lea     edx, [edx+edx*8]                ; edx = 9 * row
-        mov     eax, ebx                        ; eax = pointer to grid
-        lea     edx, [edx+eax]                  ; edx = pointer to grid's row
-        mov     eax, edi                        ; eax = int col
-        lea     edx, [edx+eax]                  ; edx = pointer to grid's tile at [row][col]
-        mov     eax, ecx                        ; eax = char to insert
-        mov     [edx], al                       ; grid[row][col] = eax (num)
+        lea     edx, [esi+esi*8]                ; edx = 9 * row
+        lea     edx, [edx+ebx]                  ; edx = pointer to grid's row
+        lea     edx, [edx+edi]                  ; edx = pointer to grid's tile at [row][col]
+        mov     [edx], cl                       ; grid[row][col] = cl (num)
 
 
                                                 ; solve next column
