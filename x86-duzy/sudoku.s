@@ -149,7 +149,6 @@ isSafe:
         push    edi
 
         mov     BYTE [esp+12], 8                ; int x = 8
-        ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   eax, bh                         ; eax = row
@@ -203,7 +202,7 @@ isSafe:
         mov     eax, esi                        ; eax = esi
         mov     [esp+13], al                    ; startCol = esi
 
-        mov     ch, 0                           ; i = 0
+        xor     ch, ch                          ; i = 0
 .isSafe_box_loop_init:
         xor     esi, esi                        ; j = 0
 .isSafe_box_loop:
