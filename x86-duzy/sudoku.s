@@ -13,6 +13,8 @@ sudoku:
         push    ebp
         mov     ebp, esp
 
+        ; TODO save calee-saved registers
+
         xor     esi, esi                        ; row
         xor     edi, edi                        ; col
         push    DWORD [ebp+8]                   ; grid
@@ -135,13 +137,15 @@ sudoku:
 ;   - int col           ebp+16
 ;   - char num          ebp+20
 ; variables:
-;   - int i             ebp-4
+;   - int i             ebp-4 ;TODO use BYTE register
 ; registers:
 ;   - bl: char num from ebp+20
 ;   - esi: int x/int startRow
 ;   - edi: int startCol
 ; returns:
 ;   - eax: 1 if legal, 0 otherwise
+; TODO try to pass arguments through registers
+; TODO try to return by EFLAGS, not return value
 isSafe:
         push    ebp
         mov     ebp, esp
@@ -154,6 +158,7 @@ isSafe:
         mov     bl, [ebp+20]                    ; ebx (bl) = char num
         xor     esi, esi                        ; int x = 0
         mov     edi, [ebp+8]                    ; edi = grid
+        ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         push    esi                             ; push x
         push    DWORD [ebp+12]                  ; push row
@@ -243,6 +248,8 @@ isSafe:
 ; returns:
 ;   - al: char from grid[row][col]
 getCellValue:
+; TODO pass arguments through registers -> try to inline
+; TODO row and col should be BYTEs
         push    ebp
         mov     ebp, esp
 
@@ -267,6 +274,8 @@ getCellValue:
 ;   - char value        ebp+20
 ; returns: none
 setCellValue:
+; TODO pass arguments through registers -> try to inline
+; TODO row, col, value should be BYTEs
         push    ebp
         mov     ebp, esp
 
