@@ -132,7 +132,7 @@ sudoku:
 ; description:
 ;   checks whether it will be legal to assign num to the given [row][col]
 ; arguments:
-;   - char grid[N][N]   ebp+8
+;   - char grid[N][N]   edi
 ;   - int col           ebp+12
 ;   - int row           ebp+13
 ;   - char num          ebp+14
@@ -140,7 +140,9 @@ sudoku:
 ;   - bh: int i <- local variable
 ;   - bl: char num from ebp+14
 ;   - cl: int x/int startRow
+;   - ch: int startCol
 ;   - edi: char **grid/int startCol
+;   - esi: int j <- local variable
 ; returns:
 ;   - eax: 1 if legal, 0 otherwise
 ; TODO try to pass arguments through registers
@@ -156,7 +158,6 @@ isSafe:
 
         mov     bl, [ebp+14]                    ; ebx (bl) = char num
         xor     cl, cl                        ; int x = 0
-        mov     edi, [ebp+8]                    ; edi = grid
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
