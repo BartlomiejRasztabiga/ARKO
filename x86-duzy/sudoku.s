@@ -165,11 +165,11 @@ isSafe:
         mov     edi, [ebp+8]                    ; edi = grid
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
-        push    esi                             ; push x
-        push    DWORD [ebp+12]                  ; push row
-        push    edi                             ; push grid
-        call    getCellValue                    ; call getCellValue(grid, row, col)
-        add     esp, 12                         ; free stack
+        ; al = getCellValue at [row][x]
+        mov     eax, [ebp+12]                   ; eax = row
+        lea     eax, [eax+eax*8]                ; eax = 9 * row
+        lea     eax, [eax+edi]                  ; eax = pointer to grid's row
+        mov     al, BYTE [esi+eax]              ; al = char from grid's tile at [row][x]
 
         cmp     al, bl                          ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
