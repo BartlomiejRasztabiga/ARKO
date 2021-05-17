@@ -186,12 +186,6 @@ isSafe:
         mov     ecx, [ebp+16]                   ; ecx = col
         mov     al, BYTE [eax+ecx]              ; al = char from grid's tile at [x][col]
 
-;        push    DWORD [ebp+16]                  ; push col
-;        push    esi                             ; push x
-;        push    edi                             ; push grid
-;        call    getCellValue                    ; call getCellValue(grid, row, col)
-;        add     esp, 12                         ; free stack
-
         cmp     al, bl                          ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
