@@ -18,12 +18,9 @@ sudoku:
         push    esi
         push    edi
 
-        xor     ebx, ebx
-
         mov     edi, [ebp+8]                    ; edi = grid
-        xor     bh, bh                          ; bh = row = 0
-        xor     bl, bl                          ; bl = col = 0
-        push    bx
+        xor     ebx, ebx                        ; bh = row = 0; bl = col = 0;
+        push    bx                              ; row, col argument
         call    .sudoku                         ; call recursive helper
         add     esp, 2                          ; free stack
 
@@ -108,9 +105,6 @@ sudoku:
         mov     [eax], cl                       ; grid[row][col] = cl (num)
 
         ; solve next column
-;        movzx   eax, bl                        ; eax = int col
-;        inc     eax                             ; eax = col + 1
-;        inc     bl                              ; col++
         push    bx                             ; push (col+1)
 
         inc     bl
@@ -118,7 +112,6 @@ sudoku:
         call    .sudoku                         ; call .sudoku(grid, row, col+1)
         pop     ecx                             ; restore ecx (num)
         pop     bx
-        ;add     esp, 2                         ; free stack
 
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
 
