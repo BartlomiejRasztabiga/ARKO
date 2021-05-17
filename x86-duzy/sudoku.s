@@ -161,7 +161,7 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        sub     BYTE [esp+12], 1                ; x--
+        dec     BYTE [esp+12]                   ; x--
         cmp     BYTE [esp+12], 0                ; if x > 0
         jge     .isSafe_row_loop                ; goto loop if condition met
 
@@ -178,7 +178,7 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        sub     BYTE [esp+12], 1                ; x--
+        dec     BYTE [esp+12]                   ; x--
         cmp     BYTE [esp+12], 0                ; if x > 0
         jge     .isSafe_col_loop                ; goto loop if condition met
 
@@ -202,9 +202,9 @@ isSafe:
         mov     eax, esi                        ; eax = esi
         mov     [esp+13], al                    ; startCol = esi
 
-        xor     ch, ch                          ; i = 0
+        mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
-        xor     esi, esi                        ; j = 0
+        mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
         movzx   edx, ch                         ; edx = i
         movzx   ebx, BYTE [esp+12]              ; ebx = startRow
@@ -219,13 +219,13 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
 
-        inc     esi                             ; j++
-        cmp     esi, 2                          ; test j <= 2
-        jbe     .isSafe_box_loop                ; if true, go back to loop
+        dec     esi                             ; j--
+        cmp     esi, 0                          ; test j > 0
+        jge     .isSafe_box_loop                ; if true, go back to loop
 
-        inc     ch                              ; else i++
-        cmp     ch, 2                           ; test i <= 2
-        jbe     .isSafe_box_loop_init           ; if true, go back to loop
+        dec     ch                              ; else i--
+        cmp     ch, 0                           ; test i > 0
+        jge     .isSafe_box_loop_init           ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
         pop     edi
