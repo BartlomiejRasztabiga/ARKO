@@ -148,7 +148,7 @@ isSafe:
         push    esi
         push    edi
 
-        mov     BYTE [esp+12], 0                ; int x = 0
+        mov     BYTE [esp+12], 8                ; int x = 8
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
@@ -162,11 +162,11 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        inc     BYTE [esp+12]                   ; x++
-        cmp     BYTE [esp+12], 8                ; if x <= 8
-        jle     .isSafe_row_loop                ; goto loop if condition met
+        sub     BYTE [esp+12], 1                ; x--
+        cmp     BYTE [esp+12], 0                ; if x > 0
+        jge     .isSafe_row_loop                ; goto loop if condition met
 
-        mov     BYTE [esp+12], 0                ; int x = 0
+        mov     BYTE [esp+12], 8                ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
         movzx   esi, BYTE [esp+12]              ; esi = x
@@ -179,9 +179,9 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        inc     BYTE [esp+12]                   ; x++
-        cmp     BYTE [esp+12], 8                ; if x <= 8
-        jle     .isSafe_col_loop                ; goto loop if condition met
+        sub     BYTE [esp+12], 1                ; x--
+        cmp     BYTE [esp+12], 0                ; if x > 0
+        jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
         mov     esi, 3
