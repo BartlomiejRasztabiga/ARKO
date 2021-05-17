@@ -136,7 +136,6 @@ sudoku:
 ;   - char num          ebp+20
 ; variables:
 ;   - int i             ebp-4
-;   - int j             ebp-8
 ; registers:
 ;   - bl: char num from ebp+20
 ;   - esi: int x/int startRow
@@ -146,7 +145,7 @@ sudoku:
 isSafe:
         push    ebp
         mov     ebp, esp
-        sub     esp, 8
+        sub     esp, 4
 
         push    ebx
         push    esi
@@ -201,24 +200,25 @@ isSafe:
         mov     ecx, [ebp+16]                   ; ecx = int col
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     edi, ecx                        ; startCol = ecx
+
         mov     DWORD [ebp-4], 0                ; i = 0
 .isSafe_box_loop_init:
-        mov     DWORD [ebp-8], 0                ; j = 0
+        mov     ecx, 0                          ; j = 0
 .isSafe_box_loop:
         mov     edx, [ebp-4]                    ; edx = i
         lea     edx, [edx+esi]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         add     edx, [ebp+8]                    ; edx = pointer to grid's row
 
-        mov     eax, [ebp-8]                    ; ecx = j
+        mov     eax, ecx                        ; eax = j
         lea     eax, [eax+edi]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], bl              ; test if grid[i + startRow][j + startCol] == num
 
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
 
-        inc     DWORD [ebp-8]                   ; j++
-        cmp     DWORD [ebp-8], 2                ; test j <= 2
+        inc     ecx                             ; j++
+        cmp     ecx, 2                          ; test j <= 2
         jbe     .isSafe_box_loop                ; if true, go back to loop
 
         inc     DWORD [ebp-4]                   ; else i++
