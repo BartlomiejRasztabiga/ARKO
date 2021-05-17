@@ -151,7 +151,6 @@ sudoku:
 ; TODO: pass col,row by ex register
 ; TODO try to delete local variables
 
-; TODO move cl to ebp-2
 ; TODO move bh+bl to ch+c;
 ; TODO pass col,row by bh,bl
 isSafe:
