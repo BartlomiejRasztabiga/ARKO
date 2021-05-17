@@ -14,17 +14,20 @@ sudoku:
         mov     ebp, esp
 
         ; save callee-saved registers
+        push    ebx
         push    esi
         push    edi
 
+        mov     edi, [ebp+8]                    ; grid
+
         xor     esi, esi                        ; row = 0
-        xor     edi, edi                        ; col = 0
-        push    DWORD [ebp+8]                   ; grid
+        xor     ebx, ebx                        ; col = 0
         call    .sudoku                         ; call recursive helper
 
         ; restore callee-saved registers
         pop     edi
         pop     esi
+        pop     ebx
 
         leave
         ret
@@ -36,12 +39,12 @@ sudoku:
 ; arguments:
 ;   - char grid[N][N]   ebp+8
 ;   - unsigned int row  esi
-;   - unsigned int col  edi
+;   - unsigned int col  ebx
 ; variables: none
 ; registers:
-;   - ebx: grid argument from ebp+8
+;   - edi: grid argument from ebp+8
 ;   - esi: row argument from  ebp+12
-;   - edi: col argument from  ebp+16
+;   - ebx: col argument from  ebp+16
 ;   - ecx: num (char) local variable
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
@@ -53,14 +56,13 @@ sudoku:
         push    esi
         push    edi
 
-        mov     ebx, [ebp+8]                    ; ebx = grid
         mov     ecx, '1'                        ; num = '1'
 .sudoku_find_next_cell:
-        cmp     edi, 9                          ; test if col == 9
+        cmp     ebx, 9                          ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
         inc     esi                             ; row++
-        xor     edi, edi                        ; col = 0
+        xor     ebx, ebx                        ; col = 0
 
         cmp     esi, 9                          ; test if row == 9
 
@@ -70,19 +72,19 @@ sudoku:
 .sudoku_not_finished:
         ; al = getCellValue at [row][x]
         lea     eax, [esi+esi*8]                ; eax = 9 * row
-        lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
-        mov     al, BYTE [eax+edi]              ; al = char from grid's tile at [row][x]
+        lea     eax, [eax+edi]                  ; eax = pointer to grid's row
+        mov     al, BYTE [eax+ebx]              ; al = char from grid's tile at [row][x]
 
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value_loop         ; if equal, goto .sudoku_find_value_loop
 
-        inc     edi                             ; col++
+        inc     ebx                             ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value_loop:
         push    ecx                             ; push num
-        push    edi                             ; push col
+        push    ebx                             ; push col
         push    esi                             ; push row
-        push    ebx                             ; push grid
+        push    edi                             ; push grid
         call    isSafe                          ; call isSafe(grid, row, col, num)
         add     esp, 12                         ; free stack
         pop     ecx                             ; restore ecx
@@ -93,18 +95,18 @@ sudoku:
 
         ; setCellValue at [row][col] <- num
         lea     eax, [esi+esi*8]                ; eax = 9 * row
-        lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
-        lea     eax, [eax+edi]                  ; eax = pointer to grid's tile at [row][col]
+        lea     eax, [eax+edi]                  ; eax = pointer to grid's row
+        lea     eax, [eax+ebx]                  ; eax = pointer to grid's tile at [row][col]
         mov     [eax], cl                       ; grid[row][col] = cl (num)
 
         ; solve next column
-        mov     eax, edi                        ; eax = int col
+        mov     eax, ebx                        ; eax = int col
         inc     eax                             ; eax = col + 1
         push    ecx                             ; save ecx (num)
 
         push    eax                             ; push (col+1)
         push    esi                             ; push row
-        push    ebx                             ; push grid
+        push    edi                             ; push grid
         call    .sudoku                         ; call .sudoku(grid, row, col+1)
         add     esp, 12                         ; free stack
 
@@ -116,8 +118,8 @@ sudoku:
 .sudoku_find_value_loop_next_num:
         ; setCellValue at [row][col] <- '#'
         lea     eax, [esi+esi*8]                ; eax = 9 * row
-        lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
-        lea     eax, [eax+edi]                  ; eax = pointer to grid's tile at [row][col]
+        lea     eax, [eax+edi]                  ; eax = pointer to grid's row
+        lea     eax, [eax+ebx]                  ; eax = pointer to grid's tile at [row][col]
         mov     [eax], BYTE '#'                 ; grid[row][col] = '#'
 
         inc     ecx                             ; num++, try next char
