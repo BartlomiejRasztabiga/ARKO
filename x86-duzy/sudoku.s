@@ -97,7 +97,7 @@ sudoku:
         lea     eax, [eax+edi]                  ; eax = pointer to grid's tile at [row][col]
         mov     [eax], cl                       ; grid[row][col] = cl (num)
 
-                                                ; solve next column
+        ; solve next column
         mov     eax, edi                        ; eax = int col
         inc     eax                             ; eax = col + 1
         push    ecx                             ; save ecx (num)
