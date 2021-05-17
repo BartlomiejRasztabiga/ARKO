@@ -133,8 +133,8 @@ sudoku:
 ;   - int row           bh
 ;   - char num          cl
 ; variables:
-;   - byte startCol     ebp-1
-;   - byte x/startRow   ebp-2
+;   - byte startCol     esp+11
+;   - byte x/startRow   esp+12
 ; registers:
 ;   - bh: row argument
 ;   - bl: col argument
@@ -149,38 +149,36 @@ sudoku:
 ; TODO: pass col,row by ex register
 ; TODO try to delete local variables
 ; TODO check if we can simplify after refactor
+; TODO use ebp to avoid using local variables
 isSafe:
-        push    ebp
-        mov     ebp, esp
-
         sub     esp, 2
 
         push    ebx
         push    esi
         push    edi
 
-        mov     BYTE [ebp-2], 0                 ; int x = 0
+        mov     BYTE [esp+12], 0                ; int x = 0
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   eax, bh                         ; eax = row
         lea     eax, [eax+eax*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, BYTE [ebp-2]               ; esi = x
+        movzx   esi, BYTE [esp+12]              ; esi = x
         mov     al, [eax+esi]                   ; al = char from grid's tile at [row][x]
 
         cmp     al, cl                          ; test if grid[row][x] == num
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        inc     BYTE [ebp-2]                    ; x++
-        cmp     BYTE [ebp-2], 8                 ; if x <= 8
+        inc     BYTE [esp+12]                   ; x++
+        cmp     BYTE [esp+12], 8                ; if x <= 8
         jle     .isSafe_row_loop                ; goto loop if condition met
 
-        mov     BYTE [ebp-2], 0                 ; int x = 0
+        mov     BYTE [esp+12], 0                ; int x = 0
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        movzx   esi, BYTE [ebp-2]               ; esi = x
+        movzx   esi, BYTE [esp+12]              ; esi = x
         lea     eax, [esi+esi*8]                ; eax = 9 * x
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         movzx   esi, bl                         ; esi = col
@@ -190,8 +188,8 @@ isSafe:
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        inc     BYTE [ebp-2]                    ; x++
-        cmp     BYTE [ebp-2], 8                 ; if x <= 8
+        inc     BYTE [esp+12]                   ; x++
+        cmp     BYTE [esp+12], 8                ; if x <= 8
         jle     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
@@ -202,7 +200,7 @@ isSafe:
         movzx   esi, bh                         ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     [ebp-2], al                     ; startRow = al
+        mov     [esp+12], al                    ; startRow = al
 
 ; int startCol = col - col % 3
         mov     esi, 3
@@ -212,19 +210,19 @@ isSafe:
         movzx   esi, bl                         ; esi = int col
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     [ebp-1], al                     ; startCol = esi
+        mov     [esp+13], al                    ; startCol = esi
 
         mov     ch, 0                           ; i = 0
 .isSafe_box_loop_init:
         xor     esi, esi                        ; j = 0
 .isSafe_box_loop:
         movzx   edx, ch                         ; edx = i
-        movzx   ebx, BYTE [ebp-2]               ; ebx = startRow
+        movzx   ebx, BYTE [esp+12]              ; ebx = startRow
         lea     edx, [edx+ebx]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
-        movzx   eax, BYTE [ebp-1]               ; eax = startCol
+        movzx   eax, BYTE [esp+13]              ; eax = startCol
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
@@ -244,5 +242,6 @@ isSafe:
         pop     esi
         pop     ebx
 
-        leave
+        add     esp, 2
+
         ret
