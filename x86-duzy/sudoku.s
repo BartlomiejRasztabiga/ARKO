@@ -38,7 +38,6 @@ sudoku:
 ;   - ecx: num (char) local variable
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
-; TODO: use shorter registers, shorter variables/arguments
 .sudoku:
         push    ebp
         mov     ebp, esp
