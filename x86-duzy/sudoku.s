@@ -168,7 +168,7 @@ isSafe:
         cmp     esi, 8                          ; if x <= 8
         jle     .isSafe_row_loop                ; goto loop if condition met
 
-        mov     esi, 0                          ; int x = 0
+        xor     esi, esi                        ; int x = 0
 .isSafe_col_loop:
         push    DWORD [ebp+16]                  ; push col
         push    esi                             ; push x
@@ -203,7 +203,7 @@ isSafe:
 
         mov     DWORD [ebp-4], 0                ; i = 0
 .isSafe_box_loop_init:
-        mov     ecx, 0                          ; j = 0
+        xor     ecx, ecx                        ; j = 0
 .isSafe_box_loop:
         mov     edx, [ebp-4]                    ; edx = i
         lea     edx, [edx+esi]                  ; edx = i + startRow
