@@ -141,7 +141,6 @@ sudoku:
 ; registers:
 ;   - bh: int i <- local variable
 ;   - bl: char num from ebp+10
-;   - cl: int x/int startRow
 ;   - edi: char **grid
 ;   - esi: int j <- local variable
 ; returns:
