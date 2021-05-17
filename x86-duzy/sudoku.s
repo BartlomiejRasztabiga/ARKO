@@ -90,12 +90,19 @@ sudoku:
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
-        push    ecx                             ; push num
-        push    edi                             ; push col
-        push    esi                             ; push row
-        push    ebx                             ; push grid
-        call    setCellValue                    ; call setCellValue(grid, row, col, num)
-        add     esp, 16                         ; free stack
+
+
+        ; setCellValue at [row][col] <- num
+        mov     edx, esi                        ; edx = int row
+        lea     edx, [edx+edx*8]                ; edx = 9 * row
+        mov     eax, ebx                        ; eax = pointer to grid
+        lea     edx, [edx+eax]                  ; edx = pointer to grid's row
+        mov     eax, edi                        ; eax = int col
+        lea     edx, [edx+eax]                  ; edx = pointer to grid's tile at [row][col]
+        mov     eax, ecx                        ; eax = char to insert
+        mov     [edx], al                       ; grid[row][col] = eax (num)
+
+
                                                 ; solve next column
         mov     eax, edi                        ; eax = int col
         inc     eax                             ; eax = col + 1
