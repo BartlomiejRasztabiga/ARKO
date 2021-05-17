@@ -57,13 +57,13 @@ sudoku:
 
         mov     ecx, '1'                        ; num = '1'
 .sudoku_find_next_cell:
-        cmp     bl, 9                          ; test if col == 9
+        cmp     bl, 9                           ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
 
-        inc     bh                             ; row++
-        xor     bl, bl                        ; col = 0
+        inc     bh                              ; row++
+        xor     bl, bl                          ; col = 0
 
-        cmp     bh, 9                          ; test if row == 9
+        cmp     bh, 9                           ; test if row == 9
 
         mov     eax, 1
         je     .sudoku_return                   ; if last row, return 1
@@ -79,14 +79,14 @@ sudoku:
         cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value_loop         ; if equal, goto .sudoku_find_value_loop
 
-        inc     bl                             ; col++
+        inc     bl                              ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value_loop:
         push    ecx                             ; push num
-        push    bx                             ; push row,col
+        push    bx                              ; push row,col
         push    edi                             ; push grid
         call    isSafe                          ; call isSafe(grid, row, col, num)
-        add     esp, 6                         ; free stack
+        add     esp, 6                          ; free stack
         pop     ecx                             ; restore ecx
 
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
@@ -102,7 +102,7 @@ sudoku:
         mov     [eax], cl                       ; grid[row][col] = cl (num)
 
         ; solve next column
-        push    bx                             ; push (col+1)
+        push    bx                              ; push (col+1)
 
         inc     bl
         push    ecx                             ; save ecx (num)
@@ -167,7 +167,7 @@ isSafe:
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
-        movzx   eax, BYTE [ebp+13]                   ; eax = row
+        movzx   eax, BYTE [ebp+13]              ; eax = row
         lea     eax, [eax+eax*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         mov     al, BYTE [eax+ecx]              ; al = char from grid's tile at [row][x]
@@ -185,7 +185,7 @@ isSafe:
         ; al = getCellValue at [x][col]
         lea     eax, [ecx+ecx*8]                ; eax = 9 * x
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, BYTE [ebp+12]                   ; esi = col
+        movzx   esi, BYTE [ebp+12]              ; esi = col
         mov     al, BYTE [eax+esi]              ; al = char from grid's tile at [x][col]
 
         cmp     al, bl                          ; test if grid[x][col] == num
@@ -198,19 +198,19 @@ isSafe:
 
 ; int startRow = row - row % 3
         mov     esi, 3
-        movzx     eax, BYTE [ebp+13]                   ; eax = int row
+        movzx   eax, BYTE [ebp+13]              ; eax = int row
         xor     edx, edx                        ; edx = 0
         div     esi                             ; edx = row % 3
-        movzx     esi, BYTE [ebp+13]                   ; esi = int row
+        movzx   esi, BYTE [ebp+13]              ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     ecx, esi                        ; startRow = esi
 
 ; int startCol = col - col % 3
         mov     esi, 3
-        movzx     eax, BYTE [ebp+12]                   ; eax = int col
+        movzx   eax, BYTE [ebp+12]              ; eax = int col
         xor     edx, edx                        ; edx = 0
         div     esi                             ; edx = col % 3
-        movzx    esi, BYTE [ebp+12]                   ; esi = int col
+        movzx   esi, BYTE [ebp+12]              ; esi = int col
         sub     esi, edx                        ; esi = esi - edx
         mov     edi, esi                        ; startCol = esi
 
