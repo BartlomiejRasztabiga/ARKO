@@ -78,9 +78,9 @@ sudoku:
         inc     bl                              ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value_loop:
-        push    cx                              ; push num
+;        push    cx                              ; push num
         call    isSafe                          ; call isSafe(row, col, num)
-        pop     cx                              ; restore ecx
+;        pop     cx                              ; restore ecx
 
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
@@ -95,7 +95,7 @@ sudoku:
         mov     [eax], cl                       ; grid[row][col] = cl (num)
 
         ; solve next column
-        push    bx                              ; push (col+1)
+        push    bx                              ; push col
 
         inc     bl
         push    cx                              ; save ecx (num)
