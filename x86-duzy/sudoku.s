@@ -18,10 +18,9 @@ sudoku:
         push    esi
         push    edi
 
-        mov     edi, [ebp+8]                    ; grid
-
-        xor     esi, esi                        ; row = 0
-        xor     ebx, ebx                        ; col = 0
+        mov     edi, [ebp+8]                    ; edi = grid
+        xor     esi, esi                        ; esi = row = 0
+        xor     ebx, ebx                        ; ebx = col = 0
         call    .sudoku                         ; call recursive helper
 
         ; restore callee-saved registers
