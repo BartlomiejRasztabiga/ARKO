@@ -39,7 +39,6 @@ sudoku:
 ;   - char grid[N][N]   edi
 ;   - unsigned int row  bh
 ;   - unsigned int col  bl
-; variables: none
 ; registers:
 ;   - edi: grid argument
 ;   - bh: row argument
