@@ -141,10 +141,9 @@ sudoku:
 ;   - int row           ebp+12
 ;   - int col           ebp+16
 ;   - char num          ebp+20
-; variables:
-;   - int i             ebp-4 ;TODO use BYTE register
 ; registers:
 ;   - bl: char num from ebp+20
+;   - bh: int i <- local variable
 ;   - esi: int x/int startRow
 ;   - edi: int startCol
 ; returns:
@@ -155,7 +154,6 @@ sudoku:
 isSafe:
         push    ebp
         mov     ebp, esp
-        sub     esp, 4
 
         push    ebx
         push    esi
@@ -212,11 +210,11 @@ isSafe:
         sub     ecx, edx                        ; ecx = ecx - edx
         mov     edi, ecx                        ; startCol = ecx
 
-        mov     DWORD [ebp-4], 0                ; i = 0
+        mov     bh, 0                           ; i = 0
 .isSafe_box_loop_init:
         xor     ecx, ecx                        ; j = 0
 .isSafe_box_loop:
-        mov     edx, [ebp-4]                    ; edx = i
+        movzx   edx, bh                         ; edx = i
         lea     edx, [edx+esi]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         add     edx, [ebp+8]                    ; edx = pointer to grid's row
@@ -231,8 +229,8 @@ isSafe:
         cmp     ecx, 2                          ; test j <= 2
         jbe     .isSafe_box_loop                ; if true, go back to loop
 
-        inc     DWORD [ebp-4]                   ; else i++
-        cmp     DWORD [ebp-4], 2                ; test i <= 2
+        inc     bh                              ; else i++
+        cmp     bh, 2                           ; test i <= 2
         jbe     .isSafe_box_loop_init           ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
