@@ -48,9 +48,6 @@ sudoku:
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 .sudoku:
-        push    ebp
-        mov     ebp, esp
-
         mov     cl, '1'                         ; num = '1'
 .sudoku_find_next_cell:
         cmp     bl, 9                           ; test if col == 9
@@ -120,7 +117,6 @@ sudoku:
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
-        leave
         ret
 
 ; ============================================================================
