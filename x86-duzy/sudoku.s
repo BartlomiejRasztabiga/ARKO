@@ -173,7 +173,7 @@ isSafe:
         lea     eax, [eax+eax*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         movzx   esi, BYTE [ebp-2]               ; esi = x
-        mov     al, BYTE [eax+esi]              ; al = char from grid's tile at [row][x]
+        mov     al, [eax+esi]                   ; al = char from grid's tile at [row][x]
 
         cmp     al, bl                          ; test if grid[row][x] == num
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
@@ -190,7 +190,7 @@ isSafe:
         lea     eax, [esi+esi*8]                ; eax = 9 * x
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         movzx   esi, BYTE [ebp+8]               ; esi = col
-        mov     al, BYTE [eax+esi]              ; al = char from grid's tile at [x][col]
+        mov     al, [eax+esi]                   ; al = char from grid's tile at [x][col]
 
         cmp     al, bl                          ; test if grid[x][col] == num
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
@@ -208,7 +208,7 @@ isSafe:
         movzx   esi, BYTE [ebp+9]               ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     BYTE [ebp-2], al                ; startRow = al
+        mov     [ebp-2], al                     ; startRow = al
 
 ; int startCol = col - col % 3
         mov     esi, 3
