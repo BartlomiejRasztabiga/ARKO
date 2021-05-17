@@ -68,7 +68,7 @@ sudoku:
         je     .sudoku_return                   ; if last row, return 1
                                                 ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
-        ; getCellValue at [row][x]
+        ; al = getCellValue at [row][x]
         lea     eax, [esi+esi*8]                ; eax = 9 * row
         lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
         mov     al, BYTE [edi+eax]              ; al = char from grid's tile at [row][x]
