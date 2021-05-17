@@ -45,15 +45,12 @@ sudoku:
 ;   - bh: row argument
 ;   - bl: col argument
 ;   - ecx: num (char) local variable
+;   - esi: tmp register
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 .sudoku:
         push    ebp
         mov     ebp, esp
-
-        push    ebx
-        push    esi
-        push    edi
 
         mov     ecx, '1'                        ; num = '1'
 .sudoku_find_next_cell:
@@ -128,10 +125,6 @@ sudoku:
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
-        pop     edi
-        pop     esi
-        pop     ebx
-
         leave
         ret
 
@@ -153,6 +146,7 @@ sudoku:
 ;   - eax: 1 if legal, 0 otherwise
 ; TODO try to pass arguments through registers
 ; TODO try to return by EFLAGS, not return value
+; TODO: pass col,row by ex register
 isSafe:
         push    ebp
         mov     ebp, esp
