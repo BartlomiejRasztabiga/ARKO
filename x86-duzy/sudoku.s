@@ -80,9 +80,8 @@ sudoku:
 .sudoku_find_value_loop:
         push    ecx                             ; push num
         push    bx                              ; push row,col
-        push    DWORD 0                         ; push nothing
-        call    isSafe                          ; call isSafe(grid, row, col, num)
-        add     esp, 6                          ; free stack
+        call    isSafe                          ; call isSafe(row, col, num)
+        add     esp, 2                          ; free stack
         pop     ecx                             ; restore ecx
 
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
@@ -128,19 +127,19 @@ sudoku:
         ret
 
 ; ============================================================================
-; isSafe
+; isSafe(row, col, num)
 ; description:
 ;   checks whether it will be legal to assign num to the given [row][col]
 ; arguments:
 ;   - char grid[N][N]   edi
-;   - int col           ebp+12
-;   - int row           ebp+13
-;   - char num          ebp+14
+;   - int col           ebp+8
+;   - int row           ebp+9
+;   - char num          ebp+10
 ; variables:
 ;   - byte startCol     ebp-1
 ; registers:
 ;   - bh: int i <- local variable
-;   - bl: char num from ebp+14
+;   - bl: char num from ebp+10
 ;   - cl: int x/int startRow
 ;   - ch: int startCol
 ;   - edi: char **grid
@@ -161,12 +160,12 @@ isSafe:
         push    esi
         push    edi
 
-        mov     bl, [ebp+14]                    ; ebx (bl) = char num
+        mov     bl, [ebp+10]                    ; ebx (bl) = char num
         xor     cl, cl                          ; int x = 0
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
-        movzx   eax, BYTE [ebp+13]              ; eax = row
+        movzx   eax, BYTE [ebp+9]              ; eax = row
         lea     eax, [eax+eax*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         movzx   esi, cl                         ; esi = cl
@@ -186,7 +185,7 @@ isSafe:
         movzx   esi, cl                         ; esi = cl
         lea     eax, [esi+esi*8]                ; eax = 9 * x
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, BYTE [ebp+12]              ; esi = col
+        movzx   esi, BYTE [ebp+8]              ; esi = col
         mov     al, BYTE [eax+esi]              ; al = char from grid's tile at [x][col]
 
         cmp     al, bl                          ; test if grid[x][col] == num
@@ -199,20 +198,20 @@ isSafe:
 
 ; int startRow = row - row % 3
         mov     esi, 3
-        movzx   eax, BYTE [ebp+13]              ; eax = int row
+        movzx   eax, BYTE [ebp+9]              ; eax = int row
         xor     edx, edx                        ; edx = 0
         div     esi                             ; edx = row % 3
-        movzx   esi, BYTE [ebp+13]              ; esi = int row
+        movzx   esi, BYTE [ebp+9]              ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
         mov     cl, al                          ; startRow = al
 
 ; int startCol = col - col % 3
         mov     esi, 3
-        movzx   eax, BYTE [ebp+12]              ; eax = int col
+        movzx   eax, BYTE [ebp+8]              ; eax = int col
         xor     edx, edx                        ; edx = 0
         div     esi                             ; edx = col % 3
-        movzx   esi, BYTE [ebp+12]              ; esi = int col
+        movzx   esi, BYTE [ebp+8]              ; esi = int col
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
         mov     [ebp-1], al                     ; startCol = esi
