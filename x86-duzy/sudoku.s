@@ -79,6 +79,7 @@ sudoku:
         call    isSafe                          ; call isSafe(grid, row, col, num)
         add     esp, 12                         ; free stack
         pop     ecx                             ; restore ecx
+
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
@@ -153,10 +154,11 @@ isSafe:
 
         mov     bl, [ebp+20]                    ; ebx (bl) = char num
         xor     esi, esi                        ; int x = 0
+        mov     edi, [ebp+8]                    ; edi = grid
 .isSafe_row_loop:
         push    esi                             ; push x
         push    DWORD [ebp+12]                  ; push row
-        push    DWORD [ebp+8]                   ; push grid
+        push    edi                             ; push grid
         call    getCellValue                    ; call getCellValue(grid, row, col)
         add     esp, 12                         ; free stack
 
@@ -171,7 +173,7 @@ isSafe:
 .isSafe_col_loop:
         push    DWORD [ebp+16]                  ; push col
         push    esi                             ; push x
-        push    DWORD [ebp+8]                   ; push grid
+        push    edi                             ; push grid
         call    getCellValue                    ; call getCellValue(grid, row, col)
         add     esp, 12                         ; free stack
 
