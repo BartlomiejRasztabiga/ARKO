@@ -139,8 +139,8 @@ sudoku:
 ;   - byte startCol     ebp-1
 ;   - byte x/startRow   ebp-2
 ; registers:
-;   - bh: int i <- local variable
-;   - bl: char num from ebp+10
+;   - ch: int i <- local variable
+;   - cl: char num from ebp+10
 ;   - edi: char **grid
 ;   - esi: int j <- local variable
 ; returns:
@@ -152,6 +152,7 @@ sudoku:
 
 ; TODO move bh+bl to ch+c;
 ; TODO pass col,row by bh,bl
+; TODO pass char num by cl
 isSafe:
         push    ebp
         mov     ebp, esp
@@ -162,7 +163,7 @@ isSafe:
         push    esi
         push    edi
 
-        mov     bl, [ebp+10]                    ; ebx (bl) = char num
+        mov     cl, [ebp+10]                    ; ecx (cl) = char num
         mov     BYTE [ebp-2], 0                 ; int x = 0
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
@@ -173,7 +174,7 @@ isSafe:
         movzx   esi, BYTE [ebp-2]               ; esi = x
         mov     al, [eax+esi]                   ; al = char from grid's tile at [row][x]
 
-        cmp     al, bl                          ; test if grid[row][x] == num
+        cmp     al, cl                          ; test if grid[row][x] == num
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
@@ -190,7 +191,7 @@ isSafe:
         movzx   esi, BYTE [ebp+8]               ; esi = col
         mov     al, [eax+esi]                   ; al = char from grid's tile at [x][col]
 
-        cmp     al, bl                          ; test if grid[x][col] == num
+        cmp     al, cl                          ; test if grid[x][col] == num
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
@@ -218,19 +219,19 @@ isSafe:
         mov     eax, esi                        ; eax = esi
         mov     [ebp-1], al                     ; startCol = esi
 
-        mov     bh, 0                           ; i = 0
+        mov     ch, 0                           ; i = 0
 .isSafe_box_loop_init:
         xor     esi, esi                        ; j = 0
 .isSafe_box_loop:
-        movzx   edx, bh                         ; edx = i
-        movzx   ecx, BYTE [ebp-2]               ; ecx = startRow
-        lea     edx, [edx+ecx]                  ; edx = i + startRow
+        movzx   edx, ch                         ; edx = i
+        movzx   ebx, BYTE [ebp-2]               ; ebx = startRow
+        lea     edx, [edx+ebx]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
         movzx   eax, BYTE [ebp-1]               ; eax = startCol
         lea     eax, [esi+eax]                  ; eax = j + startCol
-        cmp     BYTE [edx+eax], bl              ; test if grid[i + startRow][j + startCol] == num
+        cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
@@ -239,8 +240,8 @@ isSafe:
         cmp     esi, 2                          ; test j <= 2
         jbe     .isSafe_box_loop                ; if true, go back to loop
 
-        inc     bh                              ; else i++
-        cmp     bh, 2                           ; test i <= 2
+        inc     ch                              ; else i++
+        cmp     ch, 2                           ; test i <= 2
         jbe     .isSafe_box_loop_init           ; if true, go back to loop
         mov     eax, 1                          ; else, escape loop, return 1
 .isSafe_return:
