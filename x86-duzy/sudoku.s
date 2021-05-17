@@ -91,13 +91,11 @@ sudoku:
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
 
-
         ; setCellValue at [row][col] <- num
-        lea     edx, [esi+esi*8]                ; edx = 9 * row
-        lea     edx, [edx+ebx]                  ; edx = pointer to grid's row
-        lea     edx, [edx+edi]                  ; edx = pointer to grid's tile at [row][col]
-        mov     [edx], cl                       ; grid[row][col] = cl (num)
-
+        lea     eax, [esi+esi*8]                ; eax = 9 * row
+        lea     eax, [eax+ebx]                  ; eax = pointer to grid's row
+        lea     eax, [eax+edi]                  ; eax = pointer to grid's tile at [row][col]
+        mov     [eax], cl                       ; grid[row][col] = cl (num)
 
                                                 ; solve next column
         mov     eax, edi                        ; eax = int col
