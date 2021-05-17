@@ -210,8 +210,7 @@ isSafe:
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         add     edx, [ebp+8]                    ; edx = pointer to grid's row
 
-        mov     eax, ecx                        ; eax = j
-        lea     eax, [eax+edi]                  ; eax = j + startCol
+        lea     eax, [ecx+edi]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], bl              ; test if grid[i + startRow][j + startCol] == num
 
         mov     eax, 0                          ; cannot use xor here as it sets ZF flag
