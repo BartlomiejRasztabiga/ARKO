@@ -43,7 +43,7 @@ sudoku:
 ;   - edi: grid argument
 ;   - bh: row argument
 ;   - bl: col argument
-;   - ecx: num (char) local variable
+;   - cl: num (char) local variable
 ;   - esi: tmp register
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
@@ -51,7 +51,7 @@ sudoku:
         push    ebp
         mov     ebp, esp
 
-        mov     ecx, '1'                        ; num = '1'
+        mov     cl, '1'                         ; num = '1'
 .sudoku_find_next_cell:
         cmp     bl, 9                           ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
@@ -78,9 +78,9 @@ sudoku:
         inc     bl                              ; col++
         jmp     .sudoku_find_next_cell          ; if not equal, try next col
 .sudoku_find_value_loop:
-        push    ecx                             ; push num
+        push    cx                              ; push num
         call    isSafe                          ; call isSafe(row, col, num)
-        pop     ecx                             ; restore ecx
+        pop     cx                              ; restore ecx
 
         cmp     eax, 1                          ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
@@ -98,9 +98,9 @@ sudoku:
         push    bx                              ; push (col+1)
 
         inc     bl
-        push    ecx                             ; save ecx (num)
+        push    cx                              ; save ecx (num)
         call    .sudoku                         ; call .sudoku(grid, row, col+1)
-        pop     ecx                             ; restore ecx (num)
+        pop     cx                              ; restore ecx (num)
         pop     bx
 
         cmp     eax, 1                          ; test if sudoku returned 1 (true)
@@ -116,8 +116,8 @@ sudoku:
         lea     eax, [eax+esi]                  ; eax = pointer to grid's tile at [row][col]
         mov     [eax], BYTE '#'                 ; grid[row][col] = '#'
 
-        inc     ecx                             ; num++, try next char
-        cmp     ecx, '9'                        ; test if num <= '9'
+        inc     cl                             ; num++, try next char
+        cmp     cl, '9'                        ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
@@ -132,7 +132,7 @@ sudoku:
 ;   - char grid[N][N]   edi
 ;   - int col           bl
 ;   - int row           bh
-;   - char num          ebp+8
+;   - char num          cl
 ; variables:
 ;   - byte startCol     ebp-1
 ;   - byte x/startRow   ebp-2
@@ -163,7 +163,6 @@ isSafe:
         push    esi
         push    edi
 
-        mov     cl, [ebp+8]                     ; ecx (cl) = char num
         mov     BYTE [ebp-2], 0                 ; int x = 0
         ; TODO decrement from 8 down to 0
 .isSafe_row_loop:
