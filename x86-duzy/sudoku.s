@@ -97,7 +97,7 @@ sudoku:
         pop     cx                              ; restore cx (char num)
         pop     bx                              ; restore row,col
 
-        cmp     eax, 1                          ; test if sudoku returned 1 (true)
+        cmp     al, 1                           ; test if sudoku returned 1 (true)
 
         je     .sudoku_return                   ; if true, return 1 (1 already in eax)
                                                 ; if false, try next number
