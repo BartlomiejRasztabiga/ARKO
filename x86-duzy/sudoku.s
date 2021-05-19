@@ -75,7 +75,7 @@ sudoku:
 .sudoku_find_value_loop:
         call    isSafe                          ; call isSafe(row, col, num)
 
-        cmp     eax, 1                          ; test if isSafe returned 1 (true)
+        cmp     al, 1                           ; test if isSafe returned 1 (true)
         jne     .sudoku_find_value_loop_next_num; if false, try next number
                                                 ; if true, put that number into sudoku matrix
 
@@ -110,8 +110,8 @@ sudoku:
         lea     eax, [eax+esi]                  ; eax = pointer to grid's tile at [row][col]
         mov     [eax], BYTE '#'                 ; grid[row][col] = '#'
 
-        inc     cl                             ; num++, try next char
-        cmp     cl, '9'                        ; test if num <= '9'
+        inc     cl                              ; num++, try next char
+        cmp     cl, '9'                         ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     eax, eax                        ; return 0
 .sudoku_return:
@@ -137,7 +137,7 @@ sudoku:
 ;   - edi: char **grid
 ;   - esi: int j <- local variable
 ; returns:
-;   - eax: 1 if legal, 0 otherwise
+;   - al: 1 if legal, 0 otherwise
 ; TODO try to return by EFLAGS, not return value
 
 ; TODO use ebp to avoid using local variables
@@ -160,7 +160,7 @@ isSafe:
         mov     al, [eax+esi]                   ; al = char from grid's tile at [row][x]
 
         cmp     al, cl                          ; test if grid[row][x] == num
-        mov     eax, 0                          ; cannot use xor here as it sets ZF flag
+        mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         dec     BYTE [esp+12]                   ; x--
@@ -177,7 +177,7 @@ isSafe:
         mov     al, [eax+esi]                   ; al = char from grid's tile at [x][col]
 
         cmp     al, cl                          ; test if grid[x][col] == num
-        mov     eax, 0                          ; cannot use xor here as it sets ZF flag
+        mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         dec     BYTE [esp+12]                   ; x--
@@ -218,7 +218,7 @@ isSafe:
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
-        mov     eax, 0                          ; cannot use xor here as it sets ZF flag
+        mov     al, 0                          ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
 
         dec     esi                             ; j--
@@ -228,7 +228,7 @@ isSafe:
         dec     ch                              ; else i--
         cmp     ch, 0                           ; test i > 0
         jge     .isSafe_box_loop_init           ; if true, go back to loop
-        mov     eax, 1                          ; else, escape loop, return 1
+        mov     al, 1                          ; else, escape loop, return 1
 .isSafe_return:
         pop     edi
         pop     esi
