@@ -142,7 +142,6 @@ sudoku:
 ;   - al: 1 if legal, 0 otherwise
 ; TODO try to return by EFLAGS, not return valueSave ebp in isSafe
 
-; TODO use ebp to avoid using local variables
 ; TODO check if we can simplify after refactor
 ; TODO try to delete local variables
 isSafe:
