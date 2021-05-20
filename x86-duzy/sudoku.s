@@ -217,9 +217,9 @@ isSafe:
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
-        movzx   ebp, BYTE [esp+13]              ; ebp = startCol
-        lea     ebp, [esi+ebp]                  ; ebp = j + startCol
-        cmp     BYTE [edx+ebp], cl              ; test if grid[i + startRow][j + startCol] == num
+        movzx   eax, BYTE [esp+13]              ; eax = startCol
+        lea     eax, [esi+eax]                  ; eax = j + startCol
+        cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
         mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
