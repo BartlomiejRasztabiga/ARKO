@@ -148,28 +148,29 @@ isSafe:
 
         push    ebx
         push    esi
+        push    ebp
 
-        mov     BYTE [esp+8], 8                ; int x = 8
+        mov     BYTE [esp+12], 8                ; int x = 8
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   eax, bh                         ; eax = row
         lea     eax, [eax+eax*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, BYTE [esp+8]              ; esi = x
+        movzx   esi, BYTE [esp+12]              ; esi = x
         mov     al, [eax+esi]                   ; al = char from grid's tile at [row][x]
 
         cmp     al, cl                          ; test if grid[row][x] == num
         mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        dec     BYTE [esp+8]                   ; x--
-        cmp     BYTE [esp+8], 0                ; if x > 0
+        dec     BYTE [esp+12]                   ; x--
+        cmp     BYTE [esp+12], 0                ; if x > 0
         jge     .isSafe_row_loop                ; goto loop if condition met
 
-        mov     BYTE [esp+8], 8                ; int x = 8
+        mov     BYTE [esp+12], 8                ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        movzx   esi, BYTE [esp+8]              ; esi = x
+        movzx   esi, BYTE [esp+12]              ; esi = x
         lea     eax, [esi+esi*8]                ; eax = 9 * x
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         movzx   esi, bl                         ; esi = col
@@ -179,8 +180,8 @@ isSafe:
         mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        dec     BYTE [esp+8]                   ; x--
-        cmp     BYTE [esp+8], 0                ; if x > 0
+        dec     BYTE [esp+12]                   ; x--
+        cmp     BYTE [esp+12], 0                ; if x > 0
         jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
@@ -191,7 +192,7 @@ isSafe:
         movzx   esi, bh                         ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     [esp+8], al                    ; startRow = al
+        mov     [esp+12], al                    ; startRow = al
 
 ; int startCol = col - col % 3
         mov     esi, 3
@@ -201,19 +202,19 @@ isSafe:
         movzx   esi, bl                         ; esi = int col
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     [esp+9], al                    ; startCol = esi
+        mov     [esp+13], al                    ; startCol = esi
 
         mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
         mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
         movzx   edx, ch                         ; edx = i
-        movzx   ebx, BYTE [esp+8]              ; ebx = startRow
+        movzx   ebx, BYTE [esp+12]              ; ebx = startRow
         lea     edx, [edx+ebx]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
-        movzx   eax, BYTE [esp+9]              ; eax = startCol
+        movzx   eax, BYTE [esp+13]              ; eax = startCol
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
@@ -229,6 +230,7 @@ isSafe:
         jge     .isSafe_box_loop_init           ; if true, go back to loop
         mov     al, 1                          ; else, escape loop, return 1
 .isSafe_return:
+        pop     ebp
         pop     esi
         pop     ebx
 
