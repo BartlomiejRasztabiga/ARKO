@@ -212,8 +212,7 @@ isSafe:
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
-        mov     eax, ebp                        ; eax = startCol
-        lea     eax, [esi+eax]                  ; eax = j + startCol
+        lea     eax, [esi+ebp]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
         setne   al
@@ -226,7 +225,7 @@ isSafe:
         dec     ch                              ; else i--
         cmp     ch, 0                           ; test i > 0
         jge     .isSafe_box_loop_init           ; if true, go back to loop
-                                                ; else, escape loop, return 1, set by setne in 222
+                                                ; else, escape loop, return 1, set by setne in 219
 .isSafe_return:
         pop     ebp
         pop     esi
