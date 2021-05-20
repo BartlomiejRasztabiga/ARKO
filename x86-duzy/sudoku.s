@@ -218,7 +218,7 @@ isSafe:
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
-        mov     al, 0                          ; cannot use xor here as it sets ZF flag
+        mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je     .isSafe_return                   ; if equal, return 0
 
         dec     esi                             ; j--
@@ -228,7 +228,7 @@ isSafe:
         dec     ch                              ; else i--
         cmp     ch, 0                           ; test i > 0
         jge     .isSafe_box_loop_init           ; if true, go back to loop
-        mov     al, 1                          ; else, escape loop, return 1
+        mov     al, 1                           ; else, escape loop, return 1
 .isSafe_return:
         pop     ebp
         pop     esi
