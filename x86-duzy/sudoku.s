@@ -204,8 +204,7 @@ isSafe:
         div     esi                             ; edx = col % 3
         movzx   esi, bl                         ; esi = int col
         sub     esi, edx                        ; esi = esi - edx
-        mov     eax, esi                        ; eax = esi
-        mov     [esp+13], al                    ; startCol = esi
+        mov     ebp, esi                        ; startCol = esi
 
         mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
@@ -217,7 +216,7 @@ isSafe:
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
-        movzx   eax, BYTE [esp+13]              ; eax = startCol
+        mov   eax, ebp                          ; eax = startCol
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
