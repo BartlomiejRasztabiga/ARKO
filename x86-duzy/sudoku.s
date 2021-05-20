@@ -127,9 +127,11 @@ sudoku:
 ;   - int row           bh
 ;   - char num          cl
 ; variables:
-;   - byte startCol     esp+8
-;   - byte x/startRow   esp+9
+;   - byte startCol     esp+12
+;   - byte x/startRow   esp+13
 ; registers:
+;   - al: byte startCol <- local variable
+;   - ah: byte x/startRow <- local variable
 ;   - bh: row argument
 ;   - bl: col argument
 ;   - ch: int i <- local variable
@@ -151,27 +153,27 @@ isSafe:
         push    esi
         push    ebp
 
-        mov     BYTE [esp+12], 8                ; int x = 8
+        mov     ah, 8                ; int x = 8
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   ebp, bh                         ; ebp = row
         lea     ebp, [ebp+ebp*8]                ; ebp = 9 * row
         lea     ebp, [ebp+edi]                  ; ebp = pointer to grid's row
-        movzx   esi, BYTE [esp+12]              ; esi = x
+        movzx   esi, ah              ; esi = x
         mov     al, [ebp+esi]                   ; al = char from grid's tile at [row][x]
 
         cmp     al, cl                          ; test if grid[row][x] == num
         mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        dec     BYTE [esp+12]                   ; x--
-        cmp     BYTE [esp+12], 0                ; if x > 0
+        dec     ah                   ; x--
+        cmp     ah, 0                ; if x > 0
         jge     .isSafe_row_loop                ; goto loop if condition met
 
-        mov     BYTE [esp+12], 8                ; int x = 8
+        mov     ah, 8                ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        movzx   esi, BYTE [esp+12]              ; esi = x
+        movzx   esi, ah              ; esi = x
         lea     ebp, [esi+esi*8]                ; ebp = 9 * x
         lea     ebp, [ebp+edi]                  ; ebp = pointer to grid's row
         movzx   esi, bl                         ; esi = col
@@ -181,8 +183,8 @@ isSafe:
         mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
-        dec     BYTE [esp+12]                   ; x--
-        cmp     BYTE [esp+12], 0                ; if x > 0
+        dec     ah                   ; x--
+        cmp     ah, 0                ; if x > 0
         jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
