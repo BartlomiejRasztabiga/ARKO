@@ -140,7 +140,7 @@ sudoku:
 ;   - ebp: byte startCol <- local variable / temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
-; TODO try to return by EFLAGS, not return valueSave ebp in isSafe
+; TODO try to return by EFLAGS, not return valueSave ebp in isSafe -> setne
 
 ; TODO check if we can simplify after refactor
 ; TODO try to delete local variables
@@ -178,7 +178,8 @@ isSafe:
         mov     al, [ebp+esi]                   ; al = char from grid's tile at [x][col]
 
         cmp     al, cl                          ; test if grid[x][col] == num
-        mov     al, 0                           ; cannot use xor here as it sets ZF flag
+;        mov     al, 0                           ; cannot use xor here as it sets ZF flag
+        setne   al
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         dec     ah                              ; x--
@@ -218,7 +219,7 @@ isSafe:
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
-        mov     al, 0                           ; cannot use xor here as it sets ZF flag
+        setne   al
         je     .isSafe_return                   ; if equal, return 0
 
         dec     esi                             ; j--
@@ -228,7 +229,7 @@ isSafe:
         dec     ch                              ; else i--
         cmp     ch, 0                           ; test i > 0
         jge     .isSafe_box_loop_init           ; if true, go back to loop
-        mov     al, 1                           ; else, escape loop, return 1
+                                                ; else, escape loop, return 1, set by setne in 222
 .isSafe_return:
         pop     ebp
         pop     esi
