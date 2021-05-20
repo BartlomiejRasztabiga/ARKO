@@ -128,7 +128,6 @@ sudoku:
 ;   - char num          cl
 ; variables:
 ;   - byte startCol     esp+12
-;   - byte x/startRow   esp+13
 ; registers:
 ;   - al: temp register
 ;   - ah: byte x <- local variable
@@ -138,7 +137,7 @@ sudoku:
 ;   - cl: char num
 ;   - edi: char **grid
 ;   - esi: int j <- local variable
-;   - ebp: temp register
+;   - ebp: byte startCol <- local variable / temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
 ; TODO try to return by EFLAGS, not return valueSave ebp in isSafe
