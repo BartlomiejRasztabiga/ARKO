@@ -208,8 +208,8 @@ isSafe:
 .isSafe_box_loop_init:
         mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
-        movzx   edx, ch                         ; edx = i
         movzx   ebx, BYTE [esp+12]              ; ebx = startRow
+        movzx   edx, ch                         ; edx = i
         lea     edx, [edx+ebx]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
