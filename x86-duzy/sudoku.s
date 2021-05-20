@@ -139,10 +139,8 @@ sudoku:
 ;   - ebp: byte startCol <- local variable / temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
-; TODO try to return by EFLAGS, not return valueSave ebp in isSafe -> setne
-
-; TODO check if we can simplify after refactor
 ; TODO try to delete local variables
+; TODO try to return by EFLAGS, not return valueSave ebp in isSafe -> setne
 isSafe:
         sub     esp, 1
 
