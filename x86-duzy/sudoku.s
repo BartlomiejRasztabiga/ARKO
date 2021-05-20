@@ -215,7 +215,7 @@ isSafe:
         lea     eax, [esi+ebp]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
-        setne   al
+        setne   al                              ; if equal, al = 0, otherwise al = 1
         je     .isSafe_return                   ; if equal, return 0
 
         dec     esi                             ; j--
