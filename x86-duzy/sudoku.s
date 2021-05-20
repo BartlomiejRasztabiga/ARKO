@@ -178,8 +178,7 @@ isSafe:
         mov     al, [ebp+esi]                   ; al = char from grid's tile at [x][col]
 
         cmp     al, cl                          ; test if grid[x][col] == num
-;        mov     al, 0                           ; cannot use xor here as it sets ZF flag
-        setne   al
+        mov     al, 0
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         dec     ah                              ; x--
