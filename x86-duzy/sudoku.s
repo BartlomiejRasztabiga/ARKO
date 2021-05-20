@@ -157,9 +157,8 @@ isSafe:
         lea     ebp, [ebp+ebp*8]                ; ebp = 9 * row
         lea     ebp, [ebp+edi]                  ; ebp = pointer to grid's row
         movzx   esi, ah                         ; esi = x
-        mov     al, [ebp+esi]                   ; al = char from grid's tile at [row][x]
 
-        cmp     al, cl                          ; test if grid[row][x] == num
+        cmp     [ebp+esi], cl                   ; test if grid[row][x] == num
         mov     al, 0                           ; cannot use xor here as it sets ZF flag
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
