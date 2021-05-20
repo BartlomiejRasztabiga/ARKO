@@ -215,7 +215,7 @@ isSafe:
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
         lea     edx, [edx+edi]                  ; edx = pointer to grid's row
 
-        mov   eax, ebp                          ; eax = startCol
+        mov     eax, ebp                        ; eax = startCol
         lea     eax, [esi+eax]                  ; eax = j + startCol
         cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
