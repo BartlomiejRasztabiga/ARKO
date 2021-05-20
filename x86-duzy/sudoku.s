@@ -65,9 +65,8 @@ sudoku:
         lea     eax, [esi+esi*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
         movzx   esi, bl
-        mov     al, BYTE [eax+esi]              ; al = char from grid's tile at [row][x]
 
-        cmp     al, '#'                         ; test if grid[row][col] == '#' - no value at tile
+        cmp     BYTE [eax+esi], '#'             ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value_loop         ; if equal, goto .sudoku_find_value_loop
 
         inc     bl                              ; col++
