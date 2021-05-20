@@ -6,7 +6,7 @@
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char grid[N][N]   esp+20
+;   - char grid[N][N]   esp+16
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 sudoku:
@@ -146,7 +146,7 @@ sudoku:
 ; TODO check if we can simplify after refactor
 ; TODO try to delete local variables
 isSafe:
-        sub     esp, 2
+        sub     esp, 1
 
         push    ebx
         push    esi
@@ -235,6 +235,6 @@ isSafe:
         pop     esi
         pop     ebx
 
-        add     esp, 2
+        add     esp, 1
 
         ret
