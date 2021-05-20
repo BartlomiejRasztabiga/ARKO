@@ -225,7 +225,7 @@ isSafe:
         dec     ch                              ; else i--
         cmp     ch, 0                           ; test i > 0
         jge     .isSafe_box_loop_init           ; if true, go back to loop
-                                                ; else, escape loop, return 1, set by setne in 219
+                                                ; else, escape loop, return 1, set by setne in 218
 .isSafe_return:
         pop     ebp
         pop     esi
