@@ -14,13 +14,15 @@ sudoku:
         push    ebx
         push    esi
         push    edi
+        push    ebp
 
-        mov     edi, [esp+16]                   ; edi = grid
+        mov     edi, [esp+20]                   ; edi = grid
         xor     ebx, ebx                        ; bh = row = 0; bl = col = 0;
 
         call    .sudoku                         ; call recursive helper
 
         ; restore callee-saved registers
+        pop     ebp
         pop     edi
         pop     esi
         pop     ebx
@@ -124,7 +126,7 @@ sudoku:
 ;   - int row           bh
 ;   - char num          cl
 ; variables:
-;   - byte startCol     esp+12
+;   - byte startCol     esp+8
 ; registers:
 ;   - al: temp register
 ;   - ah: byte x <- local variable
@@ -142,7 +144,6 @@ isSafe:
 
         push    ebx
         push    esi
-        push    ebp
 
         mov     ah, 8                           ; int x = 8
 .isSafe_row_loop:
@@ -183,7 +184,7 @@ isSafe:
         movzx   esi, bh                         ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     [esp+12], al                    ; startRow = al
+        mov     [esp+8], al                    ; startRow = al
 
 ; int startCol = col - col % 3
         mov     esi, 3
@@ -198,7 +199,7 @@ isSafe:
 .isSafe_box_loop_init:
         mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
-        movzx   ebx, BYTE [esp+12]              ; ebx = startRow
+        movzx   ebx, BYTE [esp+8]              ; ebx = startRow
         movzx   edx, ch                         ; edx = i
         lea     edx, [edx+ebx]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
@@ -217,7 +218,6 @@ isSafe:
         jge     .isSafe_box_loop_init           ; if i > 0, go back to loop
                                                 ; else, escape loop, return 1, set by setne in 218
 .isSafe_return:
-        pop     ebp
         pop     esi
         pop     ebx
 
