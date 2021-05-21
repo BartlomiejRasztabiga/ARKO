@@ -74,9 +74,8 @@ sudoku:
 .sudoku_find_value_loop:
         call    isSafe                          ; call isSafe(row, col, num)
 
-        cmp     al, 1                           ; test if isSafe returned 1 (true)
-        jne     .sudoku_find_value_loop_next_num; if false, try next number
-                                                ; if true, put that number into sudoku matrix
+        je     .sudoku_find_value_loop_next_num ; if isSafe returned 0, try next number
+                                                ; if returned 1, put that number into sudoku matrix
 
         ; setCellValue at [row][col] <- num
         movzx   esi, bh
@@ -140,7 +139,7 @@ sudoku:
 ;   - esi: j local variable/temp register
 ;   - ebp: temp register
 ; returns:
-;   - al: 1 if legal, 0 otherwise
+;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
         push    ebx
 
@@ -153,8 +152,7 @@ isSafe:
         movzx   esi, ah                         ; esi = x
 
         cmp     [ebp+esi], cl                   ; test if grid[row][x] == num
-        mov     al, 0                           ; cannot use xor here as it sets ZF flag
-        je      .isSafe_return                  ; if equal, num illegal, return 0
+        je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     ah                              ; x--
         jge     .isSafe_row_loop                ; goto loop if condition met
@@ -169,8 +167,7 @@ isSafe:
         mov     al, [ebp+esi]                   ; al = char from grid's tile at [x][col]
 
         cmp     al, cl                          ; test if grid[x][col] == num
-        mov     al, 0
-        je      .isSafe_return                  ; if equal, num illegal, return 0
+        je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     ah                              ; x--
         jge     .isSafe_col_loop                ; goto loop if condition met
@@ -203,15 +200,14 @@ isSafe:
         lea     eax, [esi+ebp]                  ; eax = j + startCol
         cmp     BYTE [ebx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
-        setne   al                              ; if equal, al = 0, otherwise al = 1
-        je     .isSafe_return                   ; if equal, return 0
+        je     .isSafe_return                   ; if equal, return ZF
 
         dec     esi                             ; j--
         jge     .isSafe_box_loop                ; if j > 0, go back to loop
 
         dec     ch                              ; else i--
         jge     .isSafe_box_loop_init           ; if i > 0, go back to loop
-                                                ; else, escape loop, return 1, set by setne in 218
+                                                ; else, escape loop, return no ZF flag
 .isSafe_return:
         pop     ebx
 
