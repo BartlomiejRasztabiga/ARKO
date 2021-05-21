@@ -190,7 +190,7 @@ isSafe:
         div     ch                              ; ah = col % 3
         mov     ch, bl                          ; ch = int col
         sub     ch, ah                          ; ch = ch - ah  (col - col % 3)
-        movzx   ebp, ch                       ; startCol = ch
+        movzx   ebp, ch                         ; startCol = ch
 
         mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
