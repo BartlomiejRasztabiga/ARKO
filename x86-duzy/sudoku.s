@@ -196,14 +196,14 @@ isSafe:
 .isSafe_box_loop_init:
         mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
-        movzx   ebx, BYTE [esp+8]               ; ebx = startRow
-        movzx   edx, ch                         ; edx = i
-        lea     edx, [edx+ebx]                  ; edx = i + startRow
-        lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
-        lea     edx, [edx+edi]                  ; edx = pointer to grid's row
+        movzx   eax, BYTE [esp+8]               ; eax = startRow
+        movzx   ebx, ch                         ; ebx = i
+        lea     ebx, [ebx+eax]                  ; ebx = i + startRow
+        lea     ebx, [ebx+ebx*8]                ; ebx = grid[i + startRow]
+        lea     ebx, [ebx+edi]                  ; ebx = pointer to grid's row
 
         lea     eax, [esi+ebp]                  ; eax = j + startCol
-        cmp     BYTE [edx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
+        cmp     BYTE [ebx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
 
         setne   al                              ; if equal, al = 0, otherwise al = 1
         je     .isSafe_return                   ; if equal, return 0
