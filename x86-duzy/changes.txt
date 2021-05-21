@@ -4,3 +4,4 @@
 - usunięto użycie ebp, teraz mogłem go użyć jako rejestru uniwersalnego
 - ogólna optymalizacja, zmniejszenie ilości niepotrzebnych mov, zastosowanie setne
 - użycie krótszych 8 bitowych rejestrów
+- usunięcie niepotrzebnych cmp rej, 0 przy dekrementacji

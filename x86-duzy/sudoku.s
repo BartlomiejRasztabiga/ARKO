@@ -157,7 +157,6 @@ isSafe:
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         dec     ah                              ; x--
-        cmp     ah, 0                           ; if x > 0
         jge     .isSafe_row_loop                ; goto loop if condition met
 
         mov     ah, 8                           ; int x = 8
@@ -174,7 +173,6 @@ isSafe:
         je      .isSafe_return                  ; if equal, num illegal, return 0
 
         dec     ah                              ; x--
-        cmp     ah, 0                           ; if x > 0
         jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
@@ -213,12 +211,10 @@ isSafe:
         je     .isSafe_return                   ; if equal, return 0
 
         dec     esi                             ; j--
-        cmp     esi, 0                          ; test j > 0
-        jge     .isSafe_box_loop                ; if true, go back to loop
+        jge     .isSafe_box_loop                ; if j > 0, go back to loop
 
         dec     ch                              ; else i--
-        cmp     ch, 0                           ; test i > 0
-        jge     .isSafe_box_loop_init           ; if true, go back to loop
+        jge     .isSafe_box_loop_init           ; if i > 0, go back to loop
                                                 ; else, escape loop, return 1, set by setne in 218
 .isSafe_return:
         pop     ebp
