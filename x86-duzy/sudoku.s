@@ -129,17 +129,18 @@ sudoku:
 ;   - byte startRow     esp+8
 ; registers:
 ;   - al: temp register
-;   - ah: byte x <- local variable
+;   - ah: x local variable
 ;   - bh: row argument
 ;   - bl: col argument
-;   - ch: int i <- local variable
-;   - cl: char num
-;   - edi: char **grid
-;   - esi: int j <- local variable
-;   - ebp: byte startCol <- local variable / temp register
+;   - dh: startRow local variable
+;   - dl: startCol local variable
+;   - ch: i local variable
+;   - cl: num
+;   - edi: grid
+;   - esi: j local variable
+;   - ebp: temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
-; TODO Use edx register? It's free now: dh - startRow, dl - startCol?
 isSafe:
         push    ebx
         push    esi
