@@ -177,14 +177,12 @@ isSafe:
         jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
-        mov     si, 3
-        movzx   eax, bh                         ; eax = int row
-        xor     edx, edx                        ; edx = 0
-        div     si                              ; edx = row % 3
-        movzx   si, bh                          ; si = int row
-        sub     si, dx                          ; si = si - dx
-        mov     ax, si                          ; eax = esi
-        mov     [esp+8], al                     ; startRow = al
+        mov     ch, 3
+        movzx   ax, bh                          ; ax = int row
+        div     ch                              ; ah = row % 3
+        mov     ch, bh                          ; ch = int row
+        sub     ch, ah                          ; ch = si - sh
+        mov     [esp+8], ch                     ; startRow = ch
 
 ; int startCol = col - col % 3
         mov     esi, 3
@@ -197,7 +195,7 @@ isSafe:
 
         mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
-        mov     esi, 2                          ; j = 2
+        mov     esi, 2                          ; j = 2 TODO use si
 .isSafe_box_loop:
         movzx   ebx, BYTE [esp+8]               ; ebx = startRow
         movzx   edx, ch                         ; edx = i
