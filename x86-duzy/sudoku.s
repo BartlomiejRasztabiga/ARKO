@@ -141,8 +141,6 @@ sudoku:
 ;   - al: 1 if legal, 0 otherwise
 ; TODO Use edx register? It's free now: dh - startRow, dl - startCol?
 isSafe:
-        sub     esp, 1
-
         push    ebx
         push    esi
 
@@ -217,7 +215,5 @@ isSafe:
 .isSafe_return:
         pop     esi
         pop     ebx
-
-        add     esp, 1
 
         ret

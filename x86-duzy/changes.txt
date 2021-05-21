@@ -1,6 +1,6 @@
 - zgodność z konwencją wołania w sudoku (main)
 - usunięcie argumentów przekazywanych przez stos - wszystko przez rejestry
-- zredukowano ilość zmiennych lokalnych do 1 (1 bajt)
+- usunięto zmienne lokalne
 - usunięto użycie ebp, teraz mogłem go użyć jako rejestru uniwersalnego
 - ogólna optymalizacja, zmniejszenie ilości niepotrzebnych mov, zastosowanie setne
 - użycie krótszych 8 bitowych rejestrów
