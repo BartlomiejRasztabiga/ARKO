@@ -184,7 +184,7 @@ isSafe:
         movzx   esi, bh                         ; esi = int row
         sub     esi, edx                        ; esi = esi - edx
         mov     eax, esi                        ; eax = esi
-        mov     [esp+8], al                    ; startRow = al
+        mov     [esp+8], al                     ; startRow = al
 
 ; int startCol = col - col % 3
         mov     esi, 3
@@ -199,7 +199,7 @@ isSafe:
 .isSafe_box_loop_init:
         mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
-        movzx   ebx, BYTE [esp+8]              ; ebx = startRow
+        movzx   ebx, BYTE [esp+8]               ; ebx = startRow
         movzx   edx, ch                         ; edx = i
         lea     edx, [edx+ebx]                  ; edx = i + startRow
         lea     edx, [edx+edx*8]                ; edx = grid[i + startRow]
