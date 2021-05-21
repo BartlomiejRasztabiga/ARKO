@@ -126,7 +126,7 @@ sudoku:
 ;   - int row           bh
 ;   - char num          cl
 ; variables:
-;   - byte startCol     esp+8
+;   - byte startRow     esp+8
 ; registers:
 ;   - al: temp register
 ;   - ah: byte x <- local variable
@@ -139,6 +139,7 @@ sudoku:
 ;   - ebp: byte startCol <- local variable / temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
+; TODO Use edx register? It's free now: dh - startRow, dl - startCol?
 isSafe:
         sub     esp, 1
 
