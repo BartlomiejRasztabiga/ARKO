@@ -181,7 +181,7 @@ isSafe:
         movzx   ax, bh                          ; ax = int row
         div     ch                              ; ah = row % 3
         mov     ch, bh                          ; ch = int row
-        sub     ch, ah                          ; ch = si - sh
+        sub     ch, ah                          ; ch = ch - ah  (row - row%3)
         mov     [esp+8], ch                     ; startRow = ch
 
 ; int startCol = col - col % 3

@@ -5,3 +5,4 @@
 - ogólna optymalizacja, zmniejszenie ilości niepotrzebnych mov, zastosowanie setne
 - użycie krótszych 8 bitowych rejestrów
 - usunięcie niepotrzebnych cmp rej, 0 przy dekrementacji
+- użycie 8 bitowego dzielenia -> nie trzeba używać rejestru edx
