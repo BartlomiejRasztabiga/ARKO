@@ -6,3 +6,4 @@
 - użycie krótszych 8 bitowych rejestrów
 - usunięcie niepotrzebnych cmp rej, 0 przy dekrementacji
 - użycie 8 bitowego dzielenia -> nie trzeba używać rejestru edx
+- zwracanie wartości z isSafe przez rejestr FLAGS, dokładnie przez flagę ZF
