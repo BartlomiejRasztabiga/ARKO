@@ -10,8 +10,6 @@
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 sudoku:
-; TODO Use shorter registers?
-; TODO lea with 8/16 bits?
         ; save callee-saved registers
         push    ebx
         push    esi
@@ -139,8 +137,6 @@ sudoku:
 ;   - ebp: byte startCol <- local variable / temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
-; TODO try to delete local variables
-; TODO try to return by EFLAGS, not return valueSave ebp in isSafe -> setne
 isSafe:
         sub     esp, 1
 
