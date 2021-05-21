@@ -137,13 +137,12 @@ sudoku:
 ;   - ch: i local variable
 ;   - cl: num
 ;   - edi: grid
-;   - esi: j local variable
+;   - esi: j local variable/temp register
 ;   - ebp: temp register
 ; returns:
 ;   - al: 1 if legal, 0 otherwise
 isSafe:
         push    ebx
-        push    esi
 
         mov     ah, 8                           ; int x = 8
 .isSafe_row_loop:
@@ -214,7 +213,6 @@ isSafe:
         jge     .isSafe_box_loop_init           ; if i > 0, go back to loop
                                                 ; else, escape loop, return 1, set by setne in 218
 .isSafe_return:
-        pop     esi
         pop     ebx
 
         ret
