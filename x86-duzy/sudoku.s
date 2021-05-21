@@ -177,13 +177,13 @@ isSafe:
         jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
-        mov     esi, 3
+        mov     si, 3
         movzx   eax, bh                         ; eax = int row
         xor     edx, edx                        ; edx = 0
-        div     esi                             ; edx = row % 3
-        movzx   esi, bh                         ; esi = int row
-        sub     esi, edx                        ; esi = esi - edx
-        mov     eax, esi                        ; eax = esi
+        div     si                              ; edx = row % 3
+        movzx   si, bh                          ; si = int row
+        sub     si, dx                          ; si = si - dx
+        mov     ax, si                          ; eax = esi
         mov     [esp+8], al                     ; startRow = al
 
 ; int startCol = col - col % 3
