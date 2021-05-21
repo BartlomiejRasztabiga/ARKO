@@ -178,12 +178,11 @@ isSafe:
         jge     .isSafe_col_loop                ; goto loop if condition met
 
 ; int startRow = row - row % 3
-        mov     ch, 3
+        mov     dh, 3
         movzx   ax, bh                          ; ax = int row
-        div     ch                              ; ah = row % 3
-        mov     ch, bh                          ; ch = int row
-        sub     ch, ah                          ; ch = ch - ah  (row - row % 3)
-        mov     [esp+8], ch                     ; startRow = ch
+        div     dh                              ; ah = row % 3
+        mov     dh, bh                          ; dh = int row
+        sub     dh, ah                          ; startRow = dh - ah  (row - row % 3)
 
 ; int startCol = col - col % 3
         mov     ch, 3
@@ -197,7 +196,7 @@ isSafe:
 .isSafe_box_loop_init:
         mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
-        movzx   eax, BYTE [esp+8]               ; eax = startRow
+        movzx   eax, dh                         ; eax = startRow
         movzx   ebx, ch                         ; ebx = i
         lea     ebx, [ebx+eax]                  ; ebx = i + startRow
         lea     ebx, [ebx+ebx*8]                ; ebx = grid[i + startRow]
