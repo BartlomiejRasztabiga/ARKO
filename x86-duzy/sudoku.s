@@ -181,17 +181,16 @@ isSafe:
         movzx   ax, bh                          ; ax = int row
         div     ch                              ; ah = row % 3
         mov     ch, bh                          ; ch = int row
-        sub     ch, ah                          ; ch = ch - ah  (row - row%3)
+        sub     ch, ah                          ; ch = ch - ah  (row - row % 3)
         mov     [esp+8], ch                     ; startRow = ch
 
 ; int startCol = col - col % 3
-        mov     esi, 3
-        movzx   eax, bl                         ; eax = int col
-        xor     edx, edx                        ; edx = 0
-        div     esi                             ; edx = col % 3
-        movzx   esi, bl                         ; esi = int col
-        sub     esi, edx                        ; esi = esi - edx
-        mov     ebp, esi                        ; startCol = esi
+        mov     ch, 3
+        movzx   ax, bl                          ; ax = int col
+        div     ch                              ; ah = col % 3
+        mov     ch, bl                          ; ch = int col
+        sub     ch, ah                          ; ch = ch - ah  (col - col % 3)
+        movzx   ebp, ch                       ; startCol = ch
 
         mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
