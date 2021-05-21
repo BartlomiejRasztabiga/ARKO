@@ -194,7 +194,7 @@ isSafe:
 
         mov     ch, 2                           ; i = 2
 .isSafe_box_loop_init:
-        mov     esi, 2                          ; j = 2 TODO use si
+        mov     esi, 2                          ; j = 2
 .isSafe_box_loop:
         movzx   ebx, BYTE [esp+8]               ; ebx = startRow
         movzx   edx, ch                         ; edx = i
