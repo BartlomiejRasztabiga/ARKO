@@ -124,8 +124,6 @@ sudoku:
 ;   - int col           bl
 ;   - int row           bh
 ;   - char num          cl
-; variables:
-;   - byte startRow     esp+8
 ; registers:
 ;   - al: temp register
 ;   - ah: x local variable
