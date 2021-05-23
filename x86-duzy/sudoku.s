@@ -6,7 +6,7 @@
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char grid[N][N]   esp+16
+;   - char grid[N][N]   esp+20
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 sudoku:
