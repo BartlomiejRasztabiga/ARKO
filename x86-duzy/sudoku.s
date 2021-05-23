@@ -61,11 +61,11 @@ sudoku:
                                                 ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
         ; al = getCellValue at [row][x]
-        movzx   esi, bh
+        movzx   esi, bh                         ; esi = row
         lea     eax, [esi+esi*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, bl
 
+        movzx   esi, bl                         ; esi = col
         cmp     BYTE [eax+esi], '#'             ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value_loop         ; if equal, goto .sudoku_find_value_loop
 
@@ -78,12 +78,12 @@ sudoku:
                                                 ; if returned 1, put that number into sudoku matrix
 
         ; setCellValue at [row][col] <- num
-        movzx   esi, bh
+        movzx   esi, bh                         ; esi = row
         lea     eax, [esi+esi*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, bl
-        lea     eax, [eax+esi]                  ; eax = pointer to grid's tile at [row][col]
-        mov     [eax], cl                       ; grid[row][col] = cl (num)
+
+        movzx   esi, bl                         ; esi = col
+        mov     [eax+esi], cl                   ; grid[row][col] = cl (num)
 
         ; solve next column
         push    bx                              ; save row,col
@@ -101,12 +101,12 @@ sudoku:
                                                 ; if false, try next number
 .sudoku_find_value_loop_next_num:
         ; setCellValue at [row][col] <- '#'
-        movzx   esi, bh
+        movzx   esi, bh                         ; esi = row
         lea     eax, [esi+esi*8]                ; eax = 9 * row
         lea     eax, [eax+edi]                  ; eax = pointer to grid's row
-        movzx   esi, bl
-        lea     eax, [eax+esi]                  ; eax = pointer to grid's tile at [row][col]
-        mov     [eax], BYTE '#'                 ; grid[row][col] = '#'
+
+        movzx   esi, bl                         ; esi = col
+        mov     [eax+esi], BYTE '#'             ; grid[row][col] = '#'
 
         inc     cl                              ; num++, try next char
         cmp     cl, '9'                         ; test if num <= '9'
@@ -147,8 +147,8 @@ isSafe:
         movzx   ebp, bh                         ; ebp = row
         lea     ebp, [ebp+ebp*8]                ; ebp = 9 * row
         lea     ebp, [ebp+edi]                  ; ebp = pointer to grid's row
-        movzx   esi, ah                         ; esi = x
 
+        movzx   esi, ah                         ; esi = x
         cmp     [ebp+esi], cl                   ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
@@ -161,6 +161,7 @@ isSafe:
         movzx   esi, ah                         ; esi = x
         lea     ebp, [esi+esi*8]                ; ebp = 9 * x
         lea     ebp, [ebp+edi]                  ; ebp = pointer to grid's row
+
         movzx   esi, bl                         ; esi = col
         mov     al, [ebp+esi]                   ; al = char from grid's tile at [x][col]
 
@@ -168,7 +169,7 @@ isSafe:
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     ah                              ; x--
-        jge     .isSafe_col_loop                ; goto loop if condition met
+        jge     .isSafe_col_loop                ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
         mov     dh, 3
