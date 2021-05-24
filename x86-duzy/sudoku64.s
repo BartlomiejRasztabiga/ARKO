@@ -53,12 +53,12 @@ sudoku:
 ;   - rdi: grid argument
 ;   - r10b: row argument
 ;   - r11b: col argument
-;   - r12: num (char) local variable
+;   - r12b: num (char) local variable
 ;   - rsi: tmp register
 ; returns:
 ;   - eax: 1 if found solution, 0 otherwise
 .sudoku:
-        mov     r12, '1'                         ; num = '1'
+        mov     r12b, '1'                         ; num = '1'
 .sudoku_find_next_cell:
         cmp     r11b, 9                           ; test if col == 9
         jne     .sudoku_not_finished            ; if not equal, goto .sudoku_not_finished
@@ -95,7 +95,7 @@ sudoku:
         lea     rax, [rax+rdi]                  ; eax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
-        mov     [rax+rsi], r12                   ; grid[row][col] = r12 (num)
+        mov     [rax+rsi], r12b                   ; grid[row][col] = r12 (num)
 
         ; solve next column
         push    r10                             ; save row
@@ -122,8 +122,8 @@ sudoku:
         movzx   rsi, r11b                         ; rsi = col
         mov     [rax+rsi], BYTE '#'             ; grid[row][col] = '#'
 
-        inc     r12                              ; num++, try next char
-        cmp     r12, '9'                         ; test if num <= '9'
+        inc     r12b                              ; num++, try next char
+        cmp     r12b, '9'                         ; test if num <= '9'
         jle     .sudoku_find_value_loop         ; if true, goto loop
         xor     rax, rax                        ; return 0
 .sudoku_return:
@@ -137,7 +137,7 @@ sudoku:
 ;   - char grid[N][N]   rdi
 ;   - int col           r11b
 ;   - int row           r10b
-;   - char num          r12
+;   - char num          r12b
 ; registers:
 ;   - r13: x local variable
 ;   - r10b: row argument
@@ -145,7 +145,7 @@ sudoku:
 ;   - r13: startRow local variable
 ;   - r14: startCol local variable
 ;   - r15: i local variable
-;   - r12: num
+;   - r12b: num
 ;   - rdi: grid
 ;   - rsi: j local variable/temp register
 ;   - rcx: temp register
@@ -211,7 +211,7 @@ isSafe:
 
         mov   rcx, r14                         ; rcx = startCol
         lea     rax, [rsi+rcx]                  ; eax = j + startCol
-        cmp     [rbx+rax], r12                   ; test if grid[i + startRow][j + startCol] == num
+        cmp     [rbx+rax], r12b                   ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                   ; if equal, return ZF
 
