@@ -158,10 +158,10 @@ isSafe:
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   rcx, r10b                         ; rcx = row
-        lea     rcx, [rbp+rbp*8]                ; rcx = 9 * row
-        lea     rcx, [rbp+rdi]                  ; rcx = pointer to grid's row
+        lea     rcx, [rcx+rcx*8]                ; rcx = 9 * row
+        lea     rcx, [rcx+rdi]                  ; rcx = pointer to grid's row
 
-        cmp     [rbp+r13], r12                   ; test if grid[row][x] == num
+        cmp     [rcx+r13], r12b                   ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     r13                              ; x--
@@ -170,20 +170,19 @@ isSafe:
         mov     r13, 8                           ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        mov   rsi, r13                         ; rsi = x
-        lea     rcx, [rsi+rsi*8]                ; rcx = 9 * x
+        mov   rcx, r13                         ; rsi = x
+        lea     rcx, [rcx+rsi*8]                ; rcx = 9 * x
         lea     rcx, [rcx+rdi]                  ; rcx = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
 
-        cmp     [rcx+rsi], r12                 ; test if grid[x][col] == num
+        cmp     [rcx+rsi], r12b                 ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     r13                              ; x--
         jns     .isSafe_col_loop                ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
-; TODO div doesn't work
 
         mov     r13, 3
         xor     rdx, rdx
