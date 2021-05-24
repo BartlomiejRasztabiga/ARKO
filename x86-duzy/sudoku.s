@@ -11,10 +11,10 @@
 ;   - eax: 1 if found solution, 0 otherwise
 sudoku:
         ; save callee-saved registers
+        push    ebp
         push    ebx
         push    esi
         push    edi
-        push    ebp
 
         mov     edi, [esp+20]                   ; edi = grid
         xor     ebx, ebx                        ; bh = row = 0; bl = col = 0;
@@ -22,10 +22,10 @@ sudoku:
         call    .sudoku                         ; call recursive helper
 
         ; restore callee-saved registers
-        pop     ebp
         pop     edi
         pop     esi
         pop     ebx
+        pop     ebp
 
         ret
 
@@ -153,7 +153,7 @@ isSafe:
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     ah                              ; x--
-        jge     .isSafe_row_loop                ; goto loop if condition met
+        jns     .isSafe_row_loop                ; goto loop if condition met
 
         mov     ah, 8                           ; int x = 8
 .isSafe_col_loop:
@@ -169,7 +169,7 @@ isSafe:
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     ah                              ; x--
-        jge     .isSafe_col_loop                ; goto loop if x >= 0
+        jns     .isSafe_col_loop                ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
         mov     dh, 3
@@ -197,7 +197,7 @@ isSafe:
 
         movzx   ebp, dl                         ; ebp = startCol
         lea     eax, [esi+ebp]                  ; eax = j + startCol
-        cmp     BYTE [ebx+eax], cl              ; test if grid[i + startRow][j + startCol] == num
+        cmp     [ebx+eax], cl                   ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                   ; if equal, return ZF
 
