@@ -27,6 +27,9 @@ sudoku:
 ;        xor     rsi, rsi
 ;        xor     rdi, rdi
 
+        xor     r10, r10
+        xor     r11, r11
+
         call    .sudoku                         ; call recursive helper
 
         ; restore callee-saved registers
@@ -95,14 +98,16 @@ sudoku:
         mov     [rax+rsi], r12                   ; grid[row][col] = r12 (num)
 
         ; solve next column
-        push    bx                              ; save row,col
-        push    cx                              ; save cx (char num)
+        push    r10                             ; save row
+        push    r11                             ; save col
+        push    r12                             ; save num
 
         inc     r11b                              ; col++
         call    .sudoku                         ; call .sudoku(grid, row, col+1)
 
-        pop     cx                              ; restore cx (char num)
-        pop     bx                              ; restore row,col
+        pop     r12                             ; restore num
+        pop     r11                             ; restore col
+        pop     r10                             ; restore row
 
         cmp     rax, 1                           ; test if sudoku returned 1 (true)
 
@@ -156,8 +161,7 @@ isSafe:
         lea     rcx, [rbp+rbp*8]                ; rcx = 9 * row
         lea     rcx, [rbp+rdi]                  ; rcx = pointer to grid's row
 
-        mov   rsi, r13                         ; rsi = x
-        cmp     [rbp+rsi], r12                   ; test if grid[row][x] == num
+        cmp     [rbp+r13], r12                   ; test if grid[row][x] == num
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     r13                              ; x--
@@ -172,19 +176,21 @@ isSafe:
 
         movzx   rsi, r11b                         ; rsi = col
 
-        cmp     [rcx+rsi], r12                          ; test if grid[x][col] == num
+        cmp     [rcx+rsi], r12                 ; test if grid[x][col] == num
         je      .isSafe_return                  ; if equal, num illegal, return ZF
 
         dec     r13                              ; x--
         jns     .isSafe_col_loop                ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
+; TODO div doesn't work
+
         mov     r13, 3
         xor     rdx, rdx
         movzx     rax, r10b                          ; ax = int row
-        div     r13                              ; ah = row % 3
+        div     r13                              ; rdx = row % 3
         movzx     r13, r10b                          ; r13 = int row
-        sub     r13, rax                          ; startRow = r13 - ah  (row - row % 3)
+        sub     r13, rdx                          ; startRow = r13 - ah  (row - row % 3)
 
 ; int startCol = col - col % 3
         mov     r14, 3
@@ -192,7 +198,7 @@ isSafe:
         movzx   rax, r11b                          ; ax = int col
         div     r14                              ; ah = col % 3
         movzx     r14, r11b                          ; r14 = int col
-        sub     r14, rax                          ; startCol = r14 - ah  (col - col % 3)
+        sub     r14, rdx                          ; startCol = r14 - ah  (col - col % 3)
 
         mov     r15, 2                           ; i = 2
 .isSafe_box_loop_init:
