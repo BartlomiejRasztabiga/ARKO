@@ -10,3 +10,5 @@ main3.c
 /input.txt
 /expected.txt
 /input_raw.txt
+/sudoku64.lst
+/sudoku64.o

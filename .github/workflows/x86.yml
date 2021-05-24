@@ -35,3 +35,6 @@ jobs:
 
       - name: Run random tests
         run: sh ./test-random.sh
+        
+      - name: Run random tests x64
+        run: sh ./test-random64.sh
