@@ -130,7 +130,7 @@ sudoku:
 ;   - char num          r12b
 ; registers:
 ;   - r9:   temp register
-;   - r13: x local variable
+;   - r13b: x local variable
 ;   - r10b: row argument
 ;   - r11b: col argument
 ;   - r13: startRow local variable
@@ -144,23 +144,24 @@ sudoku:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
 
-        mov     r13, 8                            ; int x = 8
+        mov     r13b, 8                            ; int x = 8
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   rcx, r10b                         ; rcx = row
         lea     rcx, [rcx+rcx*8]                  ; rcx = 9 * row
         lea     rcx, [rcx+rdi]                    ; rcx = pointer to grid's row
 
-        cmp     [rcx+r13], r12b                   ; test if grid[row][x] == num
+        movzx   rsi, r13b
+        cmp     [rcx+rsi], r12b                   ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
-        dec     r13                               ; x--
+        dec     r13b                              ; x--
         jge     .isSafe_row_loop                  ; goto loop if condition met
 
-        mov     r13, 8                            ; int x = 8
+        mov     r13b, 8                           ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        mov     rcx, r13                          ; rcx = x
+        movzx   rcx, r13b                         ; rcx = x
         lea     rcx, [rcx+rcx*8]                  ; rcx = 9 * x
         lea     rcx, [rcx+rdi]                    ; rcx = pointer to grid's row
 
@@ -169,7 +170,7 @@ isSafe:
         cmp     [rcx+rsi], r12b                   ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
-        dec     r13                               ; x--
+        dec     r13b                              ; x--
         jge     .isSafe_col_loop                  ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
