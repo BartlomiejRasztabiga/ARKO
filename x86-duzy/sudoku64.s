@@ -8,7 +8,7 @@
 ; arguments:
 ;   - char grid[N][N]   rdi
 ; returns:
-;   - eax: 1 if found solution, 0 otherwise
+;   - rax: 1 if found solution, 0 otherwise
 sudoku:
         ; save callee-saved registers
         push    rbx
@@ -46,7 +46,7 @@ sudoku:
 ;   - r12b: num (char) local variable
 ;   - rsi: tmp register
 ; returns:
-;   - eax: 1 if found solution, 0 otherwise
+;   - rax: 1 if found solution, 0 otherwise
 .sudoku:
         mov     r12b, '1'                         ; num = '1'
 .sudoku_find_next_cell:
@@ -58,14 +58,14 @@ sudoku:
 
         cmp     r10b, 9                           ; test if row == 9
 
-        mov     eax, 1
+        mov     rax, 1
         je     .sudoku_return                     ; if last row, return 1
                                                   ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
         ; al = getCellValue at [row][x]
         movzx   rsi, r10b                         ; rsi = row
-        lea     rax, [rsi+rsi*8]                  ; eax = 9 * row
-        lea     rax, [rax+rdi]                    ; eax = pointer to grid's row
+        lea     rax, [rsi+rsi*8]                  ; rax = 9 * row
+        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
         cmp     BYTE [rax+rsi], '#'               ; test if grid[row][col] == '#' - no value at tile
@@ -81,8 +81,8 @@ sudoku:
 
         ; setCellValue at [row][col] <- num
         movzx   rsi, r10b                         ; rsi = row
-        lea     rax, [rsi+rsi*8]                  ; eax = 9 * row
-        lea     rax, [rax+rdi]                    ; eax = pointer to grid's row
+        lea     rax, [rsi+rsi*8]                  ; rax = 9 * row
+        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
         mov     [rax+rsi], r12b                   ; grid[row][col] = r12 (num)
@@ -101,13 +101,13 @@ sudoku:
 
         cmp     rax, 1                            ; test if sudoku returned 1 (true)
 
-        je     .sudoku_return                     ; if true, return 1 (1 already in eax)
+        je     .sudoku_return                     ; if true, return 1 (1 already in rax)
                                                   ; if false, try next number
 .sudoku_find_value_loop_next_num:
         ; setCellValue at [row][col] <- '#'
         movzx   rsi, r10b                         ; rsi = row
-        lea     rax, [rsi+rsi*8]                  ; eax = 9 * row
-        lea     rax, [rax+rdi]                    ; eax = pointer to grid's row
+        lea     rax, [rsi+rsi*8]                  ; rax = 9 * row
+        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
         mov     [rax+rsi], BYTE '#'               ; grid[row][col] = '#'
@@ -129,6 +129,7 @@ sudoku:
 ;   - int row           r10b
 ;   - char num          r12b
 ; registers:
+;   - r9:   temp register
 ;   - r13: x local variable
 ;   - r10b: row argument
 ;   - r11b: col argument
@@ -142,7 +143,6 @@ sudoku:
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
-        push    rbx
 
         mov     r13, 8                            ; int x = 8
 .isSafe_row_loop:
@@ -193,15 +193,15 @@ isSafe:
 .isSafe_box_loop_init:
         mov     rsi, 2                            ; j = 2
 .isSafe_box_loop:
-        mov   rax, r13                            ; eax = startRow
-        mov   rbx, r15                            ; ebx = i
-        lea     rbx, [rbx+rax]                    ; ebx = i + startRow
-        lea     rbx, [rbx+rbx*8]                  ; ebx = grid[i + startRow]
-        lea     rbx, [rbx+rdi]                    ; ebx = pointer to grid's row
+        mov   rax, r13                            ; rax = startRow
+        mov   r9, r15                            ; ebx = i
+        lea     r9, [r9+rax]                    ; ebx = i + startRow
+        lea     r9, [r9+r9*8]                  ; ebx = grid[i + startRow]
+        lea     r9, [r9+rdi]                    ; ebx = pointer to grid's row
 
         mov   rcx, r14                            ; rcx = startCol
-        lea     rax, [rsi+rcx]                    ; eax = j + startCol
-        cmp     [rbx+rax], r12b                   ; test if grid[i + startRow][j + startCol] == num
+        lea     rax, [rsi+rcx]                    ; rax = j + startCol
+        cmp     [r9+rax], r12b                   ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
 
@@ -212,6 +212,5 @@ isSafe:
         jge     .isSafe_box_loop_init             ; if i > 0, go back to loop
                                                   ; else, escape loop, return no ZF flag
 .isSafe_return:
-        pop     rbx
 
         ret
