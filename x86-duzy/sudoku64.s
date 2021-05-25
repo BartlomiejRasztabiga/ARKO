@@ -19,6 +19,7 @@ sudoku:
 
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
+        xor     r12, r12
 
         call    .sudoku                           ; call recursive helper
 
@@ -160,8 +161,8 @@ isSafe:
         mov     r13, 8                            ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        mov   rcx, r13                            ; rsi = x
-        lea     rcx, [rcx+rsi*8]                  ; rcx = 9 * x
+        mov     rcx, r13                          ; rcx = x
+        lea     rcx, [rcx+rcx*8]                  ; rcx = 9 * x
         lea     rcx, [rcx+rdi]                    ; rcx = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
