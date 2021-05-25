@@ -17,8 +17,8 @@ sudoku:
         push    r14
         push    r15
 
-        xor     r10, r10                          ; row = 0
-        xor     r11, r11                          ; col = 0
+        xor     r10b, r10b                        ; row = 0
+        xor     r11b, r11b                        ; col = 0
 
         call    .sudoku                           ; call recursive helper
 
