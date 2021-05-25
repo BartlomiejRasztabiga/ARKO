@@ -133,8 +133,8 @@ sudoku:
 ;   - r13b: x local variable
 ;   - r10b: row argument
 ;   - r11b: col argument
-;   - r13: startRow local variable
-;   - r14: startCol local variable
+;   - r13b: startRow local variable
+;   - r14b: startCol local variable
 ;   - r15: i local variable
 ;   - r12b: num
 ;   - rdi: grid
@@ -174,21 +174,20 @@ isSafe:
         jge     .isSafe_col_loop                  ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
-
-        mov     r13, 3
-        xor     rdx, rdx
-        movzx   rax, r10b                         ; ax = int row
-        div     r13                               ; rdx = row % 3
-        movzx   r13, r10b                         ; r13 = int row
-        sub     r13, rdx                          ; startRow = r13 - rdx  (row - row % 3)
+        mov     cl, 3
+        movzx   ax, r10b                          ; ax = row
+        div     cl                                ; ah = row % 3
+        mov     cl, r10b                          ; cl = row
+        sub     cl, ah                            ; cl = cl - ah  (row - row % 3)
+        movzx   r13, cl                          ; startRow = cl
 
 ; int startCol = col - col % 3
-        mov     r14, 3
-        xor     rdx, rdx
-        movzx   rax, r11b                         ; ax = int col
-        div     r14                               ; ah = col % 3
-        movzx   r14, r11b                         ; r14 = int col
-        sub     r14, rdx                          ; startCol = r14 - rdx  (col - col % 3)
+        mov     cl, 3
+        movzx   ax, r11b                          ; ax = col
+        div     cl                                ; ah = col % 3
+        mov     cl, r11b                          ; cl = col
+        sub     cl, ah                            ; cl = cl - ah  (col - col % 3)
+        movzx   r14, cl                          ; startCol = cl
 
         mov     r15, 2                            ; i = 2
 .isSafe_box_loop_init:
@@ -199,8 +198,7 @@ isSafe:
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
 
-        mov     rcx, r14                          ; rcx = startCol
-        lea     rax, [rsi+rcx]                    ; rax = j + startCol
+        lea     rax, [rsi+r14]                    ; rax = j + startCol
         cmp     [r9+rax], r12b                    ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
