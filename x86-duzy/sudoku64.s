@@ -155,7 +155,7 @@ isSafe:
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13                               ; x--
-        jns     .isSafe_row_loop                  ; goto loop if condition met
+        jge     .isSafe_row_loop                  ; goto loop if condition met
 
         mov     r13, 8                            ; int x = 8
 .isSafe_col_loop:
@@ -170,38 +170,37 @@ isSafe:
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13                               ; x--
-        jns     .isSafe_col_loop                  ; goto loop if x >= 0
+        jge     .isSafe_col_loop                  ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
 
         mov     r13, 3
         xor     rdx, rdx
-        movzx     rax, r10b                       ; ax = int row
+        movzx   rax, r10b                         ; ax = int row
         div     r13                               ; rdx = row % 3
-        movzx     r13, r10b                       ; r13 = int row
-        sub     r13, rdx                          ; startRow = r13 - ah  (row - row % 3)
+        movzx   r13, r10b                         ; r13 = int row
+        sub     r13, rdx                          ; startRow = r13 - rdx  (row - row % 3)
 
 ; int startCol = col - col % 3
         mov     r14, 3
         xor     rdx, rdx
         movzx   rax, r11b                         ; ax = int col
         div     r14                               ; ah = col % 3
-        movzx     r14, r11b                       ; r14 = int col
-        sub     r14, rdx                          ; startCol = r14 - ah  (col - col % 3)
+        movzx   r14, r11b                         ; r14 = int col
+        sub     r14, rdx                          ; startCol = r14 - rdx  (col - col % 3)
 
         mov     r15, 2                            ; i = 2
 .isSafe_box_loop_init:
         mov     rsi, 2                            ; j = 2
 .isSafe_box_loop:
-        mov   rax, r13                            ; rax = startRow
-        mov   r9, r15                            ; ebx = i
-        lea     r9, [r9+rax]                    ; ebx = i + startRow
-        lea     r9, [r9+r9*8]                  ; ebx = grid[i + startRow]
-        lea     r9, [r9+rdi]                    ; ebx = pointer to grid's row
+        mov     r9, r15                           ; r9 = i
+        lea     r9, [r9+r13]                      ; r9 = i + startRow
+        lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
+        lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
 
-        mov   rcx, r14                            ; rcx = startCol
+        mov     rcx, r14                          ; rcx = startCol
         lea     rax, [rsi+rcx]                    ; rax = j + startCol
-        cmp     [r9+rax], r12b                   ; test if grid[i + startRow][j + startCol] == num
+        cmp     [r9+rax], r12b                    ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
 
