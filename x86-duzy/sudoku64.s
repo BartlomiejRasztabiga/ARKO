@@ -130,10 +130,9 @@ sudoku:
 ;   - char num          r12b
 ; registers:
 ;   - r9:   temp register
-;   - r13b: x local variable
 ;   - r10b: row argument
 ;   - r11b: col argument
-;   - r13b: startRow local variable
+;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
 ;   - r15: i local variable
 ;   - r12b: num
@@ -150,7 +149,7 @@ isSafe:
         lea     rax, [rax+rax*8]                  ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
-        movzx   rsi, r13b
+        movzx   rsi, r13b                         ; rsi = x
         cmp     [rax+rsi], r12b                   ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
