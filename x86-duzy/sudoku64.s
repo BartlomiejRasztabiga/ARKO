@@ -143,7 +143,7 @@ sudoku:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
 
-        mov     r13b, 8                            ; int x = 8
+        mov     r13b, 8                           ; int x = 8
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   rax, r10b                         ; rax = row
@@ -178,7 +178,7 @@ isSafe:
         div     cl                                ; ah = row % 3
         mov     cl, r10b                          ; cl = row
         sub     cl, ah                            ; cl = cl - ah  (row - row % 3)
-        movzx   r13, cl                          ; startRow = cl
+        movzx   r13, cl                           ; startRow = cl
 
 ; int startCol = col - col % 3
         mov     cl, 3
@@ -186,7 +186,7 @@ isSafe:
         div     cl                                ; ah = col % 3
         mov     cl, r11b                          ; cl = col
         sub     cl, ah                            ; cl = cl - ah  (col - col % 3)
-        movzx   r14, cl                          ; startCol = cl
+        movzx   r14, cl                           ; startCol = cl
 
         mov     r15, 2                            ; i = 2
 .isSafe_box_loop_init:
