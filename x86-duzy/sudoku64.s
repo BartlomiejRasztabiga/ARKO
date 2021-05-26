@@ -22,6 +22,7 @@ sudoku:
 
         ; zeroing registers so we can use whole (REX) registers later on for example in addressing
         xor     r13, r13
+        xor     r15, r15
 
         call    .sudoku                           ; call recursive helper
 
@@ -159,7 +160,6 @@ isSafe:
 
         dec     r13b                              ; x--
         jns     .isSafe_col_loop                  ; goto loop if x >= 0
-
 ; int startRow = row - row % 3
         mov     cl, 3
         movzx   ax, r10b                          ; ax = row
@@ -180,8 +180,7 @@ isSafe:
 .isSafe_box_loop_init:
         mov     rsi, 2                            ; j = 2
 .isSafe_box_loop:
-        mov     r9, r15                           ; r9 = i
-        lea     r9, [r9+r13]                      ; r9 = i + startRow
+        lea     r9, [r15+r13]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
 
