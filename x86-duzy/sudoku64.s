@@ -20,7 +20,7 @@ sudoku:
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
 
-        ; zeroing registers so we can use whole (REX) registers later on for example in addressing
+        ; zeroing registers so we can use whole (REX) registers later on in addressing
         xor     r13, r13
         xor     r15, r15
 
