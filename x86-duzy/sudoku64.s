@@ -139,7 +139,6 @@ sudoku:
 ;   - r12b: num
 ;   - rdi: grid
 ;   - rsi: j local variable/temp register
-;   - rcx: temp register
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
@@ -148,11 +147,11 @@ isSafe:
 .isSafe_row_loop:
         ; al = getCellValue at [row][x]
         movzx   rax, r10b                         ; rax = row
-        lea     rcx, [rax+rax*8]                  ; rcx = 9 * row
-        lea     rcx, [rcx+rdi]                    ; rcx = pointer to grid's row
+        lea     rax, [rax+rax*8]                  ; rax = 9 * row
+        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r13b
-        cmp     [rcx+rsi], r12b                   ; test if grid[row][x] == num
+        cmp     [rax+rsi], r12b                   ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
@@ -161,13 +160,13 @@ isSafe:
         mov     r13b, 8                           ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        movzx   rcx, r13b                         ; rcx = x
-        lea     rcx, [rcx+rcx*8]                  ; rcx = 9 * x
-        lea     rcx, [rcx+rdi]                    ; rcx = pointer to grid's row
+        movzx   rax, r13b                         ; rax = x
+        lea     rax, [rax+rax*8]                  ; rax = 9 * x
+        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
 
-        cmp     [rcx+rsi], r12b                   ; test if grid[x][col] == num
+        cmp     [rax+rsi], r12b                   ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
