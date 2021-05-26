@@ -156,7 +156,7 @@ isSafe:
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
-        jge     .isSafe_row_loop                  ; goto loop if condition met
+        jns     .isSafe_row_loop                  ; goto loop if condition met
 
         mov     r13b, 8                           ; int x = 8
 .isSafe_col_loop:
@@ -170,7 +170,7 @@ isSafe:
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
-        jge     .isSafe_col_loop                  ; goto loop if x >= 0
+        jns     .isSafe_col_loop                  ; goto loop if x >= 0
 
 ; int startRow = row - row % 3
         mov     cl, 3
@@ -203,10 +203,10 @@ isSafe:
         je     .isSafe_return                     ; if equal, return ZF
 
         dec     rsi                               ; j--
-        jge     .isSafe_box_loop                  ; if j > 0, go back to loop
+        jns     .isSafe_box_loop                  ; if j > 0, go back to loop
 
         dec     r15                               ; else i--
-        jge     .isSafe_box_loop_init             ; if i > 0, go back to loop
+        jns     .isSafe_box_loop_init             ; if i > 0, go back to loop
                                                   ; else, escape loop, return no ZF flag
 .isSafe_return:
 
