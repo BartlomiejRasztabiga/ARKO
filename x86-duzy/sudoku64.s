@@ -166,7 +166,6 @@ isSafe:
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
-
         cmp     [rax+rsi], r12b                   ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
