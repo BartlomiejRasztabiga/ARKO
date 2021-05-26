@@ -88,16 +88,16 @@ sudoku:
         mov     [rax+rsi], r12b                   ; grid[row][col] = r12 (num)
 
         ; solve next column
-        push    r10                               ; save row
-        push    r11                               ; save col
-        push    r12                               ; save num
+        push    r10w                               ; save row
+        push    r11w                               ; save col
+        push    r12w                               ; save num
 
         inc     r11b                              ; col++
         call    .sudoku                           ; call .sudoku(grid, row, col+1)
 
-        pop     r12                               ; restore num
-        pop     r11                               ; restore col
-        pop     r10                               ; restore row
+        pop     r12w                               ; restore num
+        pop     r11w                               ; restore col
+        pop     r10w                               ; restore row
 
         cmp     rax, 1                            ; test if sudoku returned 1 (true)
 
