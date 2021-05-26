@@ -43,6 +43,7 @@ sudoku:
 ;   - rdi: grid argument
 ;   - r10b: row argument
 ;   - r11b: col argument
+;
 ;   - r12b: num (char) local variable
 ;   - rsi: tmp register
 ; returns:
@@ -125,16 +126,17 @@ sudoku:
 ;   checks whether it will be legal to assign num to the given [row][col]
 ; arguments:
 ;   - char grid[N][N]   rdi
-;   - int col           r11b
 ;   - int row           r10b
+;   - int col           r11b
 ;   - char num          r12b
 ; registers:
-;   - rdi: grid
-;   - rsi: j local variable/temp register
-;   - r9:   temp register
+;   - rdi: grid argument
 ;   - r10b: row argument
 ;   - r11b: col argument
-;   - r12b: num
+;   - r12b: num argument
+;
+;   - rsi: j local variable/temp register
+;   - r9:   temp register
 ;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
 ;   - r15: i local variable
