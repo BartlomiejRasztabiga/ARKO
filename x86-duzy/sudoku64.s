@@ -121,7 +121,7 @@ sudoku:
         ret
 
 ; ============================================================================
-; isSafe(row, col, num)
+; isSafe(grid, row, col, num)
 ; description:
 ;   checks whether it will be legal to assign num to the given [row][col]
 ; arguments:
