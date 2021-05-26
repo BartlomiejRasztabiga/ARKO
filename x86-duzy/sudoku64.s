@@ -156,7 +156,7 @@ isSafe:
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
-        jns     .isSafe_row_loop                  ; goto loop if condition met
+        jns     .isSafe_row_loop                  ; goto loop if x >= 0
 
         mov     r13b, 8                           ; int x = 8
 .isSafe_col_loop:
