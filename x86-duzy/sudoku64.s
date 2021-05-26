@@ -63,8 +63,8 @@ sudoku:
                                                   ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
         ; al = getCellValue at [row][x]
-        movzx   rsi, r10b                         ; rsi = row
-        lea     rax, [rsi+rsi*8]                  ; rax = 9 * row
+        movzx   rax, r10b                         ; rsi = row
+        lea     rax, [rax+rax*8]                  ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
@@ -80,8 +80,8 @@ sudoku:
                                                   ; if returned 1, put that number into sudoku matrix
 
         ; setCellValue at [row][col] <- num
-        movzx   rsi, r10b                         ; rsi = row
-        lea     rax, [rsi+rsi*8]                  ; rax = 9 * row
+        movzx   rax, r10b                         ; rsi = row
+        lea     rax, [rax+rax*8]                  ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
@@ -105,8 +105,8 @@ sudoku:
                                                   ; if false, try next number
 .sudoku_find_value_loop_next_num:
         ; setCellValue at [row][col] <- '#'
-        movzx   rsi, r10b                         ; rsi = row
-        lea     rax, [rsi+rsi*8]                  ; rax = 9 * row
+        movzx   rax, r10b                         ; rsi = row
+        lea     rax, [rax+rax*8]                  ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
 
         movzx   rsi, r11b                         ; rsi = col
