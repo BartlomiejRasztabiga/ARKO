@@ -49,7 +49,6 @@ sudoku:
 ;   - r11b: col argument
 ;
 ;   - r12b: num (char) local variable
-;   - rsi: tmp register
 ; returns:
 ;   - rax: 1 if found solution, 0 otherwise
 .sudoku:
@@ -130,11 +129,11 @@ sudoku:
 ;   - r12b: num argument
 ;
 ;   - cl: temp register for division (cannot use rex registers)
-;   - rsi: j local variable/temp register
+;   - r8b: j local variable
 ;   - r9: temp register
 ;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
-;   - r15: i local variable
+;   - r15b: i local variable
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
@@ -176,23 +175,22 @@ isSafe:
         sub     cl, ah                            ; cl = cl - ah  (col - col % 3)
         movzx   r14, cl                           ; startCol = cl
 
-        mov     r15, 2                            ; i = 2
+        mov     r15b, 2                           ; i = 2
 .isSafe_box_loop_init:
-        mov     rsi, 2                            ; j = 2
+        mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
         lea     r9, [r15+r13]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
-
-        lea     rax, [rsi+r14]                    ; rax = j + startCol
+        lea     rax, [r8+r14]                     ; rax = j + startCol
         cmp     [r9+rax], r12b                    ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
 
-        dec     rsi                               ; j--
+        dec     r8b                               ; j--
         jns     .isSafe_box_loop                  ; if j > 0, go back to loop
 
-        dec     r15                               ; else i--
+        dec     r15b                              ; else i--
         jns     .isSafe_box_loop_init             ; if i > 0, go back to loop
                                                   ; else, escape loop, return no ZF flag
 .isSafe_return:
