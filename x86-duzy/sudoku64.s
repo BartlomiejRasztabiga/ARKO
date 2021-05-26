@@ -135,8 +135,9 @@ sudoku:
 ;   - r11b: col argument
 ;   - r12b: num argument
 ;
+;   - cl: temp register for division (cannot use rex registers)
 ;   - rsi: j local variable/temp register
-;   - r9:   temp register
+;   - r9: temp register
 ;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
 ;   - r15: i local variable
