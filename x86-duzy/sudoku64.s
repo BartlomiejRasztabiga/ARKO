@@ -129,15 +129,15 @@ sudoku:
 ;   - int row           r10b
 ;   - char num          r12b
 ; registers:
+;   - rdi: grid
+;   - rsi: j local variable/temp register
 ;   - r9:   temp register
 ;   - r10b: row argument
 ;   - r11b: col argument
+;   - r12b: num
 ;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
 ;   - r15: i local variable
-;   - r12b: num
-;   - rdi: grid
-;   - rsi: j local variable/temp register
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
