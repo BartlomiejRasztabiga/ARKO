@@ -6,7 +6,7 @@
 ; description:
 ;   solves given sudoku matrix
 ; arguments:
-;   - char grid[N][N]   rdi
+;   - char grid[N][N]  rdi
 ; returns:
 ;   - rax: 1 if found solution, 0 otherwise
 sudoku:
