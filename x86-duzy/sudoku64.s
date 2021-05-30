@@ -11,7 +11,6 @@
 ;   - rax: 1 if found solution, 0 otherwise
 sudoku:
         ; save callee-saved registers
-        push    rbx
         push    r12
         push    r13
         push    r14
@@ -31,7 +30,6 @@ sudoku:
         pop     r14
         pop     r13
         pop     r12
-        pop     rbx
 
         ret
 
