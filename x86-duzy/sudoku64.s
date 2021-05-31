@@ -127,6 +127,7 @@ sudoku:
 ;   - r9: temp register
 ;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
+;   - rsi: temp register
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
@@ -172,12 +173,12 @@ isSafe:
 .isSafe_box_loop_init:
         mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
-        movzx   rax, cl                           ; rax = i
-        lea     r9, [rax+r13]                     ; r9 = i + startRow
+        movzx   rsi, cl                           ; rsi, = i
+        lea     r9, [rsi+r13]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
-        lea     rax, [r8+r14]                     ; rax = j + startCol
-        cmp     [r9+rax], dl                      ; test if grid[i + startRow][j + startCol] == num
+        lea     rsi, [r8+r14]                     ; rsi, = j + startCol
+        cmp     [r9+rsi], dl                      ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
 
