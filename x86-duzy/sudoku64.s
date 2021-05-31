@@ -57,7 +57,7 @@ sudoku:
                                                   ; if not equal, goto .sudoku_not_finished
 .sudoku_not_finished:
         ; getCellValue at [row][x]
-        lea     rax, [r10+r10*8]                  ; rax = 9 * row
+        lea     rax, [r10d+r10d*8]                ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
         cmp     BYTE [rax+r11], '#'               ; test if grid[row][col] == '#' - no value at tile
         je      .sudoku_find_value_loop           ; if equal, goto .sudoku_find_value_loop
@@ -70,7 +70,7 @@ sudoku:
         je     .sudoku_find_value_loop_next_num   ; if isSafe returned 0, try next number
                                                   ; if returned 1, put that number into sudoku matrix
         ; setCellValue at [row][col] <- num
-        lea     rax, [r10+r10*8]                  ; rax = 9 * row
+        lea     rax, [r10d+r10d*8]                ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
         mov     [rax+r11], dl                     ; grid[row][col] = dl (num)
 
@@ -92,7 +92,7 @@ sudoku:
                                                   ; if false, try next number
 .sudoku_find_value_loop_next_num:
         ; setCellValue at [row][col] <- '#'
-        lea     rax, [r10+r10*8]                  ; rax = 9 * row
+        lea     rax, [r10d+r10d*8]                ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
         mov     [rax+r11], BYTE '#'               ; grid[row][col] = '#'
 
@@ -131,7 +131,7 @@ isSafe:
         mov     r12b, 8                           ; int x = 8
 .isSafe_row_loop:
         ; getCellValue at [row][x]
-        lea     rsi, [r10+r10*8]                  ; rsi = 9 * row
+        lea     rsi, [r10d+r10d*8]                ; rsi = 9 * row
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
         cmp     [rsi+r12], dl                     ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
@@ -142,7 +142,7 @@ isSafe:
         mov     r12b, 8                           ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        lea     rsi, [r12+r12*8]                  ; rsi = 9 * x
+        lea     rsi, [r12d+r12d*8]                ; rsi = 9 * x
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
         cmp     [rsi+r11], dl                     ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
