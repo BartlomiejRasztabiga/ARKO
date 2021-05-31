@@ -169,7 +169,7 @@ isSafe:
 .isSafe_box_loop_init:
         mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
-        movzx   rsi, cl                           ; rsi, = i
+        movzx   rsi, cl                           ; rsi = i
         lea     r9, [rsi+r12]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
