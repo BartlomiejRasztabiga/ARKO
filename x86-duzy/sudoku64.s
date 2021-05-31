@@ -129,7 +129,6 @@ sudoku:
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
-
         mov     r13b, 8                           ; int x = 8
 .isSafe_row_loop:
         ; getCellValue at [row][x]
