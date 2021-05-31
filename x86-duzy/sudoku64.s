@@ -48,7 +48,7 @@ sudoku:
 ; returns:
 ;   - rax: 1 if found solution, 0 otherwise
 .sudoku:
-        mov     dl, '1'                         ; num = '1'
+        mov     dl, '1'                           ; num = '1'
 .sudoku_find_next_cell:
         cmp     r11b, 9                           ; test if col == 9
         jne     .sudoku_not_finished              ; if not equal, goto .sudoku_not_finished
@@ -78,17 +78,17 @@ sudoku:
         ; setCellValue at [row][col] <- num
         lea     rax, [r10+r10*8]                  ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
-        mov     [rax+r11], dl                   ; grid[row][col] = dl (num)
+        mov     [rax+r11], dl                     ; grid[row][col] = dl (num)
 
         ; solve next column (save [row, col, num] for backtracking)
         push    r10w                              ; save row
         push    r11w                              ; save col
-        push    dx                              ; save num
+        push    dx                                ; save num
 
         inc     r11b                              ; col++
         call    .sudoku                           ; call .sudoku(grid, row, col+1)
 
-        pop     dx                              ; restore num
+        pop     dx                                ; restore num
         pop     r11w                              ; restore col
         pop     r10w                              ; restore row
 
@@ -102,8 +102,8 @@ sudoku:
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
         mov     [rax+r11], BYTE '#'               ; grid[row][col] = '#'
 
-        inc     dl                              ; num++, try next char
-        cmp     dl, '9'                         ; test if num <= '9'
+        inc     dl                                ; num++, try next char
+        cmp     dl, '9'                           ; test if num <= '9'
         jle     .sudoku_find_value_loop           ; if true, goto loop
         xor     rax, rax                          ; return 0
 .sudoku_return:
@@ -139,7 +139,7 @@ isSafe:
         ; getCellValue at [row][x]
         lea     rax, [r10+r10*8]                  ; rax = 9 * row
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
-        cmp     [rax+r13], dl                    ; test if grid[row][x] == num
+        cmp     [rax+r13], dl                     ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
@@ -150,7 +150,7 @@ isSafe:
         ; al = getCellValue at [x][col]
         lea     rax, [r13+r13*8]                  ; rax = 9 * x
         lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
-        cmp     [rax+r11], dl                    ; test if grid[x][col] == num
+        cmp     [rax+r11], dl                     ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
@@ -179,7 +179,7 @@ isSafe:
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
         lea     rax, [r8+r14]                     ; rax = j + startCol
-        cmp     [r9+rax], dl                     ; test if grid[i + startRow][j + startCol] == num
+        cmp     [r9+rax], dl                      ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
 
