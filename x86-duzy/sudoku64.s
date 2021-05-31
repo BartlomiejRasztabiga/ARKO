@@ -12,7 +12,6 @@
 sudoku:
         ; save callee-saved registers
         push    r13
-        push    r14
 
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
@@ -23,7 +22,6 @@ sudoku:
         call    .sudoku                           ; call recursive helper
 
         ; restore callee-saved registers
-        pop     r14
         pop     r13
 
         ret
@@ -126,7 +124,7 @@ sudoku:
 ;   - r8b: j local variable
 ;   - r9: temp register
 ;   - r13b: x/startRow local variable
-;   - r14b: startCol local variable
+;   - al: startCol local variable
 ;   - rsi: temp register
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
@@ -167,7 +165,7 @@ isSafe:
         div     cl                                ; ah = col % 3
         mov     cl, r11b                          ; cl = col
         sub     cl, ah                            ; cl = cl - ah  (col - col % 3)
-        movzx   r14, cl                           ; startCol = cl
+        mov     al, cl                            ; startCol = cl
 
         mov     cl, 2                             ; i = 2
 .isSafe_box_loop_init:
@@ -177,7 +175,8 @@ isSafe:
         lea     r9, [rsi+r13]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
-        lea     rsi, [r8+r14]                     ; rsi, = j + startCol
+        movzx   rsi, al                           ; rsi = startCol
+        lea     rsi, [r8+rsi]                     ; rsi = j + startCol
         cmp     [r9+rsi], dl                      ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
