@@ -133,9 +133,9 @@ isSafe:
         mov     r13b, 8                           ; int x = 8
 .isSafe_row_loop:
         ; getCellValue at [row][x]
-        lea     rax, [r10+r10*8]                  ; rax = 9 * row
-        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
-        cmp     [rax+r13], dl                     ; test if grid[row][x] == num
+        lea     rsi, [r10+r10*8]                  ; rsi = 9 * row
+        lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
+        cmp     [rsi+r13], dl                     ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
@@ -144,9 +144,9 @@ isSafe:
         mov     r13b, 8                           ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        lea     rax, [r13+r13*8]                  ; rax = 9 * x
-        lea     rax, [rax+rdi]                    ; rax = pointer to grid's row
-        cmp     [rax+r11], dl                     ; test if grid[x][col] == num
+        lea     rsi, [r13+r13*8]                  ; rsi = 9 * x
+        lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
+        cmp     [rsi+r11], dl                     ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
         dec     r13b                              ; x--
