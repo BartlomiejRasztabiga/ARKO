@@ -13,19 +13,16 @@ sudoku:
         ; save callee-saved registers
         push    r13
         push    r14
-        push    r15
 
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
 
         ; zeroing registers so we can use whole (REX) registers later on in addressing
         xor     r13, r13
-        xor     r15, r15
 
         call    .sudoku                           ; call recursive helper
 
         ; restore callee-saved registers
-        pop     r15
         pop     r14
         pop     r13
 
@@ -125,11 +122,11 @@ sudoku:
 ;   - dl: num argument
 ;
 ;   - cl: temp register for division (cannot use rex registers)
+;   - cl: i local variable
 ;   - r8b: j local variable
 ;   - r9: temp register
 ;   - r13b: x/startRow local variable
 ;   - r14b: startCol local variable
-;   - r15b: i local variable
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
@@ -171,11 +168,12 @@ isSafe:
         sub     cl, ah                            ; cl = cl - ah  (col - col % 3)
         movzx   r14, cl                           ; startCol = cl
 
-        mov     r15b, 2                           ; i = 2
+        mov     cl, 2                             ; i = 2
 .isSafe_box_loop_init:
         mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
-        lea     r9, [r15+r13]                     ; r9 = i + startRow
+        movzx   rax, cl                           ; rax = i
+        lea     r9, [rax+r13]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
         lea     rax, [r8+r14]                     ; rax = j + startCol
@@ -186,7 +184,7 @@ isSafe:
         dec     r8b                               ; j--
         jns     .isSafe_box_loop                  ; if j > 0, go back to loop
 
-        dec     r15b                              ; else i--
+        dec     cl                                ; else i--
         jns     .isSafe_box_loop_init             ; if i > 0, go back to loop
                                                   ; else, escape loop, return no ZF flag
 .isSafe_return:
