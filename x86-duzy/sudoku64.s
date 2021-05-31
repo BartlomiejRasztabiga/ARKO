@@ -11,18 +11,18 @@
 ;   - rax: 1 if found solution, 0 otherwise
 sudoku:
         ; save callee-saved registers
-        push    r13
+        push    r12
 
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
 
         ; zeroing registers so we can use whole (REX) registers later on in addressing
-        xor     r13, r13
+        xor     r12, r12
 
         call    .sudoku                           ; call recursive helper
 
         ; restore callee-saved registers
-        pop     r13
+        pop     r12
 
         ret
 
@@ -123,32 +123,32 @@ sudoku:
 ;   - cl: i local variable
 ;   - r8b: j local variable
 ;   - r9: temp register
-;   - r13b: x/startRow local variable
+;   - r12b: x/startRow local variable
 ;   - al: startCol local variable
 ;   - rsi: temp register
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
-        mov     r13b, 8                           ; int x = 8
+        mov     r12b, 8                           ; int x = 8
 .isSafe_row_loop:
         ; getCellValue at [row][x]
         lea     rsi, [r10+r10*8]                  ; rsi = 9 * row
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
-        cmp     [rsi+r13], dl                     ; test if grid[row][x] == num
+        cmp     [rsi+r12], dl                     ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
-        dec     r13b                              ; x--
+        dec     r12b                              ; x--
         jns     .isSafe_row_loop                  ; goto loop if x >= 0
 
-        mov     r13b, 8                           ; int x = 8
+        mov     r12b, 8                           ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        lea     rsi, [r13+r13*8]                  ; rsi = 9 * x
+        lea     rsi, [r12+r12*8]                  ; rsi = 9 * x
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
         cmp     [rsi+r11], dl                     ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
-        dec     r13b                              ; x--
+        dec     r12b                              ; x--
         jns     .isSafe_col_loop                  ; goto loop if x >= 0
 ; int startRow = row - row % 3
         mov     cl, 3
@@ -156,7 +156,7 @@ isSafe:
         div     cl                                ; ah = row % 3
         mov     cl, r10b                          ; cl = row
         sub     cl, ah                            ; cl = cl - ah  (row - row % 3)
-        movzx   r13, cl                           ; startRow = cl
+        movzx   r12, cl                           ; startRow = cl
 
 ; int startCol = col - col % 3
         mov     cl, 3
@@ -171,7 +171,7 @@ isSafe:
         mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
         movzx   rsi, cl                           ; rsi, = i
-        lea     r9, [rsi+r13]                     ; r9 = i + startRow
+        lea     r9, [rsi+r12]                     ; r9 = i + startRow
         lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
         lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
         movzx   rsi, al                           ; rsi = startCol
