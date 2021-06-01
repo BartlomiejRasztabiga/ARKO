@@ -10,17 +10,11 @@
 ; returns:
 ;   - rax: 1 if found solution, 0 otherwise
 sudoku:
-        ; save callee-saved registers
-        push    r12
-
         ; zeroing registers so we can use whole (REX) registers later on while addressing
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
 
         call    .sudoku                           ; call recursive helper
-
-        ; restore callee-saved registers
-        pop     r12
 
         ret
 
@@ -123,8 +117,7 @@ sudoku:
 ;   - rsi: temp register
 ;   - r8b: j local variable
 ;   - r9b: x local variable
-;   - r9: temp register
-;   - r12b: startRow local variable
+;   - r9b: startRow local variable
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
@@ -155,7 +148,7 @@ isSafe:
         div     cl                                ; ah = row % 3
         mov     cl, r10b                          ; cl = row
         sub     cl, ah                            ; cl = cl - ah  (row - row % 3)
-        movzx   r12, cl                           ; startRow = cl
+        mov     r9b, cl                           ; startRow = cl
 
 ; int startCol = col - col % 3
         mov     cl, 3
@@ -169,7 +162,7 @@ isSafe:
 .isSafe_box_loop_init:
         mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
-        lea     rsi, [rcx+r12]                    ; rsi = i + startRow
+        lea     rsi, [rcx+r9]                     ; rsi = i + startRow
         lea     rsi, [rsi+rsi*8]                  ; rsi = grid[i + startRow]
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
         movzx   rax, al                           ; rax = startCol
