@@ -123,6 +123,7 @@ sudoku:
 ;   - cl: i local variable
 ;   - rsi: temp register
 ;   - r8b: j local variable
+;   - r9b: x local variable
 ;   - r9: temp register
 ;   - r12b: startRow local variable
 ; returns:
