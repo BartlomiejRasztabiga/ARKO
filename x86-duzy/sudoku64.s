@@ -16,7 +16,6 @@ sudoku:
         ; zeroing registers so we can use whole (REX) registers later on in addressing
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
-        xor     r12, r12
 
         call    .sudoku                           ; call recursive helper
 
