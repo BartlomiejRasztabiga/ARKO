@@ -156,7 +156,7 @@ isSafe:
         div     cl                                ; ah = col % 3
         mov     cl, r11b                          ; cl = col
         sub     cl, ah                            ; cl = cl - ah  (col - col % 3)
-        mov     al, cl                            ; startCol = cl
+        movzx   rax, cl                           ; startCol (al) = cl
 
         mov     cl, 2                             ; i = 2
 .isSafe_box_loop_init:
@@ -165,7 +165,6 @@ isSafe:
         lea     rsi, [rcx+r9]                     ; rsi = i + startRow
         lea     rsi, [rsi+rsi*8]                  ; rsi = grid[i + startRow]
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
-        movzx   rax, al                           ; rax = startCol
         lea     rsi, [rsi+rax]                    ; rsi = grid[i + startRow][startCol]
         cmp     [rsi+r8], dl                      ; test if grid[i + startRow][j + startCol] == num
 
