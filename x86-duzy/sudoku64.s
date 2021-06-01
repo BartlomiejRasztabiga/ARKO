@@ -169,13 +169,12 @@ isSafe:
 .isSafe_box_loop_init:
         mov     r8b, 2                            ; j = 2
 .isSafe_box_loop:
-        movzx   rsi, cl                           ; rsi = i
-        lea     r9, [rsi+r12]                     ; r9 = i + startRow
-        lea     r9, [r9+r9*8]                     ; r9 = grid[i + startRow]
-        lea     r9, [r9+rdi]                      ; r9 = pointer to grid's row
-        movzx   rsi, al                           ; rsi = startCol
-        lea     rsi, [r8+rsi]                     ; rsi = j + startCol
-        cmp     [r9+rsi], dl                      ; test if grid[i + startRow][j + startCol] == num
+        lea     rsi, [rcx+r12]                    ; rsi = i + startRow
+        lea     rsi, [rsi+rsi*8]                  ; rsi = grid[i + startRow]
+        lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
+        movzx   rax, al                           ; rax = startCol
+        lea     rsi, [rsi+rax]                    ; rsi = grid[i + startRow][startCol]
+        cmp     [rsi+r8], dl                      ; test if grid[i + startRow][j + startCol] == num
 
         je     .isSafe_return                     ; if equal, return ZF
 
