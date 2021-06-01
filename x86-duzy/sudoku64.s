@@ -118,13 +118,13 @@ sudoku:
 ;   - r11b: col argument
 ;   - dl: num argument
 ;
+;   - al: startCol local variable
 ;   - cl: temp register for division (cannot use rex registers)
 ;   - cl: i local variable
+;   - rsi: temp register
 ;   - r8b: j local variable
 ;   - r9: temp register
 ;   - r12b: x/startRow local variable
-;   - al: startCol local variable
-;   - rsi: temp register
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
