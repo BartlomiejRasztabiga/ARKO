@@ -13,7 +13,7 @@ sudoku:
         ; save callee-saved registers
         push    r12
 
-        ; zeroing registers so we can use whole (REX) registers later on in addressing
+        ; zeroing registers so we can use whole (REX) registers later on while addressing
         xor     r10, r10                          ; row = 0
         xor     r11, r11                          ; col = 0
 
