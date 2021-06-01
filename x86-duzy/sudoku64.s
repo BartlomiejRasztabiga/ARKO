@@ -124,30 +124,30 @@ sudoku:
 ;   - rsi: temp register
 ;   - r8b: j local variable
 ;   - r9: temp register
-;   - r12b: x/startRow local variable
+;   - r12b: startRow local variable
 ; returns:
 ;   - ZF flag: 1 if illegal, 0 if legal
 isSafe:
-        mov     r12b, 8                           ; int x = 8
+        mov     r9, 8                             ; int x = 8
 .isSafe_row_loop:
         ; getCellValue at [row][x]
         lea     rsi, [r10d+r10d*8]                ; rsi = 9 * row
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
-        cmp     [rsi+r12], dl                     ; test if grid[row][x] == num
+        cmp     [rsi+r9], dl                      ; test if grid[row][x] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
-        dec     r12b                              ; x--
+        dec     r9b                               ; x--
         jns     .isSafe_row_loop                  ; goto loop if x >= 0
 
-        mov     r12b, 8                           ; int x = 8
+        mov     r9b, 8                            ; int x = 8
 .isSafe_col_loop:
         ; al = getCellValue at [x][col]
-        lea     rsi, [r12d+r12d*8]                ; rsi = 9 * x
+        lea     rsi, [r9d+r9d*8]                  ; rsi = 9 * x
         lea     rsi, [rsi+rdi]                    ; rsi = pointer to grid's row
         cmp     [rsi+r11], dl                     ; test if grid[x][col] == num
         je      .isSafe_return                    ; if equal, num illegal, return ZF
 
-        dec     r12b                              ; x--
+        dec     r9b                               ; x--
         jns     .isSafe_col_loop                  ; goto loop if x >= 0
 ; int startRow = row - row % 3
         mov     cl, 3
