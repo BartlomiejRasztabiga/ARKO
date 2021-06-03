@@ -68,7 +68,7 @@ sudoku:
         mov     [rax+r11], dl                     ; grid[row][col] = dl (num)
 
         ; solve next column (save [row, col, num] for backtracking)
-        push    r10d                              ; save row
+        push    r10w                              ; save row
         push    r11w                              ; save col
         push    dx                                ; save num
 
