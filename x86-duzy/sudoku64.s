@@ -11,8 +11,8 @@
 ;   - rax: 1 if found solution, 0 otherwise
 sudoku:
         ; zeroing registers so we can use whole (REX) registers later on while addressing
-        xor     r10, r10                          ; row = 0
-        xor     r11, r11                          ; col = 0
+        xor     r10d, r10d                          ; row = 0
+        xor     r11d, r11d                          ; col = 0
 
         call    .sudoku                           ; call recursive helper
 
@@ -68,16 +68,16 @@ sudoku:
         mov     [rax+r11], dl                     ; grid[row][col] = dl (num)
 
 ; solve next column (save [row, col, num] for backtracking)
-        push    r10w                              ; save row
-        push    r11w                              ; save col
-        push    dx                                ; save num
+        push    r10                              ; save row
+        push    r11                              ; save col
+        push    rdx                                ; save num
 
         inc     r11b                              ; col++
         call    .sudoku                           ; call .sudoku(grid, row, col+1)
 
-        pop     dx                                ; restore num
-        pop     r11w                              ; restore col
-        pop     r10w                              ; restore row
+        pop     rdx
+        pop     r11                              ; restore col
+        pop     r10                              ; restore row
 
         cmp     rax, 1                            ; test if sudoku returned 1 (true)
 
